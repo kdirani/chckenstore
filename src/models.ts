@@ -2,26 +2,23 @@ export interface IDailyReport {
     date: string;
     time: string;
     farm:string;
-    production: IDataAmount;
-    distortedProduction: IDataAmount;
+    production: number;
+    distortedProduction: number;
     sale:IٍٍDailySale[];
-    death: IDataAmount;
-    dailyFood: IDataAmount;
-    MonthlyFood: IDataAmount;
+    death: number;
+    dailyFood: number;
+    MonthlyFood: number;
     darkMeat: IDarkMeat;
     medicine: IDailyMedicine[];
 }
 
 export interface IٍٍDailySale {
     amount:number;
-    unit:string;
-    weigh:number;
+    weigh: number;
     client :string;
-
 }
 export interface IDarkMeat{
     amount: number;
-    unit: string;
     client: string;
 }
 
