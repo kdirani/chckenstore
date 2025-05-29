@@ -148,7 +148,7 @@ export default function GlobalReportTable(props: { dateMode: FilterDateMod }) {
             </td>
             <td>
               {getAvarageOfFoodPercentage(
-                filterReportsBeforeDate(currentReports, new Date(), true),
+                filterReportsByPeriod(currentReports, props.dateMode),
                 props.dateMode,
                 'production'
               )}
