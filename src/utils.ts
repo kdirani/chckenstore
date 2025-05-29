@@ -5,6 +5,8 @@ export const  getFoodPercentage = (foodAmount: number, checkensAmount: number) =
   return (foodInG / checkensAmount).toFixed(2) + '%';
 }
 
+
+
 export const calculatePercentageAndTotal = (part: number, total: number) => {
   if (total === 0) {
     throw new Error('Total cannot be zero.');
@@ -82,21 +84,28 @@ export function getStartDate(date: Date, mode: FilterDateMod): Date {
 /** 
  * Get the end of the week (Friday), month, or day for a given date. 
  */
-export function getEndDate(date: Date, mode: FilterDateMod): Date {
+export function getEndDate(
+  date: Date,
+  mode: FilterDateMod
+): Date {
   const d = new Date(date);
 
-  if (mode === 'month') {
-    // jump to day 0 of next month
-    d.setMonth(d.getMonth() + 1, 0);
+  if (mode === 'day') {
+    // 1) العبور إلى اليوم التالي
+    d.setDate(d.getDate() + 1);
   } else if (mode === 'week') {
-    const day = d.getDay();
-    const diff = (5 - day + 7) % 7; // offset to Friday
-    d.setDate(d.getDate() + diff);
+    // 2) إيجاد نهاية أسبوع (الجمعة)
+    const dayOfWeek = d.getDay();
+    const daysUntilFriday = (5 - dayOfWeek + 7) % 7;
+    d.setDate(d.getDate() + daysUntilFriday);
+  } else if (mode === 'month') {
+    // 3) الانتقال إلى نهاية الشهر
+    d.setMonth(d.getMonth() + 1, 0);
   }
-  // else mode === 'day': keep same date
 
-  // set to end of day
+  // 4) ضبط نهاية اليوم (آخر لحظة)
   d.setHours(23, 59, 59, 999);
+
   return d;
 }
 
@@ -122,18 +131,24 @@ export function filterReportsByPeriod(
 
 export function filterReportsBeforeDate(
   reports: IDailyReport[],
-  referenceDate: Date
-) {
-  // Normalize the reference to midnight (start of that day)
-  const cutoff = new Date(referenceDate);
-  cutoff.setHours(0, 0, 0, 0);
-  
+  referenceDate: Date,
+  includeToday = false
+): IDailyReport[] {
+  // حساب منتصف ليل اليوم المرجعي
+  const startOfDay = new Date(referenceDate);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  // إذا includeToday = true، نرفع الحد إلى منتصف ليل اليوم التالي
+  const cutoff = includeToday
+    ? new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
+    : startOfDay;
+
   return reports.filter(r => {
-    const d = new Date(r.date);
-    return d < cutoff;
+    const reportDate = new Date(r.date);
+    // شرط: قبل الحد (strict) حتى لا نعيد تقريرات اليوم عند includeToday=false
+    return reportDate < cutoff;
   });
 }
-
 export function getPreviousReportByFarm(
   reports: IDailyReport[],
   farmName: string,
@@ -207,15 +222,52 @@ export function totalize<K extends keyof IDailyReport>(
 }
 
 export function getAvarageOfDeath(reports: IDailyReport[], dateMode: FilterDateMod) {
-  const amount = totalize(reports, 'death').amount;
+  let amount = totalize(reports, 'death').amount;
   switch (dateMode) {
-    case 'day':
-      return amount;
     case 'week':
-      return amount / 7;
+      amount /= 7;
+      break;
     case 'month':
-      return amount / 30; // Approximation
+      amount /= 30;
+      break;
     default:
-      return 0
+      break; 
   }
+  return amount.toFixed(2);
 }
+
+export const  getAvarageOfFoodPercentage = (reports: IDailyReport[], filterDate:FilterDateMod, type:"food" | "production") => {
+  let totalPercentage = 0;
+  reports.forEach((report) => {
+
+    if (type === 'food') {
+      const percentage = getFoodPercentage(report.dailyFood, getCheckenAmountBefore(report, undefined, reports));
+      totalPercentage += Number(percentage.replace('%', ''));
+      return;
+    }
+
+    const percentage = calculatePercentageAndTotal(
+              (report.production + report.distortedProduction) * 30,
+              getCheckenAmountBefore(report, undefined, reports)
+            )
+    totalPercentage += Number(percentage.replace('%', ''));
+  });
+  switch (filterDate) {
+    case 'week':
+      totalPercentage /= 7;
+      break;
+    case 'month':
+      totalPercentage /= 30; // Approximation
+      break;
+    default:
+      break;      
+  }   
+  // console.log('totalPercentage', totalPercentage);
+  // console.log('reports', reports);
+  
+  return totalPercentage.toFixed(2) + '%';
+
+}
+
+
+
