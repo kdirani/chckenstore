@@ -1,11 +1,14 @@
-import { mockDailyReports } from "../mockData";
+import type { IDailyReport } from "../models";
 import { calculatePercentageAndTotal, getCartorCalc, getCheckenAmountBefore, getFoodPercentage, getTotalSale } from "../utils";
 
-export default function DailyReportItem() {
+export default function DailyReportItem(props: {
+  dailyReports: IDailyReport[];
+}) {
   return (
     <>
-      {mockDailyReports.map((item) => (
-        <tr key={item.date + item.time}>
+      {props.dailyReports.map((item, index) => (
+        <tr key={item.date + item.time + index}>
+          <td>{index}</td>
           <td>{item.date}</td>
           <td>{item.time}</td>
           <td>{item.production}</td>

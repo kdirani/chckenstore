@@ -3,7 +3,7 @@ import type { IDailyReport } from "./models";
 export const mockDailyReports: IDailyReport[] = Array.from({ length: 10 }, (_, i) => ({
   date: `2025-05-${(i + 1).toString().padStart(2, '0')}`,
   time: "10:30",
-  farm: "1",
+  farm: String(i),
   production: 1000 + i * 50,
   distortedProduction: 30 + i,
   sale: Array.from({ length: 10 }, (_, i) => ({

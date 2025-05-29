@@ -1,11 +1,26 @@
+import { Route, Routes } from 'react-router-dom';
 import './App.css';
-import DailyReport from './components/DailyReport';
+import DailyReport from './Pages/DailyReport';
+import Header from './layouts/Header';
+import Home from './Pages/Home';
+import GlobalReports from './Pages/GlobalReports';
+import { SelectedFarmContext } from './contexts';
+import { mockDailyReports } from './mockData';
+import { useState } from 'react';
 
 function App() {
+  const [selectedFarm, setSelectedFarm] = useState<string | null>(mockDailyReports[0].farm); 
   return (
     <div>
-      <h1>1</h1>
-      <DailyReport />
+      <SelectedFarmContext value={[selectedFarm, setSelectedFarm]}>
+        <Header />
+        <Routes>
+          <Route path='/' element={<Home/>} />
+          <Route path='/dailyReport' element={<DailyReport />} />
+          <Route path='/globalReport' element={<GlobalReports />}></Route>
+          <Route path='*' element={<h1>Not found</h1>}/>
+        </Routes>
+      </SelectedFarmContext>
     </div>
   );
 }

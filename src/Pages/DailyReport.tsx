@@ -1,12 +1,19 @@
-import DailyReportItem from "./DailyReportItem";
+import { Table } from "react-bootstrap";
+import DailyReportItem from "../components/DailyReportItem";
+import FarmsFilter from "../components/FarmsFilter";
+import { useSelectedFarmContext } from "../contexts";
+import { mockDailyReports } from "../mockData";
 
 export default function DailyReport() {
+  const selectedFarm = useSelectedFarmContext()[0];
   return (
     <div>
       <h1>التقرير الإنتاج اليومي</h1>
-      <table border={1}>
+      <FarmsFilter></FarmsFilter>
+      <Table striped bordered hover>
         <thead>
           <tr>
+            <th>#</th>
             <th>التاريخ</th>
             <th>التوقيت</th>
             <th>الإنتاج</th>
@@ -25,9 +32,11 @@ export default function DailyReport() {
           </tr>
         </thead>
         <tbody>
-          <DailyReportItem />
+          <DailyReportItem
+            dailyReports={mockDailyReports.filter(report => report.farm === selectedFarm)}
+          />
         </tbody>
-      </table>
+      </Table>
     </div>
   )
 }
