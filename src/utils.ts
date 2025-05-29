@@ -1,4 +1,4 @@
-import type { IDailyReport, FilterDateMod } from "./models";
+import type { IDailyReport, FilterDateMod, IDataAmount } from "./models";
 
 export const  getFoodPercentage = (foodAmount: number, checkensAmount: number) => {
   const foodInG = foodAmount * 1000;
@@ -33,8 +33,6 @@ export const getPreviousCumulative = (report: IDailyReport, allReports: IDailyRe
     report.distortedProduction -
     report.sale.reduce((acc, it) => acc + it.amount, 0) +
     total;
-    console.log(finalAmount);
-    
   return finalAmount;
 };
 export const getCheckenAmountBefore = (
@@ -160,4 +158,64 @@ export function getPreviousReportByFarm(
   // Sort descending by time, then pick the first.
   candidates.sort((a, b) => b.time - a.time);
   return candidates[0].r;
+}
+
+export function totalize<K extends keyof IDailyReport>(
+  reports: IDailyReport[],
+  key: K
+): IDataAmount {
+  let total = 0;
+  let unit = '';
+
+  if (reports.length === 0) {
+    return { amount: 0, unit };
+  }
+
+  // Peek at first report to decide how to handle the key
+  const sample = reports[0][key];
+
+  if (typeof sample === 'number') {
+    // Simple numeric sum
+    total = reports.reduce((sum, rpt) => sum + (rpt[key] as number), 0);
+  } else if (Array.isArray(sample)) {
+    // Array of { amount, … }
+    // If items also have a `unit` field, we assume all use the same unit
+    const arr = sample as any[];
+    // grab unit from first item if present
+    if (arr.length > 0 && typeof arr[0].unit === 'string') {
+      unit = arr[0].unit;
+    }
+    total = reports.reduce((sum, rpt) => {
+      const items = rpt[key] as any[];
+      return sum + items.reduce((s, item) => s + (item.amount ?? 0), 0);
+    }, 0);
+  } else if (
+    typeof sample === 'object' &&
+    sample !== null &&
+    'amount' in (sample as object)
+  ) {
+    // Single object with amount (like darkMeat)
+    total = reports.reduce(
+      (sum, rpt) => sum + ((rpt[key] as any).amount ?? 0),
+      0
+    );
+  } else {
+    throw new Error(`Cannot totalize key "${String(key)}"`);
+  }
+
+  return { amount: total, unit };
+}
+
+export function getAvarageOfDeath(reports: IDailyReport[], dateMode: FilterDateMod) {
+  const amount = totalize(reports, 'death').amount;
+  switch (dateMode) {
+    case 'day':
+      return amount;
+    case 'week':
+      return amount / 7;
+    case 'month':
+      return amount / 30; // Approximation
+    default:
+      return 0
+  }
 }

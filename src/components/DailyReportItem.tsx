@@ -32,7 +32,7 @@ export default function DailyReportItem(props: {
           <td>
             {getFoodPercentage(
               item.dailyFood,
-              40000 - item.death
+              getCheckenAmountBefore(item, undefined, props.dailyReports)
             )}
           </td>
           <td>{item.darkMeat.amount}</td>

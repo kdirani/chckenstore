@@ -1,7 +1,7 @@
 import { Table } from "react-bootstrap";
 import FarmsFilter from "../components/FarmsFilter";
 import { mockDailyReports } from "../mockData";
-import { filterReportsBeforeDate, getNextDay, getPreviousCumulative, getPreviousReportByFarm } from "../utils";
+import { filterReportsBeforeDate, filterReportsByPeriod, getAvarageOfDeath, getCheckenAmountBefore, getNextDay, getPreviousCumulative, getPreviousReportByFarm, totalize } from "../utils";
 import { useSelectedFarmContext } from "../contexts";
 
 export default function GlobalReports() {
@@ -55,6 +55,46 @@ export default function GlobalReports() {
                 0
               )}
             </td>
+            <td>{totalize(filterReportsByPeriod(currentReports, 'day'), 'production').amount}</td>
+            <td>{totalize(filterReportsByPeriod(currentReports, 'day'), 'sale').amount}</td>
+            <td>
+              {filterReportsByPeriod(currentReports, 'day') ?
+                getPreviousCumulative
+                (
+                  filterReportsByPeriod(currentReports, 'day')[0],
+                  filterReportsBeforeDate(
+                    currentReports,
+                    new Date()
+                  )
+                )
+              : (
+                0
+              )}
+            </td>
+            <td>
+              {
+                getCheckenAmountBefore(
+                  filterReportsByPeriod(currentReports, 'day')[0] || previousReport,
+                  undefined,
+                  currentReports
+                )
+              }
+            </td>
+            <td>{totalize(filterReportsByPeriod(currentReports, 'day'), 'death').amount}</td>
+            <td>
+              {
+                getCheckenAmountBefore(
+                  filterReportsByPeriod(currentReports, 'day')[0] || previousReport,
+                  undefined,
+                  currentReports
+                ) - totalize(filterReportsByPeriod(currentReports, 'day'), 'death').amount
+              }
+            </td>
+            <td>{getAvarageOfDeath(filterReportsByPeriod(currentReports, 'day'), 'day')}</td>
+            <td>{totalize(filterReportsByPeriod(currentReports, 'day'), 'dailyFood').amount}</td>
+            {/* Convert this to props when refactor the component */}
+            <td>1</td>
+            <td></td>
           </tr>
         </tbody>
       </Table>
