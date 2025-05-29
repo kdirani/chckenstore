@@ -115,19 +115,30 @@ export function getNextDay() {
   return next;
 }
 
+
+// fix problem of return to days on mode = 'day' and filter by period
 export function filterReportsByPeriod(
   reports: IDailyReport[],
   mode: FilterDateMod
 ): IDailyReport[] {
   const now = new Date();
   const start = getStartDate(now, mode);
-  const end   = getEndDate(now, mode);
+
+  // في حال اليوم: نعيّن نهاية اليوم فقط (بدون إضافة يوم كامل)
+  const end = mode === 'day'
+    ? (() => {
+        const e = new Date(start);
+        e.setHours(23, 59, 59, 999);
+        return e;
+      })()
+    : getEndDate(now, mode);
 
   return reports.filter(r => {
     const d = new Date(r.date);
     return d >= start && d <= end;
   });
 }
+
 
 export function filterReportsBeforeDate(
   reports: IDailyReport[],
