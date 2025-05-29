@@ -1,5 +1,5 @@
 import type { IDailyReport } from "../models";
-import { calculatePercentageAndTotal, getCartorCalc, getCheckenAmountBefore, getFoodPercentage, getTotalSale } from "../utils";
+import { calculatePercentageAndTotal, getCartorCalc, getCheckenAmountBefore, getFoodPercentage, getPreviousCumulative } from "../utils";
 
 export default function DailyReportItem(props: {
   dailyReports: IDailyReport[];
@@ -15,19 +15,19 @@ export default function DailyReportItem(props: {
           <td>{item.distortedProduction}</td>
           <td>{getCartorCalc(item)}</td>
           <td>{item.sale.reduce((acc, it) => acc + it.amount, 0)}</td>
-          <td>{getTotalSale(item)}</td>
+          <td>{getPreviousCumulative(item, props.dailyReports)}</td>
           <td>
             {(item.production + item.distortedProduction) * 30}
           </td>
           <td>
             {calculatePercentageAndTotal(
               (item.production + item.distortedProduction) * 30,
-              getCheckenAmountBefore(item)
+              getCheckenAmountBefore(item, undefined, props.dailyReports)
             )}
           </td>
-          <td>{getCheckenAmountBefore(item)}</td>
+          <td>{getCheckenAmountBefore(item, undefined, props.dailyReports)}</td>
           <td>{item.death}</td>
-          <td>{getCheckenAmountBefore(item) - item.death}</td>
+          <td>{getCheckenAmountBefore(item, undefined, props.dailyReports) - item.death}</td>
           <td>{item.dailyFood}</td>
           <td>
             {getFoodPercentage(

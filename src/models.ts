@@ -33,3 +33,5 @@ export interface IDataAmount {
     amount: number;
     unit: string;
 }
+
+export type FilterDateMod = 'day' | 'week' | 'month';
