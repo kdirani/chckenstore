@@ -35,3 +35,5 @@ export interface IDataAmount {
 }
 
 export type FilterDateMod = 'day' | 'week' | 'month';
+
+export interface IGroupedReport { periodStart: Date; periodEnd: Date; reports: IDailyReport[] }

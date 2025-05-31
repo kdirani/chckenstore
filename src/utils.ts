@@ -1,4 +1,5 @@
-import type { IDailyReport, FilterDateMod, IDataAmount } from "./models";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { IDailyReport, FilterDateMod, IDataAmount, IGroupedReport } from "./models";
 
 export const  getFoodPercentage = (foodAmount: number, checkensAmount: number) => {
   const foodInG = foodAmount * 1000;
@@ -58,7 +59,7 @@ export const getCheckenAmountBefore = (
 export const getCartorCalc = (report: IDailyReport) => {
   const cartonAmount = report.production / 100;
   const unneededCarton = report.production / 1000;
-  return cartonAmount + unneededCarton;
+  return (cartonAmount + unneededCarton).toFixed(2);
 };
 
 export function getStartDate(date: Date, mode: FilterDateMod): Date {
@@ -247,7 +248,7 @@ export function getAvarageOfDeath(reports: IDailyReport[], dateMode: FilterDateM
   return amount.toFixed(2);
 }
 
-export const  getAvarageOfFoodPercentage = (reports: IDailyReport[], filterDate:FilterDateMod, type:"food" | "production") => {
+export const  getAvarageOfFoodProductionPercentage = (reports: IDailyReport[], filterDate:FilterDateMod, type:"food" | "production") => {
   let totalPercentage = 0;
   reports.forEach((report) => {
 
@@ -277,8 +278,88 @@ export const  getAvarageOfFoodPercentage = (reports: IDailyReport[], filterDate:
   // console.log('reports', reports);
   
   return totalPercentage.toFixed(2) + '%';
-
 }
 
+function getPeriodStart(date: Date, mode: FilterDateMod): Date {
+  const d = new Date(date);
+  // Zero out time so we are at 00:00:00.000 that day
+  d.setHours(0, 0, 0, 0);
 
+  if (mode === 'day') {
+    // Simply day@00:00
+    return d;
+  }
 
+  if (mode === 'month') {
+    // Jump to day=1 at 00:00
+    d.setDate(1);
+    return d;
+  }
+
+  // mode === 'week' (Saturday start):
+  //   Saturday has getDay() = 6
+  const dayOfWeek = d.getDay();                // 0 = Sun … 6 = Sat
+  const offsetFromSaturday = (dayOfWeek + 7 - 6) % 7;
+  // Subtract offsetFromSaturday days to land on Saturday
+  d.setDate(d.getDate() - offsetFromSaturday);
+  return d;
+}
+
+function getPeriodEnd(periodStart: Date, mode: FilterDateMod): Date {
+  const end = new Date(periodStart);
+
+  if (mode === 'day') {
+    end.setHours(23, 59, 59, 999);
+    return end;
+  }
+
+  if (mode === 'week') {
+    // periodStart is Saturday@00:00 → add 6 days to get to Friday
+    end.setDate(end.getDate() + 6);
+    end.setHours(23, 59, 59, 999);
+    return end;
+  }
+
+  // mode === 'month'
+  // Move to day=0 of next month = last day of current month
+  end.setMonth(end.getMonth() + 1, 0);
+  end.setHours(23, 59, 59, 999);
+  return end;
+}
+
+export function groupReportsByPeriod(
+  reports: IDailyReport[],
+  mode: FilterDateMod
+): { periodStart: Date; periodEnd: Date; reports: IDailyReport[] }[] {
+  // Use a Map<periodStartTimestamp, IDailyReport[]> to collect groups
+  const map = new Map<number, IDailyReport[]>();
+
+  for (const rpt of reports) {
+    const rptDate = new Date(rpt.date);
+    if (isNaN(rptDate.getTime())) {
+      // Skip any invalid dates
+      continue;
+    }
+
+    const periodStart = getPeriodStart(rptDate, mode);
+    const key = periodStart.getTime();
+
+    if (!map.has(key)) {
+      map.set(key, []);
+    }
+    map.get(key)!.push(rpt);
+  }
+
+  // Convert the Map into an array of { periodStart, periodEnd, reports }
+  const result: IGroupedReport[] = [];
+
+  for (const [ts, group] of map.entries()) {
+    const periodStart = new Date(ts);
+    const periodEnd = getPeriodEnd(periodStart, mode);
+    result.push({ periodStart, periodEnd, reports: group });
+  }
+
+  // Sort by ascending periodStart
+  result.sort((a, b) => a.periodStart.getTime() - b.periodStart.getTime());
+  return result as IGroupedReport[];
+}

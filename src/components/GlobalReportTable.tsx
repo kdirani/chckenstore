@@ -4,7 +4,7 @@ import {
   filterReportsBeforeDate,
   filterReportsByPeriod,
   getAvarageOfDeath,
-  getAvarageOfFoodPercentage,
+  getAvarageOfFoodProductionPercentage,
   getCheckenAmountBefore,
   getEndDate,
   getPreviousCumulative,
@@ -141,14 +141,14 @@ export default function GlobalReportTable(props: { dateMode: FilterDateMod }) {
             </td>
 
             <td>
-              {getAvarageOfFoodPercentage(
+              {getAvarageOfFoodProductionPercentage(
                 filterReportsByPeriod(currentReports, props.dateMode),
                 props.dateMode,
                 'food'
               )}
             </td>
             <td>
-              {getAvarageOfFoodPercentage(
+              {getAvarageOfFoodProductionPercentage(
                 filterReportsByPeriod(currentReports, props.dateMode),
                 props.dateMode,
                 'production'
