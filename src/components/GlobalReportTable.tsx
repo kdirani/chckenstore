@@ -26,8 +26,9 @@ export default function GlobalReportTable(props: { dateMode: FilterDateMod }) {
     new Date()
   );
 
-  console.log(filterReportsByPeriod(currentReports, props.dateMode));
-
+  if( !currentReports || currentReports.length === 0) {
+    return <div>لا توجد تقارير متاحة</div>;
+  }
   return (
     <div>
       <Table responsive striped bordered hover>
