@@ -3,7 +3,8 @@ import { useFarms, useSelectedFarmContext } from "../contexts";
 
 export default function FarmsFilter() {
   const farms = useFarms().farms;
-  const setSelectedFarm = useSelectedFarmContext()[1];
+  const [selectedFarm, setSelectedFarm] = useSelectedFarmContext();
+  if(!farms || farms.length === 0) return <div></div>  
   return (
     <Form className="mt-3">
       <Form.Group>
@@ -12,6 +13,7 @@ export default function FarmsFilter() {
           onChange={(e) => {
             setSelectedFarm(e.target.value);
           }}
+          value={selectedFarm || ''}
         >
           <option value="">اختر المزرعة</option>
           {(farms || []).map((farm) => (

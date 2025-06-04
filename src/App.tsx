@@ -5,14 +5,13 @@ import Header from './layouts/Header';
 import Home from './Pages/Home';
 import GlobalReports from './Pages/GlobalReports';
 import { SelectedFarmContext } from './contexts';
-import { mockDailyReports } from './mockData';
 import { useState } from 'react';
 import GlobalReportsRecord from './Pages/GlobalReportsRecord';
 import InvoiceRecord from './Pages/InvoiceRecord';
 import { FarmProvider } from './context/FarmsProvider';
 
 function App() {
-  const [selectedFarm, setSelectedFarm] = useState<string | null>(mockDailyReports[0].farmId); 
+  const [selectedFarm, setSelectedFarm] = useState<string | null>(null); 
   return (
     <div>
       <FarmProvider>

@@ -2,10 +2,30 @@ import { Table } from "react-bootstrap";
 import DailyReportItem from "../components/DailyReportItem";
 import FarmsFilter from "../components/FarmsFilter";
 import { useSelectedFarmContext } from "../contexts";
-import { mockDailyReports } from "../mockData";
+import { useEffect, useState } from "react";
+import type { IRecursiveFarm } from "../models";
+import { reportsService } from "../lib/appwrite";
+import { Query } from "appwrite";
 
 export default function DailyReport() {
   const selectedFarm = useSelectedFarmContext()[0];
+  const [reports, setReports] = useState<IRecursiveFarm[]>([]);
+  useEffect(() => {
+    if(!selectedFarm) return
+    console.log(selectedFarm);
+    
+    const init = async () => {
+      reportsService.list(
+        (docs) => setReports(docs),
+        () => alert('Error in reports fetch'),
+        [
+          Query.equal('farmId', selectedFarm || '')
+        ]
+      )
+    }
+    init()
+  }, [selectedFarm])
+  console.log(reports);
   return (
     <div>
       <h1>التقرير الإنتاج اليومي</h1>
@@ -33,7 +53,7 @@ export default function DailyReport() {
         </thead>
         <tbody>
           <DailyReportItem
-            dailyReports={mockDailyReports.filter(report => report.farmId === selectedFarm)}
+            dailyReports={reports}
           />
         </tbody>
       </Table>
