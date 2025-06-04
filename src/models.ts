@@ -52,3 +52,8 @@ export interface IInvoice {
   amount: number;
   price: number;
 }
+
+export interface IFarm {
+  name: string;
+  initialChecken: number;
+}
