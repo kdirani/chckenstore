@@ -2,12 +2,12 @@ import { Form, Table } from "react-bootstrap";
 import FarmsFilter from "../components/FarmsFilter";
 import { useSelectedFarmContext } from "../contexts";
 import { useState } from "react";
-import type { IInvoice, InoviceTypes } from "../models";
+import type { IInvoice, InvoiceTypes } from "../models";
 import { mockInvoices } from "../invoiceMockData";
 
 export default function InvoiceRecord() {
   const selectedFarm = useSelectedFarmContext()[0];
-  const [type, setType] = useState<InoviceTypes>('Sale');
+  const [type, setType] = useState<InvoiceTypes>('Sale');
   const currentInvoices = mockInvoices.filter(x => x.type === type && x.farm === selectedFarm);
   return (
     <div>
@@ -15,7 +15,7 @@ export default function InvoiceRecord() {
       <FarmsFilter></FarmsFilter>
       <Form.Group>
         <Form.Select
-          onChange={e => setType(e.target.value as InoviceTypes)}
+          onChange={e => setType(e.target.value as InvoiceTypes)}
           value={type}
         >
           <option value="Sale">مبيع</option>
@@ -50,7 +50,7 @@ export default function InvoiceRecord() {
 }
 
 function TableRow (props: {
-  invoiceType: InoviceTypes;
+  invoiceType: InvoiceTypes;
   invoice: IInvoice;
   index: number;
 }) {

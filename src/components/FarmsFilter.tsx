@@ -1,13 +1,9 @@
 import { Form } from "react-bootstrap";
-import { mockDailyReports } from "../mockData";
-import { useSelectedFarmContext } from "../contexts";
+import { useFarms, useSelectedFarmContext } from "../contexts";
 
 export default function FarmsFilter() {
+  const farms = useFarms().farms;
   const setSelectedFarm = useSelectedFarmContext()[1];
-
-  // Convert Set to Array before mapping
-  const farmsNames = Array.from(new Set(mockDailyReports.map(report => report.farm)));
-
   return (
     <Form className="mt-3">
       <Form.Group>
@@ -18,9 +14,9 @@ export default function FarmsFilter() {
           }}
         >
           <option value="">اختر المزرعة</option>
-          {farmsNames.map((farmName, index) => (
-            <option key={index} value={farmName}>
-              {farmName}
+          {(farms || []).map((farm) => (
+            <option key={farm.$id} value={farm.$id}>
+              {farm.name}
             </option>
           ))}
         </Form.Select>

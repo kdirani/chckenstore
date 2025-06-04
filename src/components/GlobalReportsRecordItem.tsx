@@ -20,7 +20,7 @@ export default function GlobalReportsRecordItem(props: {
   const { currentReports, groupReports, periodStart, periodEnd, dateMode } =
     props;
   function getPreviousReport(date: Date) {
-    return getPreviousReportByFarm(currentReports, groupReports[0].farm || "", date);
+    return getPreviousReportByFarm(currentReports, groupReports[0].farmId || "", date);
   }
   const prevReport = getPreviousReport(periodStart);
   const cumulativePrevious = prevReport

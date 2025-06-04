@@ -9,23 +9,25 @@ import { mockDailyReports } from './mockData';
 import { useState } from 'react';
 import GlobalReportsRecord from './Pages/GlobalReportsRecord';
 import InvoiceRecord from './Pages/InvoiceRecord';
+import { FarmProvider } from './context/FarmsProvider';
 
 function App() {
-  const [selectedFarm, setSelectedFarm] = useState<string | null>(mockDailyReports[0].farm); 
-  
+  const [selectedFarm, setSelectedFarm] = useState<string | null>(mockDailyReports[0].farmId); 
   return (
     <div>
-      <SelectedFarmContext value={[selectedFarm, setSelectedFarm]}>
-        <Header />
-        <Routes>
-          <Route path='/' element={<Home/>} />
-          <Route path='/dailyReport' element={<DailyReport />} />
-          <Route path='/globalReport' element={<GlobalReports />} />
-          <Route path='/globalReportRecord' element={<GlobalReportsRecord />} />
-          <Route path='/invoice' element={<InvoiceRecord />} />
-          <Route path='*' element={<h1>Not found</h1>}/>
-        </Routes>
-      </SelectedFarmContext>
+      <FarmProvider>
+        <SelectedFarmContext value={[selectedFarm, setSelectedFarm]}>
+          <Header />
+          <Routes>
+            <Route path='/' element={<Home/>} />
+            <Route path='/dailyReport' element={<DailyReport />} />
+            <Route path='/globalReport' element={<GlobalReports />} />
+            <Route path='/globalReportRecord' element={<GlobalReportsRecord />} />
+            <Route path='/invoice' element={<InvoiceRecord />} />
+            <Route path='*' element={<h1>Not found</h1>}/>
+          </Routes>
+        </SelectedFarmContext>
+      </FarmProvider>
     </div>
   );
 }

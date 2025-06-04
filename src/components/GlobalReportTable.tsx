@@ -18,7 +18,7 @@ import type { FilterDateMod } from '../models';
 export default function GlobalReportTable(props: { dateMode: FilterDateMod }) {
   const selectedFarm = useSelectedFarmContext()[0];
   const currentReports = mockDailyReports.filter(
-    (report) => report.farm === selectedFarm
+    (report) => report.farmId === selectedFarm
   );
   const previousReport = getPreviousReportByFarm(
     currentReports,

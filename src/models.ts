@@ -1,7 +1,9 @@
+import type { Models } from "appwrite";
+
 export interface IDailyReport {
     date: string;
     time: string;
-    farm:string;
+    farmId:string;
     production: number;
     distortedProduction: number;
     sale:IٍٍDailySale[];
@@ -14,7 +16,7 @@ export interface IDailyReport {
 
 export interface IٍٍDailySale {
     amount:number;
-    weigh: number;
+    weigh: string;
     client :string;
 }
 export interface IDarkMeat{
@@ -38,10 +40,10 @@ export type FilterDateMod = 'day' | 'week' | 'month';
 
 export interface IGroupedReport { periodStart: Date; periodEnd: Date; reports: IDailyReport[] };
 
-export type InoviceTypes = 'Sale' | 'DarkMeet' | 'Medicine'
+export type InvoiceTypes = 'Sale' | 'DarkMeet' | 'Medicine'
 
 export interface IInvoice {
-  type: InoviceTypes;
+  type: InvoiceTypes;
   index: number;
   farm: string;
   date: string;
@@ -56,4 +58,9 @@ export interface IInvoice {
 export interface IFarm {
   name: string;
   initialChecken: number;
+}
+
+export interface IRecursiveFarm extends Models.Document {
+    name: string;
+    initialChecken: number;
 }

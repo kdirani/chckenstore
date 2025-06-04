@@ -33,7 +33,7 @@ export default function DailyReport() {
         </thead>
         <tbody>
           <DailyReportItem
-            dailyReports={mockDailyReports.filter(report => report.farm === selectedFarm)}
+            dailyReports={mockDailyReports.filter(report => report.farmId === selectedFarm)}
           />
         </tbody>
       </Table>

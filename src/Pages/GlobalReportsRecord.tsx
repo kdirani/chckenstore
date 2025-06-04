@@ -13,7 +13,7 @@ export default function GlobalReportsRecord() {
 
   // Filter only the reports for the selected farm
   const currentReports = useMemo(
-    () => mockDailyReports.filter((x) => x.farm === selectedFarm),
+    () => mockDailyReports.filter((x) => x.farmId === selectedFarm),
     [selectedFarm]
   );
 

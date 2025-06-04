@@ -82,7 +82,7 @@ export const mockDailyReports: IDailyReport[] = (() => {
         reports.push({
           date: dateStr,
           time: randomTime(),
-          farm: farmId,
+          farmId: farmId,
           production,
           distortedProduction,
           sale,

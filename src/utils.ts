@@ -176,7 +176,7 @@ export function getPreviousReportByFarm(
 
   // Filter to this farm and strictly before cutoff.
   const candidates = reports
-    .filter(r => r.farm === farmName)
+    .filter(r => r.farmId === farmName)
     .map(r => ({ r, time: new Date(r.date).getTime() }))
     .filter(({ time }) => !isNaN(time) && time < cutoff);
 
