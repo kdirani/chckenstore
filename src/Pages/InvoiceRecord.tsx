@@ -40,8 +40,8 @@ export default function InvoiceRecord() {
           </tr>
         </thead>
         <tbody>
-          {currentInvoices.map(invoice => 
-            <TableRow invoiceType={type} invoice={invoice} />
+          {currentInvoices.map((invoice, index) => 
+            <TableRow key={index + invoice.time} invoiceType={type} invoice={invoice} index={index} />
           )}
         </tbody>
       </Table>
@@ -52,24 +52,23 @@ export default function InvoiceRecord() {
 function TableRow (props: {
   invoiceType: InoviceTypes;
   invoice: IInvoice;
+  index: number;
 }) {
-
+  const item = props.invoice
   return (
     <>
-    {props.invoice.data.map((item, index) => 
       <tr>
-        <td>{props.invoice.index}</td>
-        <td>{index}</td>
-        <td>{props.invoice.date}</td>
-        <td>{props.invoice.time}</td>
+        <td>{item.index}</td>
+        <td>{props.index}</td>
+        <td>{item.date}</td>
+        <td>{item.time}</td>
         <td>{item.amount}</td>
         <td>{item.price}</td>
         <td>{item.price * item.amount}</td>
         <td>{item.unit}</td>
         <td>{item.meterial}</td>
-        <td>{props.invoiceType === 'Medicine' ? props.invoice.farm : props.invoice.customer}</td>
+        <td>{item.type === 'Medicine' ? item.farm : item.customer}</td>
       </tr>
-    )}
     </>
   )
 }

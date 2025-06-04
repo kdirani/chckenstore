@@ -47,10 +47,6 @@ export interface IInvoice {
   date: string;
   time: string;
   customer: string;
-  data: IInvoiceData[];
-}
-
-export interface IInvoiceData {
   meterial: string;
   unit: string;
   amount: number;
