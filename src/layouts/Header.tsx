@@ -12,6 +12,7 @@ export default function Header() {
             <Nav.Link as={Link} to={'/dailyReport'}>تقرير الإنتاج اليومي</Nav.Link>
             <Nav.Link as={Link} to={'/globalReport'}>التقارير الشاملة</Nav.Link>
             <Nav.Link as={Link} to="/globalReportRecord">سجل التقارير الشاملة</Nav.Link>
+            <Nav.Link as={Link} to="/invoice">سجل الفواتير </Nav.Link>
           </Nav>
         </Container>
       </Navbar>

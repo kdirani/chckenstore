@@ -8,6 +8,7 @@ import { SelectedFarmContext } from './contexts';
 import { mockDailyReports } from './mockData';
 import { useState } from 'react';
 import GlobalReportsRecord from './Pages/GlobalReportsRecord';
+import InvoiceRecord from './Pages/InvoiceRecord';
 
 function App() {
   const [selectedFarm, setSelectedFarm] = useState<string | null>(mockDailyReports[0].farm); 
@@ -21,6 +22,7 @@ function App() {
           <Route path='/dailyReport' element={<DailyReport />} />
           <Route path='/globalReport' element={<GlobalReports />} />
           <Route path='/globalReportRecord' element={<GlobalReportsRecord />} />
+          <Route path='/invoice' element={<InvoiceRecord />} />
           <Route path='*' element={<h1>Not found</h1>}/>
         </Routes>
       </SelectedFarmContext>

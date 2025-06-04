@@ -36,4 +36,23 @@ export interface IDataAmount {
 
 export type FilterDateMod = 'day' | 'week' | 'month';
 
-export interface IGroupedReport { periodStart: Date; periodEnd: Date; reports: IDailyReport[] }
+export interface IGroupedReport { periodStart: Date; periodEnd: Date; reports: IDailyReport[] };
+
+export type InoviceTypes = 'Sale' | 'DarkMeet' | 'Medicine'
+
+export interface IInvoice {
+  type: InoviceTypes;
+  index: number;
+  farm: string;
+  date: string;
+  time: string;
+  customer: string;
+  data: IInvoiceData[];
+}
+
+export interface IInvoiceData {
+  meterial: string;
+  unit: string;
+  amount: number;
+  price: number;
+}
