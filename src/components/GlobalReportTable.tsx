@@ -37,6 +37,43 @@ export default function GlobalReportTable(props: {
     return <div>لا توجد تقارير متاحة للفترة المحددة</div>;
   }
 
+  const startDate = getStartDate(new Date(), props.dateMode);
+  const endDate = getEndDate(new Date(), props.dateMode);
+  const previousCumulative = previousReport
+    ? getPreviousCumulative(
+        previousReport,
+        filterReportsBeforeDate(currentReports, startDate)
+      )
+    : 0;
+  const totalProduction = totalize(filteredReports, 'production').amount;
+  const totalSales = totalize(filteredReports, 'sale').amount;
+  const currentCumulative = getPreviousCumulative(
+    filteredReports[filteredReports.length - 1],
+    filterReportsBeforeDate(currentReports, endDate)
+  );
+  const startingChickenCount = getCheckenAmountBefore(
+    filteredReports[0],
+    undefined,
+    currentReports
+  );
+  const totalDeaths = totalize(filteredReports, 'death').amount;
+  const endingChickenCount = startingChickenCount - totalDeaths;
+  const avgDeath = getAvarageOfDeath(filteredReports, props.dateMode);
+  const totalFood = totalize(filteredReports, 'dailyFood').amount;
+  const daysInPeriod =
+    props.dateMode === 'day' ? 1 : props.dateMode === 'week' ? 7 : 30;
+  const avgFoodPerChicken = getAvarageOfFoodProductionPercentage(
+    filteredReports,
+    props.dateMode,
+    'food'
+  );
+  const avgEggProduction = getAvarageOfFoodProductionPercentage(
+    filteredReports,
+    props.dateMode,
+    'production'
+  );
+  const totalDarkMeat = totalize(filteredReports, 'darkMeat').amount;
+
   return (
     <div>
       <h2>
@@ -51,81 +88,38 @@ export default function GlobalReportTable(props: {
           <tr>
             <th>تاريخ البداية</th>
             <th>تاريخ النهاية</th>
-            <th>التراكمي السابق</th>
-            <th>الإنتاج الكلي</th>
-            <th>المبيعات</th>
-            <th>التراكمي الحالي</th>
-            <th>عدد الفراخ في البداية</th>
-            <th>عدد الفراخ في النهاية</th>
+            <th>الرصيد التراكمي السابق</th>
+            <th>كمية الإنتاج</th>
+            <th>كمية المبيعات</th>
+            <th>الرصيد التراكمي الحالي</th>
+            <th>عدد الفرخة بداية الفلترة</th>
+            <th>عدد النفوق ضمن فترة الفلترة</th>
+            <th>عدد الفرخة نهاية الفلترة</th>
             <th>متوسط النفوق</th>
-            <th>العلف</th>
+            <th>كمية العلف المستهلك</th>
             <th>عدد الأيام</th>
-            <th>متوسط استهلاك العلف</th>
+            <th>متوسط استهلاك الفرخة من العلف</th>
             <th>متوسط إنتاج البيض</th>
-            <th>السواد</th>
+            <th>كمية السواد المنتج</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>
-              {getStartDate(new Date(), props.dateMode).toLocaleDateString()}
-            </td>
-            <td>
-              {getEndDate(new Date(), props.dateMode).toLocaleDateString()}
-            </td>
-            <td>
-              {previousReport
-                ? getPreviousCumulative(
-                    previousReport,
-                    filterReportsBeforeDate(currentReports, new Date())
-                  )
-                : 0}
-            </td>
-            <td>{totalize(filteredReports, 'production').amount}</td>
-            <td>{totalize(filteredReports, 'sale').amount}</td>
-            <td>
-              {filteredReports.length > 0
-                ? getPreviousCumulative(
-                    filteredReports[0],
-                    filterReportsBeforeDate(currentReports, new Date())
-                  )
-                : 0}
-            </td>
-            <td>
-              {getCheckenAmountBefore(
-                filteredReports[0] || previousReport,
-                undefined,
-                currentReports
-              )}
-            </td>
-            <td>{totalize(filteredReports, 'death').amount}</td>
-            <td>
-              {getCheckenAmountBefore(
-                filteredReports[filteredReports.length - 1] || previousReport,
-                undefined,
-                currentReports
-              ) - totalize(filteredReports, 'death').amount}
-            </td>
-            <td>{getAvarageOfDeath(filteredReports, props.dateMode)}</td>
-            <td>{totalize(filteredReports, 'dailyFood').amount}</td>
-            <td>
-              {props.dateMode == 'day' ? 1 : props.dateMode == 'week' ? 7 : 30}
-            </td>
-            <td>
-              {getAvarageOfFoodProductionPercentage(
-                filteredReports,
-                props.dateMode,
-                'food'
-              )}
-            </td>
-            <td>
-              {getAvarageOfFoodProductionPercentage(
-                filteredReports,
-                props.dateMode,
-                'production'
-              )}
-            </td>
-            <td>{totalize(filteredReports, 'darkMeat').amount}</td>
+            <td>{startDate.toLocaleDateString()}</td>
+            <td>{endDate.toLocaleDateString()}</td>
+            <td>{previousCumulative}</td>
+            <td>{totalProduction}</td>
+            <td>{totalSales}</td>
+            <td>{currentCumulative}</td>
+            <td>{startingChickenCount}</td>
+            <td>{totalDeaths}</td>
+            <td>{endingChickenCount}</td>
+            <td>{avgDeath}</td>
+            <td>{totalFood}</td>
+            <td>{daysInPeriod}</td>
+            <td>{avgFoodPerChicken}</td>
+            <td>{avgEggProduction}</td>
+            <td>{totalDarkMeat}</td>
           </tr>
         </tbody>
       </Table>
