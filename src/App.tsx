@@ -8,22 +8,27 @@ import { SelectedFarmContext } from './contexts';
 import { useState } from 'react';
 import GlobalReportsRecord from './Pages/GlobalReportsRecord';
 import InvoiceRecord from './Pages/InvoiceRecord';
+import InvoicesForm from './components/InvoicesForm';
 import { FarmProvider } from './context/FarmsProvider';
 
 function App() {
-  const [selectedFarm, setSelectedFarm] = useState<string | null>(null); 
+  const [selectedFarm, setSelectedFarm] = useState<string | null>(null);
   return (
     <div>
       <FarmProvider>
         <SelectedFarmContext value={[selectedFarm, setSelectedFarm]}>
           <Header />
           <Routes>
-            <Route path='/' element={<Home/>} />
-            <Route path='/dailyReport' element={<DailyReport />} />
-            <Route path='/globalReport' element={<GlobalReports />} />
-            <Route path='/globalReportRecord' element={<GlobalReportsRecord />} />
-            <Route path='/invoice' element={<InvoiceRecord />} />
-            <Route path='*' element={<h1>Not found</h1>}/>
+            <Route path="/" element={<Home />} />
+            <Route path="/dailyReport" element={<DailyReport />} />
+            <Route path="/globalReport" element={<GlobalReports />} />
+            <Route
+              path="/globalReportRecord"
+              element={<GlobalReportsRecord />}
+            />
+            <Route path="/invoice" element={<InvoiceRecord />} />
+            <Route path="/invoice/new" element={<InvoicesForm />} />
+            <Route path="*" element={<h1>Not found</h1>} />
           </Routes>
         </SelectedFarmContext>
       </FarmProvider>

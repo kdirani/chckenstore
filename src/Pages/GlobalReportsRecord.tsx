@@ -1,15 +1,15 @@
-import { Form, Table } from "react-bootstrap";
-import FarmsFilter from "../components/FarmsFilter";
-import { useSelectedFarmContext } from "../contexts";
-import { mockDailyReports } from "../mockData";
-import { useMemo, useState } from "react";
-import type { FilterDateMod } from "../models";
-import { groupReportsByPeriod } from "../utils";
-import GlobalReportsRecordItem from "../components/GlobalReportsRecordItem";
+import { Form, Table } from 'react-bootstrap';
+import FarmsFilter from '../components/FarmsFilter';
+import { useSelectedFarmContext } from '../contexts';
+import { mockDailyReports } from '../mockData';
+import { useMemo, useState } from 'react';
+import type { FilterDateMod } from '../models';
+import { groupReportsByPeriod } from '../utils';
+import GlobalReportsRecordItem from '../components/GlobalReportsRecordItem';
 
 export default function GlobalReportsRecord() {
   const [selectedFarm] = useSelectedFarmContext();
-  const [dateMode, setDateMode] = useState<FilterDateMod>("day");
+  const [dateMode, setDateMode] = useState<FilterDateMod>('day');
 
   // Filter only the reports for the selected farm
   const currentReports = useMemo(

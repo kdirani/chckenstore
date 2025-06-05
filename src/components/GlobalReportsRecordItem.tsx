@@ -1,5 +1,5 @@
-import type { ReactElement } from "react";
-import type { FilterDateMod, IDailyReport } from "../models";
+import type { ReactElement } from 'react';
+import type { FilterDateMod, IDailyReport } from '../models';
 import {
   filterReportsBeforeDate,
   getAvarageOfDeath,
@@ -8,7 +8,7 @@ import {
   getPreviousCumulative,
   getPreviousReportByFarm,
   totalize,
-} from "../utils";
+} from '../utils';
 
 export default function GlobalReportsRecordItem(props: {
   currentReports: IDailyReport[];
@@ -20,7 +20,11 @@ export default function GlobalReportsRecordItem(props: {
   const { currentReports, groupReports, periodStart, periodEnd, dateMode } =
     props;
   function getPreviousReport(date: Date) {
-    return getPreviousReportByFarm(currentReports, groupReports[0].farmId || "", date);
+    return getPreviousReportByFarm(
+      currentReports,
+      groupReports[0].farmId || '',
+      date
+    );
   }
   const prevReport = getPreviousReport(periodStart);
   const cumulativePrevious = prevReport
@@ -29,17 +33,20 @@ export default function GlobalReportsRecordItem(props: {
         filterReportsBeforeDate(currentReports, periodStart)
       )
     : 0;
-  const totalProduction = totalize(groupReports, "production").amount;
+  const totalProduction = totalize(groupReports, 'production').amount;
 
   // 3) Sum “sale” over the entire group
-  const totalSales = totalize(groupReports, "sale").amount;
+  const totalSales = totalize(groupReports, 'sale').amount;
 
   // 4) For “current cumulative,” we want the cumulative on the last report in this group.
   //    If it’s a “day” group, groupReports only has one report (so it’s that report).
-  const lastReportInGroup =
-    groupReports[groupReports.length - 1] as IDailyReport;
-  const allBeforeLast =
-    filterReportsBeforeDate(currentReports, new Date(lastReportInGroup.date));
+  const lastReportInGroup = groupReports[
+    groupReports.length - 1
+  ] as IDailyReport;
+  const allBeforeLast = filterReportsBeforeDate(
+    currentReports,
+    new Date(lastReportInGroup.date)
+  );
   const currentCumulative = getPreviousCumulative(
     lastReportInGroup,
     allBeforeLast
@@ -54,7 +61,7 @@ export default function GlobalReportsRecordItem(props: {
   );
 
   // 6) “Deaths within the period” = totalize the “death” field in groupReports
-  const totalDeaths = totalize(groupReports, "death").amount;
+  const totalDeaths = totalize(groupReports, 'death').amount;
 
   // 7) “Ending chicken count” = startingChickenCount – totalDeaths
   const endingChickenCount = startingChickenCount - totalDeaths;
@@ -63,16 +70,16 @@ export default function GlobalReportsRecordItem(props: {
   const avgDeath = getAvarageOfDeath(groupReports, dateMode);
 
   // 9) “Total dailyFood” in the period
-  const totalFood = totalize(groupReports, "dailyFood").amount;
+  const totalFood = totalize(groupReports, 'dailyFood').amount;
 
   // 10) “Number of days in period”
   //     - If dateMode='day', that’s 1
   //     - If 'week', that’s 7
   //     - If 'month', let’s compute number of calendar days between periodStart and periodEnd.
   let daysInPeriod: number;
-  if (dateMode === "day") {
+  if (dateMode === 'day') {
     daysInPeriod = 1;
-  } else if (dateMode === "week") {
+  } else if (dateMode === 'week') {
     daysInPeriod = 7;
   } else {
     // dateMode === "month"
@@ -85,17 +92,17 @@ export default function GlobalReportsRecordItem(props: {
   const avgFoodPerChicken = getAvarageOfFoodProductionPercentage(
     groupReports,
     dateMode,
-    "food"
+    'food'
   );
 
   // 12) “Total darkMeat” in the period
-  const totalDarkMeat = totalize(groupReports, "darkMeat").amount;
+  const totalDarkMeat = totalize(groupReports, 'darkMeat').amount;
 
   // 13) “Average egg production” in the period
   const avgEggProd = getAvarageOfFoodProductionPercentage(
     groupReports,
     dateMode,
-    "production"
+    'production'
   );
 
   return (
