@@ -1,7 +1,8 @@
-import { useState } from "react";
-import type { ChangeEvent, FormEvent } from "react";
-import { Form, Button, Row, Col } from "react-bootstrap";
-import { reportsService } from "../lib/appwrite";
+import { useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
+import { Form, Button, Row, Col } from 'react-bootstrap';
+import { reportsService } from '../lib/appwrite';
+import { useFarms } from '../contexts';
 
 interface SaleItem {
   amount: string;
@@ -17,25 +18,26 @@ interface MedicineItem {
 }
 
 export default function ReportsForm() {
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [farmId, setFarmId] = useState("");
-  const [production, setProduction] = useState("");
-  const [distortedProduction, setDistortedProduction] = useState("");
-  const [death, setDeath] = useState("");
-  const [dailyFood, setDailyFood] = useState("");
-  const [monthlyFood, setMonthlyFood] = useState("");
+  const { farms } = useFarms();
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
+  const [farmId, setFarmId] = useState('');
+  const [production, setProduction] = useState('');
+  const [distortedProduction, setDistortedProduction] = useState('');
+  const [death, setDeath] = useState('');
+  const [dailyFood, setDailyFood] = useState('');
+  const [monthlyFood, setMonthlyFood] = useState('');
 
   // في السابق كنا نخزن حقل "darkMeat" ككائن، الآن نريد أن نرسله كسلسلة JSON
-  const [darkAmount, setDarkAmount] = useState("");
-  const [darkClient, setDarkClient] = useState("");
+  const [darkAmount, setDarkAmount] = useState('');
+  const [darkClient, setDarkClient] = useState('');
 
   const [saleItems, setSaleItems] = useState<SaleItem[]>([
-    { amount: "", weigh: "", client: "" },
+    { amount: '', weigh: '', client: '' },
   ]);
 
   const [medicineItems, setMedicineItems] = useState<MedicineItem[]>([
-    { amount: "", unit: "", type: "", stor: "" },
+    { amount: '', unit: '', type: '', stor: '' },
   ]);
 
   const handleSaleChange = (
@@ -49,7 +51,7 @@ export default function ReportsForm() {
   };
 
   const handleAddSale = () => {
-    setSaleItems([...saleItems, { amount: "", weigh: "", client: "" }]);
+    setSaleItems([...saleItems, { amount: '', weigh: '', client: '' }]);
   };
 
   const handleRemoveSale = (index: number) => {
@@ -71,7 +73,7 @@ export default function ReportsForm() {
   const handleAddMedicine = () => {
     setMedicineItems([
       ...medicineItems,
-      { amount: "", unit: "", type: "", stor: "" },
+      { amount: '', unit: '', type: '', stor: '' },
     ]);
   };
 
@@ -83,30 +85,38 @@ export default function ReportsForm() {
 
   // دالة لملء الحقول ببيانات وهمية تلقائيًا
   const handleAutoFill = () => {
+    if (!farms || farms.length === 0) {
+      alert('لا توجد مزارع متاحة. يرجى إضافة مزرعة أولاً.');
+      return;
+    }
+
+    // نستخدم معرف المزرعة الأولى من القائمة
+    const firstFarmId = farms[0].$id;
+
     // نستخدم التاريخ الحالي "2025-06-04" والوقت "12:30"
-    setDate("2025-06-04");
-    setTime("12:30");
-    setFarmId("farm-123");
-    setProduction("1000");
-    setDistortedProduction("50");
-    setDeath("5");
-    setDailyFood("200");
-    setMonthlyFood("6000");
+    setDate('2025-06-04');
+    setTime('12:30');
+    setFarmId(firstFarmId);
+    setProduction('1000');
+    setDistortedProduction('50');
+    setDeath('5');
+    setDailyFood('200');
+    setMonthlyFood('6000');
 
     // حقل اللحم الداكن
-    setDarkAmount("12000");
-    setDarkClient("وليد محمد عيد");
+    setDarkAmount('12000');
+    setDarkClient('وليد محمد عيد');
 
     // مصفوفة المبيعات الوهمية
     setSaleItems([
-      { amount: "10", weigh: "5.2", client: "عميل أول" },
-      { amount: "8", weigh: "4.7", client: "عميل ثاني" },
+      { amount: '10', weigh: '5.2', client: 'عميل أول' },
+      { amount: '8', weigh: '4.7', client: 'عميل ثاني' },
     ]);
 
     // مصفوفة الأدوية الوهمية
     setMedicineItems([
-      { amount: "2", unit: "علبة", type: "مضاد حيوي", stor: "المخزن الرئيسي" },
-      { amount: "5", unit: "حقنة", type: "فيتامينات", stor: "المخزن الجانبي" },
+      { amount: '2', unit: 'علبة', type: 'مضاد حيوي', stor: 'المخزن الرئيسي' },
+      { amount: '5', unit: 'حقنة', type: 'فيتامينات', stor: 'المخزن الجانبي' },
     ]);
   };
 
@@ -150,24 +160,24 @@ export default function ReportsForm() {
       report,
       (newId) => {
         // عند نجاح الحفظ
-        setDate("");
-        setTime("");
-        setFarmId("");
-        setProduction("");
-        setDistortedProduction("");
-        setDeath("");
-        setDailyFood("");
-        setMonthlyFood("");
-        setDarkAmount("");
-        setDarkClient("");
-        setSaleItems([{ amount: '', weigh: "", client: "" }]);
-        setMedicineItems([{ amount: '', unit: "", type: "", stor: "" }]);
-        alert("تم حفظ التقرير بنجاح. المعرف: " + newId);
+        setDate('');
+        setTime('');
+        setFarmId('');
+        setProduction('');
+        setDistortedProduction('');
+        setDeath('');
+        setDailyFood('');
+        setMonthlyFood('');
+        setDarkAmount('');
+        setDarkClient('');
+        setSaleItems([{ amount: '', weigh: '', client: '' }]);
+        setMedicineItems([{ amount: '', unit: '', type: '', stor: '' }]);
+        alert('تم حفظ التقرير بنجاح. المعرف: ' + newId);
       },
       () => {
-        alert("حدث خطأ أثناء حفظ التقرير. حاول مرة أخرى.");
+        alert('حدث خطأ أثناء حفظ التقرير. حاول مرة أخرى.');
       }
-    )
+    );
     // مثال:
     // createDocument("معرف_المجموعة", report, (newId) => { ... }, () => { ... });
   };
@@ -190,7 +200,9 @@ export default function ReportsForm() {
         <Form.Control
           type="date"
           value={date}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setDate(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setDate(e.target.value)
+          }
           required
         />
       </Form.Group>
@@ -201,7 +213,9 @@ export default function ReportsForm() {
         <Form.Control
           type="time"
           value={time}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setTime(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setTime(e.target.value)
+          }
           required
         />
       </Form.Group>
@@ -212,7 +226,9 @@ export default function ReportsForm() {
         <Form.Control
           type="text"
           value={farmId}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setFarmId(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setFarmId(e.target.value)
+          }
           placeholder="أدخل معرّف المزرعة"
           required
         />
@@ -226,7 +242,9 @@ export default function ReportsForm() {
             <Form.Control
               type="number"
               value={production}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setProduction(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setProduction(e.target.value)
+              }
               placeholder="أدخل مقدار الإنتاج"
               required
             />
@@ -261,7 +279,7 @@ export default function ReportsForm() {
                   type="number"
                   value={item.amount}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleSaleChange(idx, "amount", e.target.value)
+                    handleSaleChange(idx, 'amount', e.target.value)
                   }
                   placeholder="مثلاً: 10"
                   required
@@ -276,7 +294,7 @@ export default function ReportsForm() {
                   step="0.01"
                   value={item.weigh}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleSaleChange(idx, "weigh", e.target.value)
+                    handleSaleChange(idx, 'weigh', e.target.value)
                   }
                   placeholder="مثلاً: 5.2"
                   required
@@ -290,7 +308,7 @@ export default function ReportsForm() {
                   type="text"
                   value={item.client}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleSaleChange(idx, "client", e.target.value)
+                    handleSaleChange(idx, 'client', e.target.value)
                   }
                   placeholder="أدخل اسم العميل"
                   required
@@ -320,7 +338,9 @@ export default function ReportsForm() {
         <Form.Control
           type="number"
           value={death}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setDeath(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setDeath(e.target.value)
+          }
           placeholder="أدخل عدد الوفيات"
           required
         />
@@ -334,7 +354,9 @@ export default function ReportsForm() {
             <Form.Control
               type="number"
               value={dailyFood}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setDailyFood(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setDailyFood(e.target.value)
+              }
               placeholder="أدخل كمية الطعام اليومي"
               required
             />
@@ -347,7 +369,9 @@ export default function ReportsForm() {
             <Form.Control
               type="number"
               value={monthlyFood}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setMonthlyFood(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setMonthlyFood(e.target.value)
+              }
               placeholder="أدخل كمية الطعام الشهري"
               required
             />
@@ -402,7 +426,7 @@ export default function ReportsForm() {
                   type="number"
                   value={item.amount}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleMedicineChange(idx, "amount", e.target.value)
+                    handleMedicineChange(idx, 'amount', e.target.value)
                   }
                   placeholder="مثلاً: 2"
                   required
@@ -416,7 +440,7 @@ export default function ReportsForm() {
                   type="text"
                   value={item.unit}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleMedicineChange(idx, "unit", e.target.value)
+                    handleMedicineChange(idx, 'unit', e.target.value)
                   }
                   placeholder="مثلاً: علبة"
                   required
@@ -430,7 +454,7 @@ export default function ReportsForm() {
                   type="text"
                   value={item.type}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleMedicineChange(idx, "type", e.target.value)
+                    handleMedicineChange(idx, 'type', e.target.value)
                   }
                   placeholder="مثلاً: مضاد حيوي"
                   required
@@ -444,7 +468,7 @@ export default function ReportsForm() {
                   type="text"
                   value={item.stor}
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    handleMedicineChange(idx, "stor", e.target.value)
+                    handleMedicineChange(idx, 'stor', e.target.value)
                   }
                   placeholder="مثلاً: المخزن الرئيسي"
                   required

@@ -1,12 +1,19 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import type { IDailyReport, FilterDateMod, IDataAmount, IGroupedReport } from "./models";
+import type {
+  IDailyReport,
+  FilterDateMod,
+  IDataAmount,
+  IGroupedReport,
+  IٍٍDailySale,
+} from './models';
 
-export const  getFoodPercentage = (foodAmount: number, checkensAmount: number) => {
+export const getFoodPercentage = (
+  foodAmount: number,
+  checkensAmount: number
+) => {
   const foodInG = foodAmount * 1000;
   return (foodInG / checkensAmount).toFixed(2) + '%';
-}
-
-
+};
 
 export const calculatePercentageAndTotal = (part: number, total: number) => {
   if (total === 0) {
@@ -15,26 +22,33 @@ export const calculatePercentageAndTotal = (part: number, total: number) => {
 
   const percentage = (part / total) * 100;
   return `${parseFloat(percentage.toFixed(2))}%`;
-}
+};
 
-export const getPreviousCumulative = (report: IDailyReport, allReports: IDailyReport[]) => {
+export const getPreviousCumulative = (
+  report: IDailyReport,
+  allReports: IDailyReport[]
+) => {
   const amounts: number[] = [];
   allReports.forEach((item) => {
     const currentDate = new Date(report.date).getTime();
     const itemDate = new Date(item.date).getTime();
     if (itemDate < currentDate) {
+      const sale =
+        typeof item.sale === 'string' ? JSON.parse(item.sale) : item.sale;
       amounts.push(
         item.production +
           item.distortedProduction -
-          item.sale.reduce((acc, it) => acc + it.amount, 0)
+          sale.reduce((acc: number, it: IٍٍDailySale) => acc + it.amount, 0)
       );
     }
   });
   const total = amounts.reduce((acc, amount) => acc + amount, 0);
+  const sale =
+    typeof report.sale === 'string' ? JSON.parse(report.sale) : report.sale;
   const finalAmount =
     report.production +
     report.distortedProduction -
-    report.sale.reduce((acc, it) => acc + it.amount, 0) +
+    sale.reduce((acc: number, it: IٍٍDailySale) => acc + it.amount, 0) +
     total;
   return finalAmount;
 };
@@ -72,8 +86,8 @@ export function getStartDate(date: Date, mode: FilterDateMod): Date {
   }
 
   if (mode === 'week') {
-    const day = d.getDay();      // 0=Sun … 6=Sat
-    const diff = (day + 7 - 6) % 7;  // offset from Saturday
+    const day = d.getDay(); // 0=Sun … 6=Sat
+    const diff = (day + 7 - 6) % 7; // offset from Saturday
     d.setDate(d.getDate() - diff);
     return d;
   }
@@ -82,13 +96,10 @@ export function getStartDate(date: Date, mode: FilterDateMod): Date {
   return d;
 }
 
-/** 
- * Get the end of the week (Friday), month, or day for a given date. 
+/**
+ * Get the end of the week (Friday), month, or day for a given date.
  */
-export function getEndDate(
-  date: Date,
-  mode: FilterDateMod
-): Date {
+export function getEndDate(date: Date, mode: FilterDateMod): Date {
   const d = new Date(date);
 
   if (mode === 'day') {
@@ -116,7 +127,6 @@ export function getNextDay() {
   return next;
 }
 
-
 // fix problem of return to days on mode = 'day' and filter by period
 export function filterReportsByPeriod(
   reports: IDailyReport[],
@@ -126,20 +136,20 @@ export function filterReportsByPeriod(
   const start = getStartDate(now, mode);
 
   // في حال اليوم: نعيّن نهاية اليوم فقط (بدون إضافة يوم كامل)
-  const end = mode === 'day'
-    ? (() => {
-        const e = new Date(start);
-        e.setHours(23, 59, 59, 999);
-        return e;
-      })()
-    : getEndDate(now, mode);
+  const end =
+    mode === 'day'
+      ? (() => {
+          const e = new Date(start);
+          e.setHours(23, 59, 59, 999);
+          return e;
+        })()
+      : getEndDate(now, mode);
 
-  return reports.filter(r => {
+  return reports.filter((r) => {
     const d = new Date(r.date);
     return d >= start && d <= end;
   });
 }
-
 
 export function filterReportsBeforeDate(
   reports: IDailyReport[],
@@ -155,7 +165,7 @@ export function filterReportsBeforeDate(
     ? new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
     : startOfDay;
 
-  return reports.filter(r => {
+  return reports.filter((r) => {
     const reportDate = new Date(r.date);
     // شرط: قبل الحد (strict) حتى لا نعيد تقريرات اليوم عند includeToday=false
     return reportDate < cutoff;
@@ -165,19 +175,22 @@ export function getPreviousReportByFarm(
   reports: IDailyReport[],
   farmName: string,
   referenceDate: Date
-){
+) {
   // Build a cutoff at 00:00:00 of referenceDate:
   const cutoff = new Date(
     referenceDate.getFullYear(),
     referenceDate.getMonth(),
     referenceDate.getDate(), // day
-    0, 0, 0, 0
+    0,
+    0,
+    0,
+    0
   ).getTime();
 
   // Filter to this farm and strictly before cutoff.
   const candidates = reports
-    .filter(r => r.farmId === farmName)
-    .map(r => ({ r, time: new Date(r.date).getTime() }))
+    .filter((r) => r.farmId === farmName)
+    .map((r) => ({ r, time: new Date(r.date).getTime() }))
     .filter(({ time }) => !isNaN(time) && time < cutoff);
 
   if (candidates.length === 0) return null;
@@ -233,7 +246,10 @@ export function totalize<K extends keyof IDailyReport>(
   return { amount: total, unit };
 }
 
-export function getAvarageOfDeath(reports: IDailyReport[], dateMode: FilterDateMod) {
+export function getAvarageOfDeath(
+  reports: IDailyReport[],
+  dateMode: FilterDateMod
+) {
   let amount = totalize(reports, 'death').amount;
   switch (dateMode) {
     case 'week':
@@ -243,25 +259,31 @@ export function getAvarageOfDeath(reports: IDailyReport[], dateMode: FilterDateM
       amount /= 30;
       break;
     default:
-      break; 
+      break;
   }
   return amount.toFixed(2);
 }
 
-export const  getAvarageOfFoodProductionPercentage = (reports: IDailyReport[], filterDate:FilterDateMod, type:"food" | "production") => {
+export const getAvarageOfFoodProductionPercentage = (
+  reports: IDailyReport[],
+  filterDate: FilterDateMod,
+  type: 'food' | 'production'
+) => {
   let totalPercentage = 0;
   reports.forEach((report) => {
-
     if (type === 'food') {
-      const percentage = getFoodPercentage(report.dailyFood, getCheckenAmountBefore(report, undefined, reports));
+      const percentage = getFoodPercentage(
+        report.dailyFood,
+        getCheckenAmountBefore(report, undefined, reports)
+      );
       totalPercentage += Number(percentage.replace('%', ''));
       return;
     }
 
     const percentage = calculatePercentageAndTotal(
-              (report.production + report.distortedProduction) * 30,
-              getCheckenAmountBefore(report, undefined, reports)
-            )
+      (report.production + report.distortedProduction) * 30,
+      getCheckenAmountBefore(report, undefined, reports)
+    );
     totalPercentage += Number(percentage.replace('%', ''));
   });
   switch (filterDate) {
@@ -272,13 +294,13 @@ export const  getAvarageOfFoodProductionPercentage = (reports: IDailyReport[], f
       totalPercentage /= 30; // Approximation
       break;
     default:
-      break;      
-  }   
+      break;
+  }
   // console.log('totalPercentage', totalPercentage);
   // console.log('reports', reports);
-  
+
   return totalPercentage.toFixed(2) + '%';
-}
+};
 
 function getPeriodStart(date: Date, mode: FilterDateMod): Date {
   const d = new Date(date);
@@ -298,7 +320,7 @@ function getPeriodStart(date: Date, mode: FilterDateMod): Date {
 
   // mode === 'week' (Saturday start):
   //   Saturday has getDay() = 6
-  const dayOfWeek = d.getDay();                // 0 = Sun … 6 = Sat
+  const dayOfWeek = d.getDay(); // 0 = Sun … 6 = Sat
   const offsetFromSaturday = (dayOfWeek + 7 - 6) % 7;
   // Subtract offsetFromSaturday days to land on Saturday
   d.setDate(d.getDate() - offsetFromSaturday);
