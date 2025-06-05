@@ -132,22 +132,17 @@ export function filterReportsByPeriod(
   reports: IDailyReport[],
   mode: FilterDateMod
 ): IDailyReport[] {
+  if (!reports || reports.length === 0) {
+    return [];
+  }
+
   const now = new Date();
-  const start = getStartDate(now, mode);
+  const startDate = getStartDate(now, mode);
+  const endDate = getEndDate(startDate, mode);
 
-  // في حال اليوم: نعيّن نهاية اليوم فقط (بدون إضافة يوم كامل)
-  const end =
-    mode === 'day'
-      ? (() => {
-          const e = new Date(start);
-          e.setHours(23, 59, 59, 999);
-          return e;
-        })()
-      : getEndDate(now, mode);
-
-  return reports.filter((r) => {
-    const d = new Date(r.date);
-    return d >= start && d <= end;
+  return reports.filter((report) => {
+    const reportDate = new Date(report.date);
+    return reportDate >= startDate && reportDate <= endDate;
   });
 }
 
@@ -217,6 +212,34 @@ export function totalize<K extends keyof IDailyReport>(
   if (typeof sample === 'number') {
     // Simple numeric sum
     total = reports.reduce((sum, rpt) => sum + (rpt[key] as number), 0);
+  } else if (typeof sample === 'string') {
+    // Handle JSON string fields
+    try {
+      const parsedSample = JSON.parse(sample);
+      if (Array.isArray(parsedSample)) {
+        // Array of { amount, … }
+        total = reports.reduce((sum, rpt) => {
+          const items = JSON.parse(rpt[key] as string);
+          return (
+            sum +
+            items.reduce((s: number, item: any) => s + (item.amount ?? 0), 0)
+          );
+        }, 0);
+      } else if (
+        parsedSample &&
+        typeof parsedSample === 'object' &&
+        'amount' in parsedSample
+      ) {
+        // Single object with amount (like darkMeat)
+        total = reports.reduce((sum, rpt) => {
+          const item = JSON.parse(rpt[key] as string);
+          return sum + (item.amount ?? 0);
+        }, 0);
+      }
+    } catch (e) {
+      console.error(`Error parsing JSON for key "${String(key)}":`, e);
+      return { amount: 0, unit };
+    }
   } else if (Array.isArray(sample)) {
     // Array of { amount, … }
     // If items also have a `unit` field, we assume all use the same unit

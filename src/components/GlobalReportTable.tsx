@@ -1,5 +1,4 @@
 import { Table } from 'react-bootstrap';
-import { mockDailyReports } from '../mockData';
 import {
   filterReportsBeforeDate,
   filterReportsByPeriod,
@@ -13,11 +12,14 @@ import {
   totalize,
 } from '../utils';
 import { useSelectedFarmContext } from '../contexts';
-import type { FilterDateMod } from '../models';
+import type { FilterDateMod, IDailyReport } from '../models';
 
-export default function GlobalReportTable(props: { dateMode: FilterDateMod }) {
+export default function GlobalReportTable(props: {
+  dateMode: FilterDateMod;
+  reports: IDailyReport[];
+}) {
   const selectedFarm = useSelectedFarmContext()[0];
-  const currentReports = mockDailyReports.filter(
+  const currentReports = props.reports.filter(
     (report) => report.farmId === selectedFarm
   );
   const previousReport = getPreviousReportByFarm(
@@ -26,29 +28,41 @@ export default function GlobalReportTable(props: { dateMode: FilterDateMod }) {
     new Date()
   );
 
-  if( !currentReports || currentReports.length === 0) {
+  if (!currentReports || currentReports.length === 0) {
     return <div>لا توجد تقارير متاحة</div>;
   }
+
+  const filteredReports = filterReportsByPeriod(currentReports, props.dateMode);
+  if (!filteredReports || filteredReports.length === 0) {
+    return <div>لا توجد تقارير متاحة للفترة المحددة</div>;
+  }
+
   return (
     <div>
-      <Table responsive striped bordered hover>
+      <h2>
+        {props.dateMode === 'day'
+          ? 'تقرير يومي'
+          : props.dateMode === 'week'
+          ? 'تقرير أسبوعي'
+          : 'تقرير شهري'}
+      </h2>
+      <Table striped bordered hover>
         <thead>
           <tr>
-            <td>تاريخ البداية</td>
-            <td>تاريخ النهاية</td>
-            <td>الرصيد التراكمي السابق</td>
-            <td>كمية الإنتاج</td>
-            <td>كمية المبيعات</td>
-            <td>الرصيد التراكمي الحالي</td>
-            <td>عدد الفرخة بداية الفلترة</td>
-            <td>عدد النفوق ضمن فترة الفلترة</td>
-            <td>عدد الفرخة نهاية الفلترة</td>
-            <td>متوسط النفوق</td>
-            <td>كمية العلف المستهلك</td>
-            <td>عدد الأيام</td>
-            <td>متوسط استهلاك الفرخة من العلف</td>
-            <td>متوسط إنتاج البيض</td>
-            <td>كمية السواد المنتج</td>
+            <th>تاريخ البداية</th>
+            <th>تاريخ النهاية</th>
+            <th>التراكمي السابق</th>
+            <th>الإنتاج الكلي</th>
+            <th>المبيعات</th>
+            <th>التراكمي الحالي</th>
+            <th>عدد الفراخ في البداية</th>
+            <th>عدد الفراخ في النهاية</th>
+            <th>متوسط النفوق</th>
+            <th>العلف</th>
+            <th>عدد الأيام</th>
+            <th>متوسط استهلاك العلف</th>
+            <th>متوسط إنتاج البيض</th>
+            <th>السواد</th>
           </tr>
         </thead>
         <tbody>
@@ -67,102 +81,51 @@ export default function GlobalReportTable(props: { dateMode: FilterDateMod }) {
                   )
                 : 0}
             </td>
+            <td>{totalize(filteredReports, 'production').amount}</td>
+            <td>{totalize(filteredReports, 'sale').amount}</td>
             <td>
-              {
-                totalize(
-                  filterReportsByPeriod(currentReports, props.dateMode),
-                  'production'
-                ).amount
-              }
-            </td>
-            <td>
-              {
-                totalize(
-                  filterReportsByPeriod(currentReports, props.dateMode),
-                  'sale'
-                ).amount
-              }
-            </td>
-            <td>
-              {filterReportsByPeriod(currentReports, props.dateMode)
+              {filteredReports.length > 0
                 ? getPreviousCumulative(
-                    filterReportsByPeriod(currentReports, 'day')[0],
+                    filteredReports[0],
                     filterReportsBeforeDate(currentReports, new Date())
                   )
                 : 0}
             </td>
             <td>
               {getCheckenAmountBefore(
-                filterReportsByPeriod(currentReports, props.dateMode)[0] ||
-                  previousReport,
+                filteredReports[0] || previousReport,
                 undefined,
                 currentReports
               )}
             </td>
-            <td>
-              {
-                totalize(
-                  filterReportsByPeriod(currentReports, props.dateMode),
-                  'death'
-                ).amount
-              }
-            </td>
+            <td>{totalize(filteredReports, 'death').amount}</td>
             <td>
               {getCheckenAmountBefore(
-                filterReportsByPeriod(currentReports, props.dateMode)[
-                  props.dateMode == 'day'
-                    ? 0
-                    : filterReportsByPeriod(currentReports, props.dateMode)
-                        .length - 1
-                ] || previousReport,
+                filteredReports[filteredReports.length - 1] || previousReport,
                 undefined,
                 currentReports
-              ) -
-                totalize(filterReportsByPeriod(currentReports, 'day'), 'death')
-                  .amount}
+              ) - totalize(filteredReports, 'death').amount}
             </td>
-            <td>
-              {getAvarageOfDeath(
-                filterReportsByPeriod(currentReports, props.dateMode),
-                props.dateMode
-              )}
-            </td>
-            <td>
-              {
-                totalize(
-                  filterReportsByPeriod(currentReports, props.dateMode),
-                  'dailyFood'
-                ).amount
-              }
-            </td>
-            {/* Convert this to props when refactor the component */}
+            <td>{getAvarageOfDeath(filteredReports, props.dateMode)}</td>
+            <td>{totalize(filteredReports, 'dailyFood').amount}</td>
             <td>
               {props.dateMode == 'day' ? 1 : props.dateMode == 'week' ? 7 : 30}
             </td>
-
             <td>
               {getAvarageOfFoodProductionPercentage(
-                filterReportsByPeriod(currentReports, props.dateMode),
+                filteredReports,
                 props.dateMode,
                 'food'
               )}
             </td>
             <td>
               {getAvarageOfFoodProductionPercentage(
-                filterReportsByPeriod(currentReports, props.dateMode),
+                filteredReports,
                 props.dateMode,
                 'production'
               )}
             </td>
-
-            <td>
-              {
-                totalize(
-                  filterReportsByPeriod(currentReports, props.dateMode),
-                  'darkMeat'
-                ).amount
-              }
-            </td>
+            <td>{totalize(filteredReports, 'darkMeat').amount}</td>
           </tr>
         </tbody>
       </Table>

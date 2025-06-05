@@ -1,30 +1,28 @@
-import { Table } from "react-bootstrap";
-import DailyReportItem from "../components/DailyReportItem";
-import FarmsFilter from "../components/FarmsFilter";
-import { useSelectedFarmContext } from "../contexts";
-import { useEffect, useState } from "react";
-import type { IRecursiveFarm } from "../models";
-import { reportsService } from "../lib/appwrite";
-import { Query } from "appwrite";
+import { Table } from 'react-bootstrap';
+import DailyReportItem from '../components/DailyReportItem';
+import FarmsFilter from '../components/FarmsFilter';
+import { useSelectedFarmContext } from '../contexts';
+import { useEffect, useState } from 'react';
+import type { IDailyReport } from '../models';
+import { reportsService } from '../lib/appwrite';
+import { Query } from 'appwrite';
 
 export default function DailyReport() {
   const selectedFarm = useSelectedFarmContext()[0];
-  const [reports, setReports] = useState<IRecursiveFarm[]>([]);
+  const [reports, setReports] = useState<IDailyReport[]>([]);
   useEffect(() => {
-    if(!selectedFarm) return
+    if (!selectedFarm) return;
     console.log(selectedFarm);
-    
+
     const init = async () => {
       reportsService.list(
         (docs) => setReports(docs),
         () => alert('Error in reports fetch'),
-        [
-          Query.equal('farmId', selectedFarm || '')
-        ]
-      )
-    }
-    init()
-  }, [selectedFarm])
+        [Query.equal('farmId', selectedFarm || '')]
+      );
+    };
+    init();
+  }, [selectedFarm]);
   console.log(reports);
   return (
     <div>
@@ -52,11 +50,9 @@ export default function DailyReport() {
           </tr>
         </thead>
         <tbody>
-          <DailyReportItem
-            dailyReports={reports}
-          />
+          <DailyReportItem dailyReports={reports} />
         </tbody>
       </Table>
     </div>
-  )
+  );
 }
