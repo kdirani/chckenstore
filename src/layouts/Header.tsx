@@ -25,6 +25,12 @@ export default function Header() {
             <Nav.Link as={Link} to="/invoice/new">
               إضافة فاتورة جديدة
             </Nav.Link>
+            <Nav.Link as={Link} to="/addfarm">
+              إضافة مزرعة جديدة
+            </Nav.Link>
+            <Nav.Link as={Link} to="/addreport">
+              إضافة تقرير جديد
+            </Nav.Link>
           </Nav>
         </Container>
       </Navbar>

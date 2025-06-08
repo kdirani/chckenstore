@@ -1,33 +1,39 @@
 import { Form, Table } from 'react-bootstrap';
 import FarmsFilter from '../components/FarmsFilter';
 import { useSelectedFarmContext } from '../contexts';
-import { mockDailyReports } from '../mockData';
-import { useMemo, useState } from 'react';
-import type { FilterDateMod } from '../models';
+import { useEffect, useMemo, useState } from 'react';
+import type { FilterDateMod, IDailyReport } from '../models';
 import { groupReportsByPeriod } from '../utils';
 import GlobalReportsRecordItem from '../components/GlobalReportsRecordItem';
+import { reportsService } from '../lib/appwrite';
+import { Query } from 'appwrite';
 
 export default function GlobalReportsRecord() {
-  const [selectedFarm] = useSelectedFarmContext();
   const [dateMode, setDateMode] = useState<FilterDateMod>('day');
+  const selectedFarm = useSelectedFarmContext()[0];
+  const [reports, setReports] = useState<IDailyReport[]>([]);
+  useEffect(() => {
+    if (!selectedFarm) return;
+    console.log(selectedFarm);
 
-  // Filter only the reports for the selected farm
-  const currentReports = useMemo(
-    () => mockDailyReports.filter((x) => x.farmId === selectedFarm),
-    [selectedFarm]
-  );
+    const init = async () => {
+      reportsService.list(
+        (docs) => setReports(docs),
+        () => alert('Error in reports fetch'),
+        [Query.equal('farmId', selectedFarm || '')]
+      );
+    };
+    init();
+  }, [selectedFarm]);
+  console.log(reports);
 
   // Group them by day/week/month
   const groupedReports = useMemo(() => {
-    if (!currentReports || currentReports.length === 0) {
+    if (!reports || reports.length === 0) {
       return [];
     }
-    return groupReportsByPeriod(currentReports, dateMode);
-  }, [currentReports, dateMode]);
-
-  if (!currentReports || currentReports.length === 0) {
-    return <div>لا توجد تقارير متاحة</div>;
-  }
+    return groupReportsByPeriod(reports, dateMode);
+  }, [reports, dateMode]);
 
   return (
     <div>
@@ -70,23 +76,29 @@ export default function GlobalReportsRecord() {
         </thead>
 
         <tbody>
-          {groupedReports.map((group, index) => (
-            <tr key={index}>
-              {/**
-               * Instead of writing <td>periodStart</td><td>periodEnd</td> here
-               * and then letting GlobalReportsRecordItem return several <td> for each report
-               * (which caused duplication), we simply render a single <GlobalReportsRecordItem>
-               * that returns exactly one <td> per column, using group.periodStart, group.periodEnd, and group.reports[].
-               */}
-              <GlobalReportsRecordItem
-                currentReports={currentReports}
-                groupReports={group.reports}
-                periodStart={group.periodStart}
-                periodEnd={group.periodEnd}
-                dateMode={dateMode}
-              />
+          {reports && reports.length > 0 ? (
+            groupedReports.map((group, index) => (
+              <tr key={index}>
+                {/**
+                 * Instead of writing <td>periodStart</td><td>periodEnd</td> here
+                 * and then letting GlobalReportsRecordItem return several <td> for each report
+                 * (which caused duplication), we simply render a single <GlobalReportsRecordItem>
+                 * that returns exactly one <td> per column, using group.periodStart, group.periodEnd, and group.reports[].
+                 */}
+                <GlobalReportsRecordItem
+                  currentReports={reports}
+                  groupReports={group.reports}
+                  periodStart={group.periodStart}
+                  periodEnd={group.periodEnd}
+                  dateMode={dateMode}
+                />
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td>لا توجد تقارير متاحة</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </Table>
     </div>

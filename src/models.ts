@@ -45,7 +45,7 @@ export type InvoiceTypes = 'Sale' | 'DarkMeet' | 'Medicine'
 export interface IInvoice {
   type: InvoiceTypes;
   index: number;
-  farm: string;
+  farmId: string;
   date: string;
   time: string;
   customer: string;
@@ -63,4 +63,17 @@ export interface IFarm {
 export interface IRecursiveFarm extends Models.Document {
     name: string;
     initialChecken: number;
+}
+
+export interface IRecursiveInvoice extends Models.Document {
+    type: InvoiceTypes;
+  index: number;
+  farmId: string;
+  date: string;
+  time: string;
+  customer: string;
+  meterial: string;
+  unit: string;
+  amount: number;
+  price: number;
 }

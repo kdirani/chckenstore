@@ -10,6 +10,8 @@ import GlobalReportsRecord from './Pages/GlobalReportsRecord';
 import InvoiceRecord from './Pages/InvoiceRecord';
 import InvoicesForm from './components/InvoicesForm';
 import { FarmProvider } from './context/FarmsProvider';
+import FarmsForm from './components/FarmsForm';
+import ReportsForm from './components/ReportsForm';
 
 function App() {
   const [selectedFarm, setSelectedFarm] = useState<string | null>(null);
@@ -28,6 +30,8 @@ function App() {
             />
             <Route path="/invoice" element={<InvoiceRecord />} />
             <Route path="/invoice/new" element={<InvoicesForm />} />
+            <Route path="/addfarm" element={<FarmsForm />} />
+            <Route path="/addreport" element={<ReportsForm />} />
             <Route path="*" element={<h1>Not found</h1>} />
           </Routes>
         </SelectedFarmContext>

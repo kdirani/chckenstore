@@ -1,22 +1,9 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
-import type { InvoiceTypes } from '../models';
+import type { InvoiceTypes, IInvoice } from '../models';
 import { useFarms } from '../contexts';
 import { invoiceService } from '../lib/appwrite';
-
-export interface IInvoice {
-  types: InvoiceTypes;
-  index: number;
-  farmId: string;
-  date: string;
-  time: string;
-  customer: string;
-  meterial: string;
-  unit: string;
-  amount: number;
-  price: number;
-}
 
 export interface InvoiceItem {
   meterial: string;
@@ -131,7 +118,7 @@ export default function InvoicesForm() {
     // إنشاء فاتورة لكل عنصر
     const savePromises = invoiceItems.map((item) => {
       const invoiceData: IInvoice = {
-        types: type,
+        type: type,
         index: Number(index),
         farmId: farm,
         date,

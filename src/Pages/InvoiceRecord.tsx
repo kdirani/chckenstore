@@ -1,21 +1,37 @@
-import { Form, Table } from "react-bootstrap";
-import FarmsFilter from "../components/FarmsFilter";
-import { useSelectedFarmContext } from "../contexts";
-import { useState } from "react";
-import type { IInvoice, InvoiceTypes } from "../models";
-import { mockInvoices } from "../invoiceMockData";
+import { Form, Table } from 'react-bootstrap';
+import FarmsFilter from '../components/FarmsFilter';
+import { useFarms, useSelectedFarmContext } from '../contexts';
+import { useEffect, useState } from 'react';
+import type { IInvoice, InvoiceTypes, IRecursiveInvoice } from '../models';
+import { invoiceService } from '../lib/appwrite';
+import { Query } from 'appwrite';
 
 export default function InvoiceRecord() {
   const selectedFarm = useSelectedFarmContext()[0];
+  const farms = useFarms().farms;
   const [type, setType] = useState<InvoiceTypes>('Sale');
-  const currentInvoices = mockInvoices.filter(x => x.type === type && x.farm === selectedFarm);
+  const [invoices, setInvoices] = useState<IRecursiveInvoice[]>([]);
+  useEffect(() => {
+    if (!selectedFarm) return;
+    console.log(selectedFarm);
+
+    const init = async () => {
+      invoiceService.list(
+        (docs) => setInvoices(docs),
+        () => alert('Error in reports fetch'),
+        [Query.equal('farmId', selectedFarm || ''), Query.equal('type', type)]
+      );
+    };
+    init();
+  }, [selectedFarm, type]);
+  console.log(invoiceService);
   return (
     <div>
-      <h1>التقرير الإنتاج اليومي</h1>
+      <h1>الفواتير</h1>
       <FarmsFilter></FarmsFilter>
       <Form.Group>
         <Form.Select
-          onChange={e => setType(e.target.value as InvoiceTypes)}
+          onChange={(e) => setType(e.target.value as InvoiceTypes)}
           value={type}
         >
           <option value="Sale">مبيع</option>
@@ -40,21 +56,33 @@ export default function InvoiceRecord() {
           </tr>
         </thead>
         <tbody>
-          {currentInvoices.map((invoice, index) => 
-            <TableRow key={index + invoice.time} invoiceType={type} invoice={invoice} index={index} />
-          )}
+          {invoices &&
+            invoices.length > 0 &&
+            invoices.map((invoice, index) => (
+              <TableRow
+                key={index + invoice.time}
+                invoiceType={type}
+                invoice={invoice}
+                index={index}
+                farmName={
+                  farms.find((f) => f.$id === invoice.farmId)?.name ||
+                  'غير معروف'
+                }
+              />
+            ))}
         </tbody>
       </Table>
     </div>
-  )
+  );
 }
 
-function TableRow (props: {
+function TableRow(props: {
   invoiceType: InvoiceTypes;
   invoice: IInvoice;
   index: number;
+  farmName: string;
 }) {
-  const item = props.invoice
+  const item = props.invoice;
   return (
     <>
       <tr>
@@ -67,8 +95,8 @@ function TableRow (props: {
         <td>{item.price * item.amount}</td>
         <td>{item.unit}</td>
         <td>{item.meterial}</td>
-        <td>{item.type === 'Medicine' ? item.farm : item.customer}</td>
+        <td>{item.type === 'Medicine' ? props.farmName : item.customer}</td>
       </tr>
     </>
-  )
+  );
 }
