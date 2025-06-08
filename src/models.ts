@@ -12,6 +12,7 @@ export interface IDailyReport {
     MonthlyFood: number;
     darkMeat: IDarkMeat;
     medicine: IDailyMedicine[];
+    fileIds?: string[];
 }
 
 export interface IٍٍDailySale {
@@ -53,6 +54,7 @@ export interface IInvoice {
   unit: string;
   amount: number;
   price: number;
+      fileIds?: string[];
 }
 
 export interface IFarm {

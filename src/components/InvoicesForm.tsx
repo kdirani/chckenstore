@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import type { FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import type { InvoiceTypes, IInvoice } from '../models';
 import { useFarms } from '../contexts';
@@ -10,10 +9,13 @@ export interface InvoiceItem {
   unit: string;
   amount: number;
   price: number;
+  files?: FileList | null;
 }
 
 export default function InvoicesForm() {
   const { farms } = useFarms();
+
+  // حقول رئيسية
   const [type, setType] = useState<InvoiceTypes>('Sale');
   const [index, setIndex] = useState<number | ''>('');
   const [farm, setFarm] = useState('');
@@ -22,149 +24,134 @@ export default function InvoicesForm() {
   const [customer, setCustomer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // عناصر الفاتورة مع ملفات لكل عنصر
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>([
-    { meterial: '', unit: '', amount: 0, price: 0 },
+    { meterial: '', unit: '', amount: 0, price: 0, files: null },
   ]);
 
+  // تغيير بيانات عنصر
   const handleItemChange = (
     idx: number,
     field: keyof InvoiceItem,
-    value: string
+    value: string | FileList | null
   ) => {
     const updated = [...invoiceItems];
     if (field === 'amount' || field === 'price') {
-      updated[idx][field] = Number(value);
+      updated[idx][field] = Number(value as string);
+    } else if (field === 'files') {
+      updated[idx].files = value as FileList;
     } else {
-      updated[idx][field] = value;
+      updated[idx][field] = value as string;
     }
     setInvoiceItems(updated);
   };
 
-  const handleAddItem = () => {
+  const handleAddItem = () =>
     setInvoiceItems([
       ...invoiceItems,
-      { meterial: '', unit: '', amount: 0, price: 0 },
+      { meterial: '', unit: '', amount: 0, price: 0, files: null },
     ]);
-  };
-
   const handleRemoveItem = (idx: number) => {
     if (invoiceItems.length === 1) return;
-    const updated = invoiceItems.filter((_, i) => i !== idx);
-    setInvoiceItems(updated);
+    setInvoiceItems(invoiceItems.filter((_, i) => i !== idx));
   };
 
-  // دالة الملء التلقائي
+  // تعبئة وهمية
   const handleAutoFill = () => {
-    if (farms.length === 0) {
+    if (!farms.length) {
       alert('لا توجد مزارع متاحة');
       return;
     }
-    // اختيار معرف المزرعة الأولى من المصفوفة
     const farmId = farms[0].$id;
+    const now = new Date();
     setType('Sale');
     setIndex(12345);
     setFarm(farmId);
-    setDate(new Date().toISOString().split('T')[0]);
-    setTime(new Date().toTimeString().split(' ')[0]);
+    setDate(now.toISOString().split('T')[0]);
+    setTime(now.toTimeString().split(' ')[0]);
     setCustomer('عميل تجريبي');
     setInvoiceItems([
-      {
-        meterial: 'بيض',
-        unit: 'صندوق',
-        amount: 10,
-        price: 15,
-      },
-      {
-        meterial: 'دجاج',
-        unit: 'كيلو',
-        amount: 5,
-        price: 20,
-      },
+      { meterial: 'بيض', unit: 'صندوق', amount: 10, price: 15, files: null },
+      { meterial: 'دجاج', unit: 'كيلو', amount: 5, price: 20, files: null },
     ]);
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  // إرسال الفاتورة
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // التحقق من صحة البيانات
+    // تحقق من الحقول الأساسية
     if (
       index === '' ||
-      farm.trim() === '' ||
-      date.trim() === '' ||
-      time.trim() === '' ||
-      customer.trim() === ''
+      !farm ||
+      !date ||
+      !time ||
+      !customer ||
+      invoiceItems.some(
+        (it) =>
+          !it.meterial.trim() ||
+          !it.unit.trim() ||
+          it.amount <= 0 ||
+          it.price <= 0
+      )
     ) {
-      alert('يرجى تعبئة جميع الحقول الأساسية');
+      alert('يرجى تعبئة جميع الحقول والتحقق من صحة عناصر الفاتورة');
       setIsSubmitting(false);
       return;
     }
 
-    // التحقق من صحة عناصر الفاتورة
-    const invalidItems = invoiceItems.filter(
-      (item) =>
-        item.meterial.trim() === '' ||
-        item.unit.trim() === '' ||
-        item.amount <= 0 ||
-        item.price <= 0
-    );
+    try {
+      // لكل عنصر، أنشئ فاتورة مع ملفاته
+      const promises = invoiceItems.map((item) => {
+        const invoiceData: IInvoice = {
+          type,
+          index: Number(index),
+          farmId: farm,
+          date,
+          time,
+          customer,
+          meterial: item.meterial,
+          unit: item.unit,
+          amount: item.amount,
+          price: item.price,
+        };
+        const filesArray = item.files ? Array.from(item.files) : [];
+        return new Promise<void>((resolve, reject) => {
+          invoiceService.create(
+            invoiceData,
+            filesArray,
+            () => resolve(),
+            () => reject()
+          );
+        });
+      });
 
-    if (invalidItems.length > 0) {
-      alert('يرجى التأكد من صحة جميع عناصر الفاتورة');
+      await Promise.all(promises);
+      alert('تم حفظ الفواتير بنجاح');
+      // إعادة التهيئة
+      setType('Sale');
+      setIndex('');
+      setFarm('');
+      setDate('');
+      setTime('');
+      setCustomer('');
+      setInvoiceItems([
+        { meterial: '', unit: '', amount: 0, price: 0, files: null },
+      ]);
+    } catch {
+      alert('حدث خطأ أثناء حفظ الفواتير');
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-
-    // إنشاء فاتورة لكل عنصر
-    const savePromises = invoiceItems.map((item) => {
-      const invoiceData: IInvoice = {
-        type: type,
-        index: Number(index),
-        farmId: farm,
-        date,
-        time,
-        customer,
-        meterial: item.meterial,
-        unit: item.unit,
-        amount: item.amount,
-        price: item.price,
-      };
-
-      return new Promise<void>((resolve, reject) => {
-        invoiceService.create(
-          invoiceData,
-          () => resolve(),
-          () => reject()
-        );
-      });
-    });
-
-    // حفظ جميع الفواتير
-    Promise.all(savePromises)
-      .then(() => {
-        alert('تم حفظ الفواتير بنجاح');
-        // إعادة تعيين النموذج
-        setType('Sale');
-        setIndex('');
-        setFarm('');
-        setDate('');
-        setTime('');
-        setCustomer('');
-        setInvoiceItems([{ meterial: '', unit: '', amount: 0, price: 0 }]);
-      })
-      .catch(() => {
-        alert('حدث خطأ أثناء حفظ الفواتير');
-      })
-      .finally(() => {
-        setIsSubmitting(false);
-      });
   };
 
   return (
     <Form onSubmit={handleSubmit}>
-      <Row>
+      {/* حقول الأعلى */}
+      <Row className="mb-3">
         <Col>
-          <Form.Group className="mb-3">
+          <Form.Group>
             <Form.Label>نوع الفاتورة</Form.Label>
             <Form.Select
               value={type}
@@ -178,7 +165,7 @@ export default function InvoicesForm() {
           </Form.Group>
         </Col>
         <Col>
-          <Form.Group className="mb-3">
+          <Form.Group>
             <Form.Label>رقم الفاتورة</Form.Label>
             <Form.Control
               type="number"
@@ -192,7 +179,7 @@ export default function InvoicesForm() {
           </Form.Group>
         </Col>
         <Col>
-          <Form.Group className="mb-3">
+          <Form.Group>
             <Form.Label>المزرعة</Form.Label>
             <Form.Select
               value={farm}
@@ -211,9 +198,9 @@ export default function InvoicesForm() {
         </Col>
       </Row>
 
-      <Row>
+      <Row className="mb-3">
         <Col>
-          <Form.Group className="mb-3">
+          <Form.Group>
             <Form.Label>التاريخ</Form.Label>
             <Form.Control
               type="date"
@@ -225,7 +212,7 @@ export default function InvoicesForm() {
           </Form.Group>
         </Col>
         <Col>
-          <Form.Group className="mb-3">
+          <Form.Group>
             <Form.Label>التوقيت</Form.Label>
             <Form.Control
               type="time"
@@ -237,7 +224,7 @@ export default function InvoicesForm() {
           </Form.Group>
         </Col>
         <Col>
-          <Form.Group className="mb-3">
+          <Form.Group>
             <Form.Label>العميل</Form.Label>
             <Form.Control
               type="text"
@@ -250,10 +237,11 @@ export default function InvoicesForm() {
         </Col>
       </Row>
 
+      {/* عناصر الفاتورة كاملة مع رفع ملفات لكل صف */}
       <div className="mb-3">
-        <h4>عناصر الفاتورة</h4>
+        <h5>عناصر الفاتورة</h5>
         {invoiceItems.map((item, idx) => (
-          <Row key={idx} className="mb-2">
+          <Row key={idx} className="align-items-end mb-2">
             <Col>
               <Form.Control
                 type="text"
@@ -298,6 +286,20 @@ export default function InvoicesForm() {
                 disabled={isSubmitting}
               />
             </Col>
+            <Col>
+              <Form.Control
+                type="file"
+                multiple
+                onChange={(e) =>
+                  handleItemChange(
+                    idx,
+                    'files',
+                    (e.target as HTMLInputElement).files
+                  )
+                }
+                disabled={isSubmitting}
+              />
+            </Col>
             <Col xs="auto">
               <Button
                 variant="danger"
@@ -312,23 +314,24 @@ export default function InvoicesForm() {
         <Button
           variant="secondary"
           onClick={handleAddItem}
-          className="mt-2"
           disabled={isSubmitting}
         >
           إضافة عنصر
         </Button>
       </div>
 
+      {/* أزرار الإرسال والملء التلقائي */}
       <div className="d-flex gap-2">
         <Button variant="primary" type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'جاري الحفظ...' : 'حفظ الفاتورة'}
         </Button>
         <Button
-          variant="secondary"
+          variant="warning"
+          type="button"
           onClick={handleAutoFill}
           disabled={isSubmitting}
         >
-          ملء تلقائي بالبيانات الوهمية
+          ملء تلقائي
         </Button>
       </div>
     </Form>
