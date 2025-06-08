@@ -103,12 +103,14 @@ export default function DailyReportItem(props: {
             <td>
               {metas.length === 0 && <span>—</span>}
               {metas.map(({ fid, previewUrl, downloadUrl, mimeType }) => {
+                console.log(previewUrl);
+                
                 const isImage = mimeType.startsWith('image/');
                 return (
                   <div key={fid} style={{ marginBottom: 8 }}>
                     {isImage && (
                       <img
-                        src={previewUrl + '&mode=admin'}
+                        src={`https://cloud.appwrite.io/v1/storage/buckets/${import.meta.env.VITE_APPWRITE_FILE_BUCKET_ID}/files/${fid}/view?project=${import.meta.env.VITE_APPWRITE_PROJECT_ID}`}
                         alt="معاينة صورة"
                         style={{
                           maxWidth: 80,

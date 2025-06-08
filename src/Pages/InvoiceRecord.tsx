@@ -146,12 +146,14 @@ function TableRow(props: {
       <td>
         {fileMetas.length === 0 && <span>—</span>}
         {fileMetas.map(({ fid, previewUrl, downloadUrl, mimeType }) => {
+          console.log(previewUrl);
+          
           const isImage = mimeType.startsWith('image/');
           return (
             <div key={fid} style={{ marginBottom: 8 }}>
               {isImage && (
                 <img
-                  src={previewUrl + '&mode=admin'}
+                  src={`https://cloud.appwrite.io/v1/storage/buckets/${import.meta.env.VITE_APPWRITE_FILE_BUCKET_ID}/files/${fid}/view?project=${import.meta.env.VITE_APPWRITE_PROJECT_ID}`}
                   alt="preview"
                   style={{
                     maxWidth: 80,
