@@ -1,7 +1,9 @@
-import { useState, type ChangeEvent, type FormEvent } from 'react';
-import { Form, Button, Row, Col } from 'react-bootstrap';
-import { reportsService } from '../lib/appwrite';
+import { useState, type ChangeEvent, type FormEvent, useEffect } from 'react';
+import { Form, Button, Row, Col, Table, Modal } from 'react-bootstrap';
+import { reportsService, fileService } from '../lib/appwrite';
 import { useFarms } from '../contexts';
+import type { IDailyReport, IٍٍDailySale, IDailyMedicine } from '../models';
+import type { Models } from 'appwrite';
 
 interface SaleItem {
   amount: string;
@@ -14,6 +16,15 @@ interface MedicineItem {
   unit: string;
   type: string;
   stor: string;
+}
+
+interface IRecursiveDailyReport extends IDailyReport, Models.Document {}
+
+interface FileMeta {
+  fid: string;
+  previewUrl: string;
+  downloadUrl: string;
+  mimeType: string;
 }
 
 export default function ReportsForm() {
@@ -39,6 +50,108 @@ export default function ReportsForm() {
   ]);
   // ملفات متعددة
   const [files, setFiles] = useState<FileList | null>(null);
+
+  // حالة التقارير
+  const [reports, setReports] = useState<IRecursiveDailyReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editMode, setEditMode] = useState(false);
+  const [currentReportId, setCurrentReportId] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState<IRecursiveDailyReport | null>(null);
+  const [existingFiles, setExistingFiles] = useState<FileMeta[]>([]);
+
+  // تحميل التقارير
+  useEffect(() => {
+    loadReports();
+  }, []);
+
+  const loadReports = () => {
+    setLoading(true);
+    reportsService.list(
+      (data) => {
+        setReports(data);
+        setLoading(false);
+      },
+      () => {
+        alert('حدث خطأ أثناء تحميل التقارير');
+        setLoading(false);
+      }
+    );
+  };
+
+  // تحميل بيانات الملفات للتقرير
+  const loadReportFiles = async (fileIds: string[] = []) => {
+    const fileMetas: FileMeta[] = [];
+    for (const fid of fileIds) {
+      try {
+        const res = await fileService.getFile(fid);
+        fileMetas.push({
+          fid,
+          previewUrl: fileService.getPreview(fid),
+          downloadUrl: fileService.download(fid),
+          mimeType: res.mimeType,
+        });
+      } catch (err) {
+        console.error('خطأ في جلب بيانات الملف', fid, err);
+      }
+    }
+    setExistingFiles(fileMetas);
+  };
+
+  // إعادة تعيين النموذج
+  const resetForm = () => {
+    setDate('');
+    setTime('');
+    setFarmId('');
+    setProduction('');
+    setDistortedProduction('');
+    setDeath('');
+    setDailyFood('');
+    setMonthlyFood('');
+    setDarkAmount('');
+    setDarkClient('');
+    setSaleItems([{ amount: '', weigh: '', client: '' }]);
+    setMedicineItems([{ amount: '', unit: '', type: '', stor: '' }]);
+    setFiles(null);
+    setCurrentReportId(null);
+    setEditMode(false);
+    setExistingFiles([]);
+  };
+
+  // تحميل تقرير للتعديل
+  const loadReportForEdit = (report: IRecursiveDailyReport) => {
+    setDate(report.date);
+    setTime(report.time);
+    setFarmId(report.farmId);
+    setProduction(report.production.toString());
+    setDistortedProduction(report.distortedProduction.toString());
+    setDeath(report.death.toString());
+    setDailyFood(report.dailyFood.toString());
+    setMonthlyFood(report.MonthlyFood.toString());
+    
+    const darkMeat = typeof report.darkMeat === 'string' ? JSON.parse(report.darkMeat) : report.darkMeat;
+    setDarkAmount(darkMeat.amount.toString());
+    setDarkClient(darkMeat.client);
+
+    const sale = typeof report.sale === 'string' ? JSON.parse(report.sale) : report.sale;
+    setSaleItems(sale.map((item: IٍٍDailySale) => ({
+      amount: item.amount.toString(),
+      weigh: item.weigh.toString(),
+      client: item.client
+    })));
+
+    const medicine = typeof report.medicine === 'string' ? JSON.parse(report.medicine) : report.medicine;
+    setMedicineItems(medicine.map((item: IDailyMedicine) => ({
+      amount: item.amount.toString(),
+      unit: item.unit,
+      type: item.type,
+      stor: item.stor
+    })));
+
+    setCurrentReportId(report.$id);
+    setEditMode(true);
+    loadReportFiles(report.fileIds);
+  };
 
   // إدارة الجداول
   const handleSaleChange = (i: number, f: keyof SaleItem, v: string) => {
@@ -99,6 +212,19 @@ export default function ReportsForm() {
     ]);
   };
 
+  // حذف ملف موجود
+  const handleDeleteFile = async (fileId: string) => {
+    try {
+      // حذف الملف من التخزين
+      await fileService.deleteFile(fileId);
+      // تحديث قائمة الملفات
+      setExistingFiles(prev => prev.filter(f => f.fid !== fileId));
+    } catch (err) {
+      console.error('خطأ في حذف الملف', err);
+      alert('حدث خطأ أثناء حذف الملف');
+    }
+  };
+
   // إرسال النموذج
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -131,296 +257,452 @@ export default function ReportsForm() {
           stor: item.stor,
         }))
       ),
+      fileIds: existingFiles.map(f => f.fid), // تحديث قائمة الملفات المتبقية فقط
     };
 
     // تحويل FileList إلى مصفوفة
     const fileArray = files ? Array.from(files) : [];
 
-    // استدعاء الخدمة
-    reportsService.create(
-      report,
-      fileArray,
-      (newId) => {
-        alert('تم الحفظ بنجاح. المعرف: ' + newId);
-        // إعادة تهيئة الحقول
-        setDate('');
-        setTime('');
-        setFarmId('');
-        setProduction('');
-        setDistortedProduction('');
-        setDeath('');
-        setDailyFood('');
-        setMonthlyFood('');
-        setDarkAmount('');
-        setDarkClient('');
-        setSaleItems([{ amount: '', weigh: '', client: '' }]);
-        setMedicineItems([{ amount: '', unit: '', type: '', stor: '' }]);
-        setFiles(null);
-      },
-      () => alert('خطأ أثناء الحفظ، حاول مجدداً.')
-    );
+    if (editMode && currentReportId) {
+      // تحديث تقرير موجود
+      reportsService.update(
+        currentReportId,
+        report,
+        fileArray,
+        () => {
+          alert('تم تحديث التقرير بنجاح');
+          resetForm();
+          loadReports();
+        },
+        () => alert('خطأ أثناء التحديث، حاول مجدداً.')
+      );
+    } else {
+      // إنشاء تقرير جديد
+      reportsService.create(
+        report,
+        fileArray,
+        (newId) => {
+          alert('تم الحفظ بنجاح. المعرف: ' + newId);
+          resetForm();
+          loadReports();
+        },
+        () => alert('خطأ أثناء الحفظ، حاول مجدداً.')
+      );
+    }
+  };
+
+  // حذف تقرير
+  const handleDelete = () => {
+    if (reportToDelete) {
+      reportsService.delete(
+        reportToDelete.$id,
+        () => {
+          setShowDeleteModal(false);
+          setReportToDelete(null);
+          loadReports();
+          alert('تم حذف التقرير بنجاح');
+        }
+      );
+    }
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
-      <Button variant="warning" onClick={handleAutoFill} className="mb-3">
-        ملء وهمي
-      </Button>
-
-      {/* حقل رفع الملفات المتعدد */}
-      <Form.Group controlId="files" className="mb-3">
-        <Form.Label>رفع مرفقات (صور، PDF، Excel)</Form.Label>
-        <Form.Control type="file" multiple onChange={handleFilesChange} />
-      </Form.Group>
-
-      {/* حقول التاريخ والوقت والمزرعة */}
-      <Row>
-        <Col md={4}>
-          <Form.Group controlId="date" className="mb-3">
-            <Form.Label>التاريخ</Form.Label>
-            <Form.Control
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-            />
-          </Form.Group>
-        </Col>
-        <Col md={4}>
-          <Form.Group controlId="time" className="mb-3">
-            <Form.Label>الوقت</Form.Label>
-            <Form.Control
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              required
-            />
-          </Form.Group>
-        </Col>
-        <Col md={4}>
-          <Form.Group controlId="farmId" className="mb-3">
-            <Form.Label>معرّف المزرعة</Form.Label>
-            <Form.Control
-              type="text"
-              value={farmId}
-              onChange={(e) => setFarmId(e.target.value)}
-              placeholder="أدخل معرّف المزرعة"
-              required
-            />
-          </Form.Group>
-        </Col>
-      </Row>
-
-      {/* بقية الحقول... */}
-      {/* الإنتاج والإنتاج المشوّه */}
-      <Row>
-        <Col md={6}>
-          <Form.Group controlId="production" className="mb-3">
-            <Form.Label>الإنتاج</Form.Label>
-            <Form.Control
-              type="number"
-              value={production}
-              onChange={(e) => setProduction(e.target.value)}
-              placeholder="مثلاً: 1000"
-              required
-            />
-          </Form.Group>
-        </Col>
-        <Col md={6}>
-          <Form.Group controlId="distortedProduction" className="mb-3">
-            <Form.Label>الإنتاج المشوّه</Form.Label>
-            <Form.Control
-              type="number"
-              value={distortedProduction}
-              onChange={(e) => setDistortedProduction(e.target.value)}
-              placeholder="مثلاً: 50"
-              required
-            />
-          </Form.Group>
-        </Col>
-      </Row>
-
-      {/* المبيعات الديناميكية */}
-      <fieldset className="border p-3 mb-3">
-        <legend className="w-auto px-2">المبيعات</legend>
-        {saleItems.map((item, idx) => (
-          <Row key={idx} className="align-items-end mb-2">
-            <Col md={3}>
-              <Form.Control
-                type="number"
-                value={item.amount}
-                onChange={(e) =>
-                  handleSaleChange(idx, 'amount', e.target.value)
-                }
-                placeholder="الكمية"
-                required
-              />
-            </Col>
-            <Col md={3}>
-              <Form.Control
-                type="number"
-                step="0.01"
-                value={item.weigh}
-                onChange={(e) => handleSaleChange(idx, 'weigh', e.target.value)}
-                placeholder="الوزن"
-                required
-              />
-            </Col>
-            <Col md={4}>
-              <Form.Control
-                type="text"
-                value={item.client}
-                onChange={(e) =>
-                  handleSaleChange(idx, 'client', e.target.value)
-                }
-                placeholder="اسم العميل"
-                required
-              />
-            </Col>
-            <Col md={2} className="text-center">
-              <Button
-                variant="danger"
-                onClick={() => handleRemoveSale(idx)}
-                disabled={saleItems.length === 1}
-              >
-                إزالة
-              </Button>
-            </Col>
-          </Row>
-        ))}
-        <Button variant="secondary" onClick={handleAddSale}>
-          إضافة بيع
+    <div>
+      <h2 className="mb-4">{editMode ? 'تعديل التقرير' : 'إضافة تقرير جديد'}</h2>
+      
+      <Form onSubmit={handleSubmit}>
+        <Button variant="warning" onClick={handleAutoFill} className="mb-3">
+          ملء وهمي
         </Button>
-      </fieldset>
 
-      {/* الوفيات والطعام */}
-      <Form.Group controlId="death" className="mb-3">
-        <Form.Label>عدد الوفيات</Form.Label>
-        <Form.Control
-          type="number"
-          value={death}
-          onChange={(e) => setDeath(e.target.value)}
-          required
-        />
-      </Form.Group>
-      <Row>
-        <Col md={6}>
-          <Form.Group controlId="dailyFood" className="mb-3">
-            <Form.Label>الطعام اليومي</Form.Label>
-            <Form.Control
-              type="number"
-              value={dailyFood}
-              onChange={(e) => setDailyFood(e.target.value)}
-              required
-            />
-          </Form.Group>
-        </Col>
-        <Col md={6}>
-          <Form.Group controlId="monthlyFood" className="mb-3">
-            <Form.Label>الطعام الشهري</Form.Label>
-            <Form.Control
-              type="number"
-              value={monthlyFood}
-              onChange={(e) => setMonthlyFood(e.target.value)}
-              required
-            />
-          </Form.Group>
-        </Col>
-      </Row>
+        {/* حقل رفع الملفات المتعدد */}
+        <Form.Group controlId="files" className="mb-3">
+          <Form.Label>رفع مرفقات (صور، PDF، Excel)</Form.Label>
+          <Form.Control type="file" multiple onChange={handleFilesChange} />
+        </Form.Group>
 
-      {/* اللحم الداكن */}
-      <fieldset className="border p-3 mb-3">
-        <legend className="w-auto px-2">اللحم الداكن</legend>
+        {/* عرض الملفات الموجودة في وضع التعديل */}
+        {editMode && existingFiles.length > 0 && (
+          <div className="mb-3">
+            <h5>الملفات المرفقة</h5>
+            <div className="d-flex flex-wrap gap-3">
+              {existingFiles.map((file) => (
+                <div key={file.fid} className="position-relative">
+                  {file.mimeType.startsWith('image/') ? (
+                    <img
+                      src={file.previewUrl}
+                      alt="معاينة"
+                      style={{ maxWidth: '150px', maxHeight: '150px', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <div className="border p-2 text-center" style={{ width: '150px' }}>
+                      <i className="bi bi-file-earmark"></i>
+                      <div className="small">ملف</div>
+                    </div>
+                  )}
+                  <div className="mt-1">
+                    <a
+                      href={file.downloadUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-sm btn-info me-1"
+                    >
+                      تحميل
+                    </a>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDeleteFile(file.fid)}
+                    >
+                      حذف
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* حقول التاريخ والوقت والمزرعة */}
         <Row>
-          <Col md={6}>
-            <Form.Control
-              type="number"
-              value={darkAmount}
-              onChange={(e) => setDarkAmount(e.target.value)}
-              placeholder="الكمية"
-              required
-            />
+          <Col md={4}>
+            <Form.Group controlId="date" className="mb-3">
+              <Form.Label>التاريخ</Form.Label>
+              <Form.Control
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+              />
+            </Form.Group>
           </Col>
-          <Col md={6}>
-            <Form.Control
-              type="text"
-              value={darkClient}
-              onChange={(e) => setDarkClient(e.target.value)}
-              placeholder="اسم العميل"
-              required
-            />
+          <Col md={4}>
+            <Form.Group controlId="time" className="mb-3">
+              <Form.Label>الوقت</Form.Label>
+              <Form.Control
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                required
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group controlId="farmId" className="mb-3">
+              <Form.Label>المزرعة</Form.Label>
+              <Form.Select
+                value={farmId}
+                onChange={(e) => setFarmId(e.target.value)}
+                required
+              >
+                <option value="">اختر المزرعة</option>
+                {farms?.map((farm) => (
+                  <option key={farm.$id} value={farm.$id}>
+                    {farm.name}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
           </Col>
         </Row>
-      </fieldset>
 
-      {/* الأدوية الديناميكية */}
-      <fieldset className="border p-3 mb-3">
-        <legend className="w-auto px-2">الأدوية</legend>
-        {medicineItems.map((item, idx) => (
-          <Row key={idx} className="align-items-end mb-2">
-            <Col md={2}>
+        {/* الإنتاج والإنتاج المشوّه */}
+        <Row>
+          <Col md={6}>
+            <Form.Group controlId="production" className="mb-3">
+              <Form.Label>الإنتاج</Form.Label>
               <Form.Control
                 type="number"
-                value={item.amount}
-                onChange={(e) =>
-                  handleMedicineChange(idx, 'amount', e.target.value)
-                }
-                placeholder="الكمية"
+                value={production}
+                onChange={(e) => setProduction(e.target.value)}
+                placeholder="مثلاً: 1000"
                 required
               />
-            </Col>
-            <Col md={2}>
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group controlId="distortedProduction" className="mb-3">
+              <Form.Label>الإنتاج المشوّه</Form.Label>
               <Form.Control
-                type="text"
-                value={item.unit}
-                onChange={(e) =>
-                  handleMedicineChange(idx, 'unit', e.target.value)
-                }
-                placeholder="الوحدة"
+                type="number"
+                value={distortedProduction}
+                onChange={(e) => setDistortedProduction(e.target.value)}
+                placeholder="مثلاً: 50"
                 required
               />
-            </Col>
-            <Col md={3}>
-              <Form.Control
-                type="text"
-                value={item.type}
-                onChange={(e) =>
-                  handleMedicineChange(idx, 'type', e.target.value)
-                }
-                placeholder="النوع"
-                required
-              />
-            </Col>
-            <Col md={3}>
-              <Form.Control
-                type="text"
-                value={item.stor}
-                onChange={(e) =>
-                  handleMedicineChange(idx, 'stor', e.target.value)
-                }
-                placeholder="مكان التخزين"
-                required
-              />
-            </Col>
-            <Col md={2} className="text-center">
-              <Button
-                variant="danger"
-                onClick={() => handleRemoveMedicine(idx)}
-                disabled={medicineItems.length === 1}
-              >
-                إزالة
-              </Button>
-            </Col>
-          </Row>
-        ))}
-        <Button variant="secondary" onClick={handleAddMedicine}>
-          إضافة دواء
-        </Button>
-      </fieldset>
+            </Form.Group>
+          </Col>
+        </Row>
 
-      <Button variant="primary" type="submit">
-        حفظ التقرير اليومي
-      </Button>
-    </Form>
+        {/* المبيعات */}
+        <fieldset className="border p-3 mb-3">
+          <legend className="w-auto px-2">المبيعات</legend>
+          {saleItems.map((item, idx) => (
+            <Row key={idx} className="align-items-end mb-2">
+              <Col md={3}>
+                <Form.Control
+                  type="number"
+                  placeholder="الكمية"
+                  value={item.amount}
+                  onChange={(e) => handleSaleChange(idx, 'amount', e.target.value)}
+                  required
+                />
+              </Col>
+              <Col md={3}>
+                <Form.Control
+                  type="number"
+                  placeholder="الوزن"
+                  value={item.weigh}
+                  onChange={(e) => handleSaleChange(idx, 'weigh', e.target.value)}
+                  required
+                />
+              </Col>
+              <Col md={4}>
+                <Form.Control
+                  type="text"
+                  placeholder="العميل"
+                  value={item.client}
+                  onChange={(e) => handleSaleChange(idx, 'client', e.target.value)}
+                  required
+                />
+              </Col>
+              <Col md={2}>
+                <Button
+                  variant="danger"
+                  onClick={() => handleRemoveSale(idx)}
+                  disabled={saleItems.length === 1}
+                >
+                  حذف
+                </Button>
+              </Col>
+            </Row>
+          ))}
+          <Button variant="success" onClick={handleAddSale} className="mt-2">
+            إضافة بيع
+          </Button>
+        </fieldset>
+
+        {/* الأدوية */}
+        <fieldset className="border p-3 mb-3">
+          <legend className="w-auto px-2">الأدوية</legend>
+          {medicineItems.map((item, idx) => (
+            <Row key={idx} className="align-items-end mb-2">
+              <Col md={2}>
+                <Form.Control
+                  type="number"
+                  placeholder="الكمية"
+                  value={item.amount}
+                  onChange={(e) => handleMedicineChange(idx, 'amount', e.target.value)}
+                  required
+                />
+              </Col>
+              <Col md={2}>
+                <Form.Control
+                  type="text"
+                  placeholder="الوحدة"
+                  value={item.unit}
+                  onChange={(e) => handleMedicineChange(idx, 'unit', e.target.value)}
+                  required
+                />
+              </Col>
+              <Col md={3}>
+                <Form.Control
+                  type="text"
+                  placeholder="النوع"
+                  value={item.type}
+                  onChange={(e) => handleMedicineChange(idx, 'type', e.target.value)}
+                  required
+                />
+              </Col>
+              <Col md={3}>
+                <Form.Control
+                  type="text"
+                  placeholder="المخزن"
+                  value={item.stor}
+                  onChange={(e) => handleMedicineChange(idx, 'stor', e.target.value)}
+                  required
+                />
+              </Col>
+              <Col md={2}>
+                <Button
+                  variant="danger"
+                  onClick={() => handleRemoveMedicine(idx)}
+                  disabled={medicineItems.length === 1}
+                >
+                  حذف
+                </Button>
+              </Col>
+            </Row>
+          ))}
+          <Button variant="success" onClick={handleAddMedicine} className="mt-2">
+            إضافة دواء
+          </Button>
+        </fieldset>
+
+        {/* اللحم الداكن */}
+        <Row>
+          <Col md={6}>
+            <Form.Group controlId="darkAmount" className="mb-3">
+              <Form.Label>كمية اللحم الداكن</Form.Label>
+              <Form.Control
+                type="number"
+                value={darkAmount}
+                onChange={(e) => setDarkAmount(e.target.value)}
+                placeholder="مثلاً: 12000"
+                required
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group controlId="darkClient" className="mb-3">
+              <Form.Label>عميل اللحم الداكن</Form.Label>
+              <Form.Control
+                type="text"
+                value={darkClient}
+                onChange={(e) => setDarkClient(e.target.value)}
+                placeholder="مثلاً: وليد محمد عيد"
+                required
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+
+        {/* النفوق والعلف */}
+        <Row>
+          <Col md={4}>
+            <Form.Group controlId="death" className="mb-3">
+              <Form.Label>النفوق</Form.Label>
+              <Form.Control
+                type="number"
+                value={death}
+                onChange={(e) => setDeath(e.target.value)}
+                placeholder="مثلاً: 5"
+                required
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group controlId="dailyFood" className="mb-3">
+              <Form.Label>العلف اليومي</Form.Label>
+              <Form.Control
+                type="number"
+                value={dailyFood}
+                onChange={(e) => setDailyFood(e.target.value)}
+                placeholder="مثلاً: 200"
+                required
+              />
+            </Form.Group>
+          </Col>
+          <Col md={4}>
+            <Form.Group controlId="monthlyFood" className="mb-3">
+              <Form.Label>العلف الشهري</Form.Label>
+              <Form.Control
+                type="number"
+                value={monthlyFood}
+                onChange={(e) => setMonthlyFood(e.target.value)}
+                placeholder="مثلاً: 6000"
+                required
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+
+        <div className="mt-4">
+          <Button variant="primary" type="submit" className="me-2">
+            {editMode ? 'تحديث التقرير' : 'حفظ التقرير'}
+          </Button>
+          {editMode && (
+            <Button variant="secondary" onClick={resetForm}>
+              إلغاء التعديل
+            </Button>
+          )}
+        </div>
+      </Form>
+
+      {/* جدول التقارير */}
+      <h2 className="mt-5 mb-4">قائمة التقارير</h2>
+      {loading ? (
+        <p>جاري تحميل البيانات...</p>
+      ) : (
+        <Table striped bordered hover responsive>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>التاريخ</th>
+              <th>الوقت</th>
+              <th>المزرعة</th>
+              <th>الإنتاج</th>
+              <th>الإنتاج المشوّه</th>
+              <th>النفوق</th>
+              <th>العلف اليومي</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+            {reports.length === 0 ? (
+              <tr>
+                <td colSpan={9} className="text-center">
+                  لا توجد تقارير مسجلة
+                </td>
+              </tr>
+            ) : (
+              reports.map((report, index) => {
+                const farm = farms?.find((f) => f.$id === report.farmId);
+                return (
+                  <tr key={report.$id}>
+                    <td>{index + 1}</td>
+                    <td>{report.date}</td>
+                    <td>{report.time}</td>
+                    <td>{farm?.name || report.farmId}</td>
+                    <td>{report.production}</td>
+                    <td>{report.distortedProduction}</td>
+                    <td>{report.death}</td>
+                    <td>{report.dailyFood}</td>
+                    <td>
+                      <Button
+                        variant="info"
+                        size="sm"
+                        className="me-2"
+                        onClick={() => loadReportForEdit(report)}
+                      >
+                        تعديل
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => {
+                          setReportToDelete(report);
+                          setShowDeleteModal(true);
+                        }}
+                      >
+                        حذف
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </Table>
+      )}
+
+      {/* مودال تأكيد الحذف */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>تأكيد الحذف</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          هل أنت متأكد من حذف التقرير بتاريخ {reportToDelete?.date}؟
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            إلغاء
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            تأكيد الحذف
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </div>
   );
 }

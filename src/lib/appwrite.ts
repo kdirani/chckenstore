@@ -35,6 +35,7 @@ export type OnError = (error?: any) => void;
  *  - upload:      رفع ملف (صورة، PDF، XLSX)
  *  - getPreview:  رابط معاينة داخلية
  *  - download:    رابط تحميل مباشر
+ *  - deleteFile:  حذف ملف
  */
 export const fileService = {
   upload: (file: File, onSuccess: OnSuccessUpload, onError: OnError) => {
@@ -45,6 +46,7 @@ export const fileService = {
   getFile: async (fileId: string) => storage.getFile(FILE_BUCKET, fileId),
   getPreview: (fileId: string) => storage.getFilePreview(FILE_BUCKET, fileId),
   download: (fileId: string) => storage.getFileDownload(FILE_BUCKET, fileId),
+  deleteFile: async (fileId: string) => storage.deleteFile(FILE_BUCKET, fileId),
 };
 
 /**
