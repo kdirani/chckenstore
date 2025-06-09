@@ -111,14 +111,40 @@ export const updateDocument = async (
   onError?: () => void
 ) => {
   try {
-    const response = await databases.updateDocument(
+    // الحصول على المستند الحالي أولاً
+    const currentDoc = await databases.getDocument(
       import.meta.env.VITE_APPWRITE_DB_ID,
       collectionId,
-      documentId,
-      data
+      documentId
     );
-    console.log('Updated:', response);
-    onSucess()
+    
+    // دمج البيانات الحالية مع البيانات الجديدة
+    const mergedData = { ...currentDoc, ...data };
+    
+    // حذف الحقول التي لا يجب تضمينها في التحديث
+    delete mergedData.$id;
+    delete mergedData.$createdAt;
+    delete mergedData.$updatedAt;
+    delete mergedData.$permissions;
+    delete mergedData.$collectionId;
+    delete mergedData.$databaseId;
+    
+    // حذف المستند القديم وإنشاء مستند جديد بنفس المعرف
+    await databases.deleteDocument(
+      import.meta.env.VITE_APPWRITE_DB_ID,
+      collectionId,
+      documentId
+    );
+    
+    const response = await databases.createDocument(
+      import.meta.env.VITE_APPWRITE_DB_ID,
+      collectionId,
+      documentId, // استخدام نفس المعرف
+      mergedData
+    );
+    
+    console.log('Updated (recreated):', response);
+    onSucess();
   } catch (error) {
     console.error('Error updating document:', error);
     if(onError) {
