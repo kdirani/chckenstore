@@ -44,6 +44,16 @@ export default function InvoicesForm() {
   const [invoiceToDelete, setInvoiceToDelete] = useState<IRecursiveInvoice | null>(null);
   const [existingFiles, setExistingFiles] = useState<FileMeta[]>([]);
 
+  // قائمة الأوزان للبيض
+  const weightRanges = [
+    "1800/1850",
+    "1850/1900",
+    "1900/1950",
+    "1950/2000",
+    "2000/2050",
+    "2050/2100",
+  ];
+
   // تحميل الفواتير
   useEffect(() => {
     loadInvoices();
@@ -361,77 +371,106 @@ export default function InvoicesForm() {
         {/* عناصر الفاتورة كاملة مع رفع ملفات لكل صف */}
         <div className="mb-3">
           <h5>عناصر الفاتورة</h5>
-          {invoiceItems.map((item, idx) => (
-            <Row key={idx} className="align-items-end mb-2">
-              <Col>
-                <Form.Control
-                  type="text"
-                  placeholder="المادة"
-                  value={item.meterial}
-                  onChange={(e) =>
-                    handleItemChange(idx, 'meterial', e.target.value)
-                  }
-                  required
-                  disabled={isSubmitting}
-                />
-              </Col>
-              <Col>
-                <Form.Control
-                  type="text"
-                  placeholder="الوحدة"
-                  value={item.unit}
-                  onChange={(e) => handleItemChange(idx, 'unit', e.target.value)}
-                  required
-                  disabled={isSubmitting}
-                />
-              </Col>
-              <Col>
-                <Form.Control
-                  type="number"
-                  placeholder="الكمية"
-                  value={item.amount}
-                  onChange={(e) =>
-                    handleItemChange(idx, 'amount', e.target.value)
-                  }
-                  required
-                  disabled={isSubmitting}
-                />
-              </Col>
-              <Col>
-                <Form.Control
-                  type="number"
-                  placeholder="السعر"
-                  value={item.price}
-                  onChange={(e) => handleItemChange(idx, 'price', e.target.value)}
-                  required
-                  disabled={isSubmitting}
-                />
-              </Col>
-              <Col>
-                <Form.Control
-                  type="file"
-                  multiple
-                  onChange={(e) =>
-                    handleItemChange(
-                      idx,
-                      'files',
-                      (e.target as HTMLInputElement).files
-                    )
-                  }
-                  disabled={isSubmitting}
-                />
-              </Col>
-              <Col xs="auto">
-                <Button
-                  variant="danger"
-                  onClick={() => handleRemoveItem(idx)}
-                  disabled={invoiceItems.length === 1 || isSubmitting}
-                >
-                  حذف
-                </Button>
-              </Col>
-            </Row>
-          ))}
+          <Table className="mb-3">
+            <thead>
+              <tr>
+                <th>المادة</th>
+                <th>الوحدة</th>
+                <th>الكمية</th>
+                <th>السعر</th>
+                <th>الملفات</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoiceItems.map((item, index) => (
+                <tr key={index}>
+                  <td>
+                    {type === 'Sale' ? (
+                      <Form.Select
+                        value={item.meterial}
+                        onChange={(e) => handleItemChange(index, 'meterial', e.target.value)}
+                        required
+                        disabled={isSubmitting}
+                      >
+                        <option value="">اختر الوزن</option>
+                        {weightRanges.map((weight) => (
+                          <option key={weight} value={weight}>
+                            {weight}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    ) : (
+                      <Form.Control
+                        type="text"
+                        value={item.meterial}
+                        onChange={(e) => handleItemChange(index, 'meterial', e.target.value)}
+                        placeholder="أدخل المادة"
+                        required
+                        disabled={isSubmitting}
+                      />
+                    )}
+                  </td>
+                  <td>
+                    <Form.Control
+                      type="text"
+                      placeholder="الوحدة"
+                      value={item.unit}
+                      onChange={(e) => handleItemChange(index, 'unit', e.target.value)}
+                      required
+                      disabled={isSubmitting}
+                    />
+                  </td>
+                  <td>
+                    <Form.Control
+                      type="number"
+                      placeholder="الكمية"
+                      value={item.amount}
+                      onChange={(e) =>
+                        handleItemChange(index, 'amount', e.target.value)
+                      }
+                      required
+                      disabled={isSubmitting}
+                    />
+                  </td>
+                  <td>
+                    <Form.Control
+                      type="number"
+                      placeholder="السعر"
+                      value={item.price}
+                      onChange={(e) => handleItemChange(index, 'price', e.target.value)}
+                      required
+                      disabled={isSubmitting}
+                    />
+                  </td>
+                  <td>
+                    <Form.Control
+                      type="file"
+                      multiple
+                      onChange={(e) =>
+                        handleItemChange(
+                          index,
+                          'files',
+                          (e.target as HTMLInputElement).files
+                        )
+                      }
+                      disabled={isSubmitting}
+                    />
+                  </td>
+                  <td>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleRemoveItem(index)}
+                      disabled={invoiceItems.length === 1 || isSubmitting}
+                    >
+                      حذف
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
           <Button
             variant="secondary"
             onClick={handleAddItem}
