@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { Form, Button, Table, Modal, Container, Row, Col } from "react-bootstrap";
 import { farmsService } from "../lib/appwrite";
@@ -48,6 +48,7 @@ export default function FarmsForm() {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // استخدام IFarm مع استخراج البيانات المطلوبة فقط
     const farmData: IFarm = {
       name,
       initialChecken: Number(initialChecken),
