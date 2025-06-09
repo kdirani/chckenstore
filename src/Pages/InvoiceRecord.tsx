@@ -78,7 +78,7 @@ export default function InvoiceRecord() {
           value={type}
           onChange={(e) => setType(e.target.value as InvoiceTypes)}
         >
-          <option value="Sale">مبيع</option>
+          <option value="Sale">بيض</option>
           <option value="DarkMeet">سواد</option>
           <option value="Medicine">دواء</option>
         </Form.Select>
