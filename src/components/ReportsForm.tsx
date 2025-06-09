@@ -27,6 +27,16 @@ interface FileMeta {
   mimeType: string;
 }
 
+// Add weight ranges array
+const weightRanges = [
+  "1800/1850",
+  "1850/1900",
+  "1900/1950",
+  "1950/2000",
+  "2000/2050",
+  "2050/2100",
+];
+
 export default function ReportsForm() {
   const { farms } = useFarms();
   // حقول أساسية
@@ -203,8 +213,8 @@ export default function ReportsForm() {
     setDarkAmount('12000');
     setDarkClient('وليد محمد عيد');
     setSaleItems([
-      { amount: '10', weigh: '5.2', client: 'عميل أول' },
-      { amount: '8', weigh: '4.7', client: 'عميل ثاني' },
+      { amount: '10', weigh: weightRanges[0], client: 'عميل أول' },
+      { amount: '8', weigh: weightRanges[1], client: 'عميل ثاني' },
     ]);
     setMedicineItems([
       { amount: '2', unit: 'علبة', type: 'مضاد حيوي', stor: 'المخزن الرئيسي' },
@@ -449,13 +459,18 @@ export default function ReportsForm() {
                 />
               </Col>
               <Col md={3}>
-                <Form.Control
-                  type="number"
-                  placeholder="الوزن"
+                <Form.Select
                   value={item.weigh}
                   onChange={(e) => handleSaleChange(idx, 'weigh', e.target.value)}
                   required
-                />
+                >
+                  <option value="">اختر الوزن</option>
+                  {weightRanges.map((range) => (
+                    <option key={range} value={range}>
+                      {range}
+                    </option>
+                  ))}
+                </Form.Select>
               </Col>
               <Col md={4}>
                 <Form.Control
@@ -539,11 +554,11 @@ export default function ReportsForm() {
           </Button>
         </fieldset>
 
-        {/* اللحم الداكن */}
+        {/* السواد */}
         <Row>
           <Col md={6}>
             <Form.Group controlId="darkAmount" className="mb-3">
-              <Form.Label>كمية اللحم الداكن</Form.Label>
+              <Form.Label>كمية السواد</Form.Label>
               <Form.Control
                 type="number"
                 value={darkAmount}
@@ -555,7 +570,7 @@ export default function ReportsForm() {
           </Col>
           <Col md={6}>
             <Form.Group controlId="darkClient" className="mb-3">
-              <Form.Label>عميل اللحم الداكن</Form.Label>
+              <Form.Label>عميل السواد</Form.Label>
               <Form.Control
                 type="text"
                 value={darkClient}
