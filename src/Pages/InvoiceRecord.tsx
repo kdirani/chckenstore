@@ -263,7 +263,7 @@ function InvoiceTableRow(props: {
       </TableCell>
       <TableCell align="center">
         {fileMetas.length === 0 && <span>—</span>}
-        {fileMetas.map(({ fid, previewUrl, downloadUrl, mimeType }) => {
+        {fileMetas.map(({ fid, downloadUrl, mimeType }) => {
           const isImage = mimeType.startsWith("image/");
           return (
             <Box key={fid} sx={{ mb: 1 }}>

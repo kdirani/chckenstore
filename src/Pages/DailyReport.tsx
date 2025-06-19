@@ -18,13 +18,11 @@ import {
   Paper,
   Divider,
   Stack,
-  useTheme,
 } from "@mui/material";
 
 export default function DailyReport() {
   const selectedFarm = useSelectedFarmContext()[0];
   const [reports, setReports] = useState<IDailyReport[]>([]);
-  const theme = useTheme();
 
   useEffect(() => {
     if (!selectedFarm) return;

@@ -98,7 +98,7 @@ export default function FarmsForm() {
     } else {
       farmsService.create(
         farmData,
-        (newId) => {
+        () => {
           resetForm();
           setIsSubmitting(false);
           setShowSuccessModal(true); // عرض المودال عند الحفظ

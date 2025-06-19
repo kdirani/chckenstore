@@ -12,18 +12,17 @@ import {
   totalize,
 } from '../utils';
 import { useSelectedFarmContext } from '../contexts';
-import type { FilterDateMod, IDailyReport } from '../models';
+import type { FilterDateMod } from '../models';
+import type { IDailyReport } from '../models';
 
 interface GlobalReportTableProps {
-  dateMode: string;
-  reports: any[];
-  tableSx?: object; // أضف هذا السطر
+  dateMode: FilterDateMod;
+  reports: IDailyReport[];
 }
 
 export default function GlobalReportTable({
   dateMode,
   reports,
-  tableSx,
 }: GlobalReportTableProps) {
   const selectedFarm = useSelectedFarmContext()[0];
   const currentReports = reports.filter(

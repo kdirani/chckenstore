@@ -11,14 +11,11 @@ import {
   Box,
   Divider,
   Stack,
-  Paper,
-  useTheme,
 } from "@mui/material";
 
 export default function GlobalReports() {
   const selectedFarm = useSelectedFarmContext()[0];
   const [reports, setReports] = useState<IDailyReport[]>([]);
-  const theme = useTheme();
 
   useEffect(() => {
     if (!selectedFarm) return;
@@ -49,30 +46,6 @@ export default function GlobalReports() {
     },
     scrollbarColor: "#c62828 #ffcdd2",
     scrollbarWidth: "thin",
-  };
-
-  const commonTableStyles = {
-    minWidth: 900,
-    "& thead tr": {
-      background: "#c62828",
-    },
-    "& thead th": {
-      color: "#fff",
-      fontWeight: "bold",
-      fontSize: { xs: 13, md: 16 },
-      borderBottom: "2px solid #ffcdd2",
-      textAlign: "center",
-      whiteSpace: "nowrap",
-    },
-    "& tbody td": {
-      textAlign: "center",
-      fontSize: { xs: 12, md: 15 },
-      whiteSpace: "nowrap",
-    },
-    "& tbody tr:nth-of-type(odd)": { backgroundColor: "#fff5f5" },
-    "& tbody tr:hover": { backgroundColor: "#ffeaea" },
-    borderRadius: 3,
-    boxShadow: "0 2px 12px 0 rgba(198,40,40,0.07)",
   };
 
   return (
@@ -137,15 +110,15 @@ export default function GlobalReports() {
         </Box>
 
         <Box sx={tableContainerSx}>
-          <GlobalReportTable dateMode="day" reports={reports} tableSx={commonTableStyles} />
+          <GlobalReportTable dateMode="day" reports={reports} />
         </Box>
 
         <Box sx={tableContainerSx}>
-          <GlobalReportTable dateMode="week" reports={reports} tableSx={commonTableStyles} />
+          <GlobalReportTable dateMode="week" reports={reports} />
         </Box>
 
         <Box sx={tableContainerSx}>
-          <GlobalReportTable dateMode="month" reports={reports} tableSx={commonTableStyles} />
+          <GlobalReportTable dateMode="month" reports={reports} />
         </Box>
       </Stack>
 
