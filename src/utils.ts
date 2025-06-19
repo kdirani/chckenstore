@@ -55,10 +55,21 @@ export const getPreviousCumulative = (
 export const getCheckenAmountBefore = (
   report: IDailyReport,
   init: number = 40000,
-  allReports: IDailyReport[]
+  allReports: IDailyReport[],
+  farms?: any[]
 ) => {
   const amounts: number[] = [];
-  if (allReports.indexOf(report) === 0) return init;
+  
+  // البحث عن المزرعة المحددة في التقرير
+  let initialChickenCount = init;
+  if (farms && farms.length > 0) {
+    const farm = farms.find(f => f.$id === report.farmId);
+    if (farm && farm.initialChecken) {
+      initialChickenCount = farm.initialChecken;
+    }
+  }
+  
+  if (allReports.indexOf(report) === 0) return initialChickenCount;
   allReports.forEach((item) => {
     const currentDate = new Date(report.date).getTime();
     const itemDate = new Date(item.date).getTime();
@@ -67,7 +78,7 @@ export const getCheckenAmountBefore = (
     }
   });
   const total = amounts.reduce((acc, amount) => acc + amount, 0);
-  return init - total;
+  return initialChickenCount - total;
 };
 
 export const getCartorCalc = (report: IDailyReport) => {
@@ -290,14 +301,15 @@ export function getAvarageOfDeath(
 export const getAvarageOfFoodProductionPercentage = (
   reports: IDailyReport[],
   filterDate: FilterDateMod,
-  type: 'food' | 'production'
+  type: 'food' | 'production',
+  farms?: any[]
 ) => {
   let totalPercentage = 0;
   reports.forEach((report) => {
     if (type === 'food') {
       const percentage = getFoodPercentage(
         report.dailyFood,
-        getCheckenAmountBefore(report, undefined, reports)
+        getCheckenAmountBefore(report, undefined, reports, farms)
       );
       totalPercentage += Number(percentage.replace('%', ''));
       return;
@@ -305,7 +317,7 @@ export const getAvarageOfFoodProductionPercentage = (
 
     const percentage = calculatePercentageAndTotal(
       (report.production + report.distortedProduction) * 30,
-      getCheckenAmountBefore(report, undefined, reports)
+      getCheckenAmountBefore(report, undefined, reports, farms)
     );
     totalPercentage += Number(percentage.replace('%', ''));
   });

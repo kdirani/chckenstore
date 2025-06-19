@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { IDailyReport, IٍٍDailySale } from '../models';
+import { useFarms } from '../contexts';
 import {
   calculatePercentageAndTotal,
   getCartorCalc,
@@ -19,6 +20,7 @@ type FileMeta = {
 export default function DailyReportItem(props: {
   dailyReports: IDailyReport[];
 }) {
+  const { farms } = useFarms();
   // fileMetas: خريطة لكل تقرير إلى بيانات ملفاته
   const [fileMetas, setFileMetas] = useState<Record<number, FileMeta[]>>({});
 
@@ -79,22 +81,22 @@ export default function DailyReportItem(props: {
             <td>
               {calculatePercentageAndTotal(
                 (item.production + item.distortedProduction) * 30,
-                getCheckenAmountBefore(item, undefined, props.dailyReports)
+                getCheckenAmountBefore(item, undefined, props.dailyReports, farms)
               )}
             </td>
             <td>
-              {getCheckenAmountBefore(item, undefined, props.dailyReports)}
+              {getCheckenAmountBefore(item, undefined, props.dailyReports, farms)}
             </td>
             <td>{item.death}</td>
             <td>
-              {getCheckenAmountBefore(item, undefined, props.dailyReports) -
+              {getCheckenAmountBefore(item, undefined, props.dailyReports, farms) -
                 item.death}
             </td>
             <td>{item.dailyFood}</td>
             <td>
               {getFoodPercentage(
                 item.dailyFood,
-                getCheckenAmountBefore(item, undefined, props.dailyReports)
+                getCheckenAmountBefore(item, undefined, props.dailyReports, farms)
               )}
             </td>
             <td>{darkMeat.amount}</td>
