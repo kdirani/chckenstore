@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Ancizar+Sans:ital,wght@0,100..1000;1,100..1000&family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&display=swap');
+
+body  {
+  font-family: 'IBM Plex Sans Arabic', 'Ancizar Sans', Arial, sans-serif !important;
+  margin: 0;
+  padding: 0;
+  background: #fff !important;
+}
+*{
+    font-family: 'IBM Plex Sans Arabic', 'Ancizar Sans', Arial, sans-serif !important;
+}
+.page-container {
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: center; */
+  font-family: 'IBM Plex Sans Arabic', 'Ancizar Sans', Arial, sans-serif;
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 1100px;
+  margin: 64px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-title {
+  color: #c62828;
+  font-weight: bold;
+  font-size: 36px;
+  margin-bottom: 16px;
+  margin-top: 0;
+  text-align: center;
+}
+
+.description {
+  color: #222;
+  font-size: 22px;
+  margin-bottom: 15px;
+  margin-top: 20px;
+  text-align: center;
+  line-height: 1.8;
+}
+
+.images-row {
+  display: flex;
+  gap: 32px;
+  justify-content: center;
+  align-items: center;
+  margin: 24px 0 32px 0;
+  flex-wrap: wrap;
+}
+
+.farm-img {
+  width: 260px;
+  height: 160px;
+  border-radius: 18px;
+  object-fit: cover;
+  box-shadow: 0 2px 12px #ffd6d6;
+  border: 2px solid #fff;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.farm-img:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 20px #ffb3b3;
+}
+
+.footer-note {
+  color: #c62828;
+  font-weight: bold;
+  font-size: 20px;
+  text-align: center;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .main-title {
+    font-size: 22px !important;
+  }
+  .farm-img {
+    width: 120px !important;
+    height: 80px !important;
+  }
+  .images-row {
+    gap: 12px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-title {
+    font-size: 18px !important;
+  }
+  .farm-img {
+    width: 95vw !important;
+    max-width: 320px !important;
+    height: 110px !important;
+    margin-bottom: 10px;
+  }
+  .images-row {
+    flex-direction: column !important;
+    gap: 0 !important;
+    margin: 12px 0 18px 0 !important;
+  }
+  .description, .footer-note {
+    font-size: 15px !important;
+  }
+}

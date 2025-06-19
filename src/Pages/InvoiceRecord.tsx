@@ -1,10 +1,26 @@
-import { Form, Table } from 'react-bootstrap';
-import FarmsFilter from '../components/FarmsFilter';
-import { useFarms, useSelectedFarmContext } from '../contexts';
-import { useEffect, useState } from 'react';
-import type { IInvoice, InvoiceTypes, IRecursiveInvoice } from '../models';
-import { fileService, invoiceService } from '../lib/appwrite';
-import { Query } from 'appwrite';
+import { useEffect, useState } from "react";
+import FarmsFilter from "../components/FarmsFilter";
+import { useFarms, useSelectedFarmContext } from "../contexts";
+import type { IInvoice, InvoiceTypes, IRecursiveInvoice } from "../models";
+import { fileService, invoiceService } from "../lib/appwrite";
+import { Query } from "appwrite";
+import {
+  Box,
+  Typography,
+  Divider,
+  Paper,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Stack,
+} from "@mui/material";
 
 type FileMeta = {
   fid: string;
@@ -16,23 +32,19 @@ type FileMeta = {
 export default function InvoiceRecord() {
   const selectedFarm = useSelectedFarmContext()[0];
   const farms = useFarms().farms;
-  const [type, setType] = useState<InvoiceTypes>('Sale');
+  const [type, setType] = useState<InvoiceTypes>("Sale");
   const [invoices, setInvoices] = useState<IRecursiveInvoice[]>([]);
-  const [fileMetasMap, setFileMetasMap] = useState<Record<string, FileMeta[]>>(
-    {}
-  );
+  const [fileMetasMap, setFileMetasMap] = useState<Record<string, FileMeta[]>>({});
 
-  // 1) جلب الفواتير حسب المزرعة والنوع
   useEffect(() => {
     if (!selectedFarm) return;
     invoiceService.list(
       (docs) => setInvoices(docs),
-      () => alert('Error fetching invoices'),
-      [Query.equal('farmId', selectedFarm), Query.equal('type', type)]
+      () => alert("Error fetching invoices"),
+      [Query.equal("farmId", selectedFarm), Query.equal("type", type)]
     );
   }, [selectedFarm, type]);
 
-  // 2) جلب بيانات المرفقات وإعادة بناء الخريطة بالكامل
   useEffect(() => {
     const loadAllFileMetas = async () => {
       const newMap: Record<string, FileMeta[]> = {};
@@ -53,7 +65,7 @@ export default function InvoiceRecord() {
               mimeType,
             });
           } catch (err) {
-            console.error('Failed fetching file meta for', fid, err);
+            console.error("Failed fetching file meta for", fid, err);
           }
         }
 
@@ -69,57 +81,156 @@ export default function InvoiceRecord() {
   }, [invoices]);
 
   return (
-    <div>
-      <h1>الفواتير</h1>
-      <FarmsFilter />
-
-      <Form.Group className="mb-3">
-        <Form.Select
-          value={type}
-          onChange={(e) => setType(e.target.value as InvoiceTypes)}
+    <Box sx={{ width: "100%", bgcolor: "#fff", minHeight: "100vh", pb: 4 }}>
+      <Box sx={{ textAlign: "center", mt: 5 }}>
+        <Typography
+          variant="h5"
+          fontWeight={700}
+          color="#c62828"
+          sx={{ mb: 1, fontSize: { xs: 18, sm: 25 } }}
         >
-          <option value="Sale">بيض</option>
-          <option value="DarkMeet">سواد</option>
-          <option value="Medicine">دواء</option>
-        </Form.Select>
-      </Form.Group>
+          سجل الفواتير
+        </Typography>
+        <Divider
+          sx={{
+            backgroundColor: "#c62828",
+            height: "2px",
+            width: { xs: "90%", sm: "80%" },
+            mx: "auto",
+            mb: 3,
+          }}
+        />
+        <Stack
+          direction={{ xs: "column", sm: "row" }}
+          spacing={2}
+          justifyContent="center"
+          alignItems="center"
+          sx={{ mb: 3 }}
+        >
+          <Box sx={{ minWidth: 160 }}>
+            <FarmsFilter />
+          </Box>
+          <FormControl
+            size="small"
+            sx={{
+              minWidth: 140,
+              bgcolor: "#fff",
+              "& .MuiOutlinedInput-root": {
+                borderColor: "#c62828",
+                color: "#c62828",
+                fontWeight: "bold",
+                marginRight: 2,
+              },
+            }}
+          >
+            <InputLabel id="invoice-type-label" sx={{ color: "#c62828" }}>
+              نوع المادة
+            </InputLabel>
+            <Select
+              labelId="invoice-type-label"
+              value={type}
+              label="نوع المادة"
+              onChange={(e) => setType(e.target.value as InvoiceTypes)}
+              sx={{
+                color: "#c62828",
+                fontWeight: "bold",
+                borderRadius: 1,
+                
+                "& .MuiSelect-icon": { color: "#c62828" },
+              }}
+            >
+              <MenuItem value="Sale">بيض</MenuItem>
+              <MenuItem value="DarkMeet">سواد</MenuItem>
+              <MenuItem value="Medicine">دواء</MenuItem>
+            </Select>
+          </FormControl>
+        </Stack>
+      </Box>
 
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>رقم تقرير الإدخال</th>
-            <th>الرقم التسلسلي</th>
-            <th>التاريخ</th>
-            <th>التوقيت</th>
-            <th>الكمية</th>
-            <th>السعر</th>
-            <th>المبلغ</th>
-            <th>الوحدة</th>
-            <th>{type === 'Medicine' ? 'المادة' : 'الوزن'}</th>
-            <th>الزبون</th>
-            <th>التوثيق</th>
-          </tr>
-        </thead>
-        <tbody>
-          {invoices.map((invoice, idx) => (
-            <TableRow
-              key={invoice.$id}
-              invoiceType={type}
-              invoice={invoice}
-              index={idx}
-              farmName={
-                farms.find((f) => f.$id === invoice.farmId)?.name || 'غير معروف'
-              }
-              fileMetas={fileMetasMap[invoice.$id] || []}
-            />
-          ))}
-        </tbody>
-      </Table>
-    </div>
+      <Box sx={{ width: "100%", overflowX: "auto" }}>
+        <TableContainer
+          component={Paper}
+          elevation={3}
+          sx={{
+            borderRadius: 3,
+            maxWidth: "100vw",
+            minWidth: 900,
+            mx: "auto",
+            mt: 2,
+            boxShadow: "0 4px 24px 0 rgba(198,40,40,0.10)",
+          }}
+        >
+          <Table sx={{ minWidth: 900 }}>
+            <TableHead>
+              <TableRow>
+                <TableCell align="center" sx={headCellStyle}>
+                  رقم تقرير الإدخال
+                </TableCell>
+                <TableCell align="center" sx={headCellStyle}>
+                  الرقم التسلسلي
+                </TableCell>
+                <TableCell align="center" sx={headCellStyle}>
+                  التاريخ
+                </TableCell>
+                <TableCell align="center" sx={headCellStyle}>
+                  التوقيت
+                </TableCell>
+                <TableCell align="center" sx={headCellStyle}>
+                  الكمية
+                </TableCell>
+                <TableCell align="center" sx={headCellStyle}>
+                  السعر
+                </TableCell>
+                <TableCell align="center" sx={headCellStyle}>
+                  المبلغ
+                </TableCell>
+                <TableCell align="center" sx={headCellStyle}>
+                  الوحدة
+                </TableCell>
+                <TableCell align="center" sx={headCellStyle}>
+                  {type === "Medicine" ? "المادة" : "الوزن"}
+                </TableCell>
+                <TableCell align="center" sx={headCellStyle}>
+                  الزبون
+                </TableCell>
+                <TableCell align="center" sx={headCellStyle}>
+                  التوثيق
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {invoices.map((invoice, idx) => (
+                <InvoiceTableRow
+                  key={invoice.$id}
+                  invoiceType={type}
+                  invoice={invoice}
+                  index={idx}
+                  farmName={
+                    farms.find((f) => f.$id === invoice.farmId)?.name || "غير معروف"
+                  }
+                  fileMetas={fileMetasMap[invoice.$id] || []}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Box>
+    </Box>
   );
 }
 
-function TableRow(props: {
+const headCellStyle = {
+  background: "#c62828",
+  color: "#fff",
+  fontWeight: "bold",
+  textAlign: "center",
+  fontSize: { xs: 13, sm: 15 },
+  border: "none",
+  px: 1,
+  py: 1.5,
+};
+
+function InvoiceTableRow(props: {
   invoiceType: InvoiceTypes;
   invoice: IInvoice;
   index: number;
@@ -130,27 +241,32 @@ function TableRow(props: {
   const total = invoice.amount * invoice.price;
 
   return (
-    <tr>
-      <td>{invoice.index}</td>
-      <td>{index}</td>
-      <td>{invoice.date}</td>
-      <td>{invoice.time}</td>
-      <td>{invoice.amount}</td>
-      <td>{invoice.price}</td>
-      <td>{total}</td>
-      <td>{invoice.unit}</td>
-      <td>{invoiceType === 'Medicine' ? farmName : invoice.meterial}</td>
-      <td>
-        {invoiceType === 'Medicine' ? invoice.meterial : invoice.customer}
-      </td>
-      <td>
+    <TableRow
+      sx={{
+        "&:nth-of-type(odd) td": { background: "#fff6f6" },
+        "&:nth-of-type(even) td": { background: "#fff" },
+      }}
+    >
+      <TableCell align="center">{invoice.index}</TableCell>
+      <TableCell align="center">{index}</TableCell>
+      <TableCell align="center">{invoice.date}</TableCell>
+      <TableCell align="center">{invoice.time}</TableCell>
+      <TableCell align="center">{invoice.amount}</TableCell>
+      <TableCell align="center">{invoice.price}</TableCell>
+      <TableCell align="center">{total}</TableCell>
+      <TableCell align="center">{invoice.unit}</TableCell>
+      <TableCell align="center">
+        {invoiceType === "Medicine" ? farmName : invoice.meterial}
+      </TableCell>
+      <TableCell align="center">
+        {invoiceType === "Medicine" ? invoice.meterial : invoice.customer}
+      </TableCell>
+      <TableCell align="center">
         {fileMetas.length === 0 && <span>—</span>}
         {fileMetas.map(({ fid, previewUrl, downloadUrl, mimeType }) => {
-          console.log(previewUrl);
-          
-          const isImage = mimeType.startsWith('image/');
+          const isImage = mimeType.startsWith("image/");
           return (
-            <div key={fid} style={{ marginBottom: 8 }}>
+            <Box key={fid} sx={{ mb: 1 }}>
               {isImage && (
                 <img
                   src={`https://cloud.appwrite.io/v1/storage/buckets/${import.meta.env.VITE_APPWRITE_FILE_BUCKET_ID}/files/${fid}/view?project=${import.meta.env.VITE_APPWRITE_PROJECT_ID}`}
@@ -158,20 +274,32 @@ function TableRow(props: {
                   style={{
                     maxWidth: 80,
                     maxHeight: 80,
-                    display: 'block',
+                    display: "block",
                     marginBottom: 4,
-                    objectFit: 'cover',
+                    objectFit: "cover",
+                    borderRadius: 1,
+                    border: "1px solid #eee",
                   }}
                   loading="lazy"
                 />
               )}
-              <a href={downloadUrl} target="_blank" rel="noopener noreferrer">
-                {isImage ? 'تحميل الصورة' : 'تحميل الملف'}
+              <a
+                href={downloadUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: "#c62828",
+                  fontWeight: "bold",
+                  textDecoration: "underline",
+                  fontSize: 14,
+                }}
+              >
+                {isImage ? "تحميل الصورة" : "تحميل الملف"}
               </a>
-            </div>
+            </Box>
           );
         })}
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }

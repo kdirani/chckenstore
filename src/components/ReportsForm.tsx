@@ -1,10 +1,17 @@
 import { useState, type ChangeEvent, type FormEvent, useEffect } from 'react';
-import { Form, Button, Row, Col, Table, Modal } from 'react-bootstrap';
+import {
+  Box, Button, Grid, Stack, Typography, TextField, Select, MenuItem, InputLabel, FormControl,
+  TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Divider
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import type { IDailyReport, IٍٍDailySale, IDailyMedicine } from '../models';
 import { reportsService, fileService } from '../lib/appwrite';
 import { useFarms } from '../contexts';
-import type { IDailyReport, IٍٍDailySale, IDailyMedicine } from '../models';
 import type { Models } from 'appwrite';
-
+import '../Pages/styles.css'
 interface SaleItem {
   amount: string;
   weigh: string;
@@ -317,27 +324,59 @@ export default function ReportsForm() {
   };
 
   return (
-    <div>
-      <h2 className="mb-4">{editMode ? 'تعديل التقرير' : 'إضافة تقرير جديد'}</h2>
-      
-      <Form onSubmit={handleSubmit}>
-        <Button variant="warning" onClick={handleAutoFill} className="mb-3">
-          ملء وهمي
-        </Button>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 1, sm: 3 } }}>
+      <Typography variant="h5" sx={{ color: '#c62828', fontWeight: 700 }} mb={3} textAlign="center">
+        {editMode ? 'تعديل التقرير' : 'إضافة تقرير جديد'}
+      </Typography>
 
-        {/* حقل رفع الملفات المتعدد */}
-        <Form.Group controlId="files" className="mb-3">
-          <Form.Label>رفع مرفقات (صور، PDF، Excel)</Form.Label>
-          <Form.Control type="file" multiple onChange={handleFilesChange} />
-        </Form.Group>
+      <Box component="form" onSubmit={handleSubmit} sx={{ mb: 4 }}>
+        <Stack direction="row" spacing={2} mb={2}>
+          <Button
+            variant="contained"
+            color="warning"
+            onClick={handleAutoFill}
+            sx={{ fontWeight: 700 }}
+          >
+            ملء وهمي
+          </Button>
+        </Stack>
+
+        <Box mb={2}>
+          <Button
+            component="label"
+            variant="outlined"
+            color="primary"
+            startIcon={<CloudUploadIcon />}
+            sx={{
+              borderColor: "#c62828",
+              color: "#c62828",
+              fontWeight: 700,
+              '&:hover': {
+                borderColor: '#b71c1c',
+                color: '#b71c1c',
+                backgroundColor: '#ffeaea'
+              }
+            }}
+          >
+            رفع مرفقات
+            <input
+              type="file"
+              hidden
+              multiple
+              onChange={handleFilesChange}
+            />
+          </Button>
+        </Box>
 
         {/* عرض الملفات الموجودة في وضع التعديل */}
         {editMode && existingFiles.length > 0 && (
-          <div className="mb-3">
-            <h5>الملفات المرفقة</h5>
-            <div className="d-flex flex-wrap gap-3">
+          <Box mb={2}>
+            <Typography variant="subtitle2" fontWeight={600} mb={1}>
+              الملفات المرفقة
+            </Typography>
+            <Stack direction="row" spacing={2} flexWrap="wrap">
               {existingFiles.map((file) => (
-                <div key={file.fid} className="position-relative">
+                <Box key={file.fid} textAlign="center">
                   {file.mimeType.startsWith('image/') ? (
                     <img
                       src={file.previewUrl}
@@ -345,379 +384,560 @@ export default function ReportsForm() {
                       style={{ maxWidth: '150px', maxHeight: '150px', objectFit: 'cover' }}
                     />
                   ) : (
-                    <div className="border p-2 text-center" style={{ width: '150px' }}>
-                      <i className="bi bi-file-earmark"></i>
-                      <div className="small">ملف</div>
-                    </div>
+                    <Box
+                      sx={{
+                        width: 150,
+                        height: 150,
+                        border: '1px solid #ddd',
+                        borderRadius: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: '#f8f9fa',
+                        mb: 1
+                      }}
+                    >
+                      <CloudUploadIcon fontSize="large" color="disabled" />
+                    </Box>
                   )}
-                  <div className="mt-1">
-                    <a
+                  <Stack spacing={0.5} direction="row" justifyContent="center" mt={1}>
+                    <Button
                       href={file.downloadUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="btn btn-sm btn-info me-1"
+                      variant="outlined"
+                      size="small"
+                      color="info"
                     >
                       تحميل
-                    </a>
+                    </Button>
                     <Button
-                      variant="danger"
-                      size="sm"
+                      variant="outlined"
+                      color="error"
+                      size="small"
                       onClick={() => handleDeleteFile(file.fid)}
                     >
                       حذف
                     </Button>
-                  </div>
-                </div>
+                  </Stack>
+                </Box>
               ))}
-            </div>
-          </div>
+            </Stack>
+          </Box>
         )}
 
-        {/* حقول التاريخ والوقت والمزرعة */}
-        <Row>
-          <Col md={4}>
-            <Form.Group controlId="date" className="mb-3">
-              <Form.Label>التاريخ</Form.Label>
-              <Form.Control
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Col>
-          <Col md={4}>
-            <Form.Group controlId="time" className="mb-3">
-              <Form.Label>الوقت</Form.Label>
-              <Form.Control
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                required
-              />
-            </Form.Group>
-          </Col>
-          <Col md={4}>
-            <Form.Group controlId="farmId" className="mb-3">
-              <Form.Label>المزرعة</Form.Label>
-              <Form.Select
+        <Grid container spacing={2} mb={2}>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="التاريخ"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              required
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="الوقت"
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              required
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <FormControl fullWidth sx={{ minWidth: 180 }}>
+              <InputLabel id="farm-label">المزرعة</InputLabel>
+              <Select
+                labelId="farm-label"
                 value={farmId}
+                label="المزرعة"
                 onChange={(e) => setFarmId(e.target.value)}
                 required
+                sx={{
+                  borderRadius: 2,
+                  background: "#fff",
+                  height: 56 // نفس ارتفاع TextField الافتراضي
+                }}
+                MenuProps={{
+                  PaperProps: {
+                    sx: { maxHeight: 250 }
+                  }
+                }}
               >
-                <option value="">اختر المزرعة</option>
+                <MenuItem value="">اختر المزرعة</MenuItem>
                 {farms?.map((farm) => (
-                  <option key={farm.$id} value={farm.$id}>
+                  <MenuItem key={farm.$id} value={farm.$id}>
                     {farm.name}
-                  </option>
+                  </MenuItem>
                 ))}
-              </Form.Select>
-            </Form.Group>
-          </Col>
-        </Row>
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
 
-        {/* الإنتاج والإنتاج المشوّه */}
-        <Row>
-          <Col md={6}>
-            <Form.Group controlId="production" className="mb-3">
-              <Form.Label>الإنتاج</Form.Label>
-              <Form.Control
-                type="number"
-                value={production}
-                onChange={(e) => setProduction(e.target.value)}
-                placeholder="مثلاً: 1000"
-                required
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="distortedProduction" className="mb-3">
-              <Form.Label>الإنتاج المشوّه</Form.Label>
-              <Form.Control
-                type="number"
-                value={distortedProduction}
-                onChange={(e) => setDistortedProduction(e.target.value)}
-                placeholder="مثلاً: 50"
-                required
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+        <Grid container spacing={2} mb={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="الإنتاج"
+              type="number"
+              value={production}
+              onChange={(e) => setProduction(e.target.value)}
+              required
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="الإنتاج المشوّه"
+              type="number"
+              value={distortedProduction}
+              onChange={(e) => setDistortedProduction(e.target.value)}
+              required
+              fullWidth
+            />
+          </Grid>
+        </Grid>
 
         {/* المبيعات */}
-        <fieldset className="border p-3 mb-3">
-          <legend className="w-auto px-2">المبيعات</legend>
+        <Box mb={2} p={2} border="1px solid #eee" borderRadius={2}>
+          <Typography variant="subtitle1" fontWeight={600} mb={1} sx={{ color: '#c62828',fontSize: '1.2rem' }}>
+            المبيعات
+          </Typography>
           {saleItems.map((item, idx) => (
-            <Row key={idx} className="align-items-end mb-2">
-              <Col md={3}>
-                <Form.Control
+            <Grid container spacing={2} alignItems="center" mb={1} key={idx}>
+              <Grid item xs={12} sm={3}>
+                <TextField
                   type="number"
-                  placeholder="الكمية"
+                  label="الكمية"
                   value={item.amount}
                   onChange={(e) => handleSaleChange(idx, 'amount', e.target.value)}
                   required
+                  fullWidth
                 />
-              </Col>
-              <Col md={3}>
-                <Form.Select
-                  value={item.weigh}
-                  onChange={(e) => handleSaleChange(idx, 'weigh', e.target.value)}
-                  required
-                >
-                  <option value="">اختر الوزن</option>
-                  {weightRanges.map((range) => (
-                    <option key={range} value={range}>
-                      {range}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Col>
-              <Col md={4}>
-                <Form.Control
-                  type="text"
-                  placeholder="العميل"
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <FormControl fullWidth sx={{ minWidth: 140 }}>
+                  <InputLabel id={`weigh-label-${idx}`}>الوزن</InputLabel>
+                  <Select
+                    labelId={`weigh-label-${idx}`}
+                    value={item.weigh}
+                    label="الوزن"
+                    onChange={(e) => handleSaleChange(idx, 'weigh', e.target.value)}
+                    required
+                    sx={{
+                      borderRadius: 2,
+                      background: "#fff",
+                      height: 56 // نفس ارتفاع TextField الافتراضي
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        sx: { maxHeight: 250 }
+                      }
+                    }}
+                  >
+                    <MenuItem value="">اختر الوزن</MenuItem>
+                    {weightRanges.map((range) => (
+                      <MenuItem key={range} value={range}>
+                        {range}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  label="العميل"
                   value={item.client}
                   onChange={(e) => handleSaleChange(idx, 'client', e.target.value)}
                   required
+                  fullWidth
                 />
-              </Col>
-              <Col md={2}>
+              </Grid>
+              <Grid item xs={12} sm={2}>
                 <Button
-                  variant="danger"
+                  variant="outlined"
+                  color="error"
                   onClick={() => handleRemoveSale(idx)}
                   disabled={saleItems.length === 1}
+                  sx={{ minWidth: 0, px: 2 }}
                 >
                   حذف
                 </Button>
-              </Col>
-            </Row>
+              </Grid>
+            </Grid>
           ))}
-          <Button variant="success" onClick={handleAddSale} className="mt-2">
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleAddSale}
+            sx={{
+              mt: 1,
+              backgroundColor: "#c62828",
+              color: "#fff",
+              fontWeight: 700,
+              "&:hover": { backgroundColor: "#b71c1c" },
+            }}
+          >
             إضافة بيع
           </Button>
-        </fieldset>
+        </Box>
 
         {/* الأدوية */}
-        <fieldset className="border p-3 mb-3">
-          <legend className="w-auto px-2">الأدوية</legend>
+        <Box mb={2} p={2} border="1px solid #eee" borderRadius={2}>
+          <Typography variant="subtitle1" fontWeight={600} mb={1} sx={{ color: '#c62828',fontSize: '1.2rem' }}>
+            الأدوية
+          </Typography>
           {medicineItems.map((item, idx) => (
-            <Row key={idx} className="align-items-end mb-2">
-              <Col md={2}>
-                <Form.Control
+            <Grid container spacing={2} alignItems="center" mb={1} key={idx}>
+              <Grid item xs={12} sm={2}>
+                <TextField
                   type="number"
-                  placeholder="الكمية"
+                  label="الكمية"
                   value={item.amount}
                   onChange={(e) => handleMedicineChange(idx, 'amount', e.target.value)}
                   required
+                  fullWidth
                 />
-              </Col>
-              <Col md={2}>
-                <Form.Control
-                  type="text"
-                  placeholder="الوحدة"
+              </Grid>
+              <Grid item xs={12} sm={2}>
+                <TextField
+                  label="الوحدة"
                   value={item.unit}
                   onChange={(e) => handleMedicineChange(idx, 'unit', e.target.value)}
                   required
+                  fullWidth
                 />
-              </Col>
-              <Col md={3}>
-                <Form.Control
-                  type="text"
-                  placeholder="النوع"
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <TextField
+                  label="النوع"
                   value={item.type}
                   onChange={(e) => handleMedicineChange(idx, 'type', e.target.value)}
                   required
+                  fullWidth
                 />
-              </Col>
-              <Col md={3}>
-                <Form.Control
-                  type="text"
-                  placeholder="المخزن"
+              </Grid>
+              <Grid item xs={12} sm={3}>
+                <TextField
+                  label="المخزن"
                   value={item.stor}
                   onChange={(e) => handleMedicineChange(idx, 'stor', e.target.value)}
                   required
+                  fullWidth
                 />
-              </Col>
-              <Col md={2}>
+              </Grid>
+              <Grid item xs={12} sm={2}>
                 <Button
-                  variant="danger"
+                  variant="outlined"
+                  color="error"
                   onClick={() => handleRemoveMedicine(idx)}
                   disabled={medicineItems.length === 1}
+                  sx={{ minWidth: 0, px: 2 }}
                 >
                   حذف
                 </Button>
-              </Col>
-            </Row>
+              </Grid>
+            </Grid>
           ))}
-          <Button variant="success" onClick={handleAddMedicine} className="mt-2">
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={handleAddMedicine}
+            sx={{
+              mt: 1,
+              backgroundColor: "#c62828",
+              color: "#fff",
+              fontWeight: 700,
+              "&:hover": { backgroundColor: "#b71c1c" },
+            }}
+          >
             إضافة دواء
           </Button>
-        </fieldset>
+        </Box>
 
         {/* السواد */}
-        <Row>
-          <Col md={6}>
-            <Form.Group controlId="darkAmount" className="mb-3">
-              <Form.Label>كمية السواد</Form.Label>
-              <Form.Control
-                type="number"
-                value={darkAmount}
-                onChange={(e) => setDarkAmount(e.target.value)}
-                placeholder="مثلاً: 12000"
-                required
-              />
-            </Form.Group>
-          </Col>
-          <Col md={6}>
-            <Form.Group controlId="darkClient" className="mb-3">
-              <Form.Label>عميل السواد</Form.Label>
-              <Form.Control
-                type="text"
-                value={darkClient}
-                onChange={(e) => setDarkClient(e.target.value)}
-                placeholder="مثلاً: وليد محمد عيد"
-                required
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+        <Grid container spacing={2} mb={2}>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="كمية السواد"
+              type="number"
+              value={darkAmount}
+              onChange={(e) => setDarkAmount(e.target.value)}
+              required
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              label="عميل السواد"
+              value={darkClient}
+              onChange={(e) => setDarkClient(e.target.value)}
+              required
+              fullWidth
+            />
+          </Grid>
+        </Grid>
 
         {/* النفوق والعلف */}
-        <Row>
-          <Col md={4}>
-            <Form.Group controlId="death" className="mb-3">
-              <Form.Label>النفوق</Form.Label>
-              <Form.Control
-                type="number"
-                value={death}
-                onChange={(e) => setDeath(e.target.value)}
-                placeholder="مثلاً: 5"
-                required
-              />
-            </Form.Group>
-          </Col>
-          <Col md={4}>
-            <Form.Group controlId="dailyFood" className="mb-3">
-              <Form.Label>العلف اليومي</Form.Label>
-              <Form.Control
-                type="number"
-                value={dailyFood}
-                onChange={(e) => setDailyFood(e.target.value)}
-                placeholder="مثلاً: 200"
-                required
-              />
-            </Form.Group>
-          </Col>
-          <Col md={4}>
-            <Form.Group controlId="monthlyFood" className="mb-3">
-              <Form.Label>العلف الشهري</Form.Label>
-              <Form.Control
-                type="number"
-                value={monthlyFood}
-                onChange={(e) => setMonthlyFood(e.target.value)}
-                placeholder="مثلاً: 6000"
-                required
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+        <Grid container spacing={2} mb={2}>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="النفوق"
+              type="number"
+              value={death}
+              onChange={(e) => setDeath(e.target.value)}
+              required
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="العلف اليومي"
+              type="number"
+              value={dailyFood}
+              onChange={(e) => setDailyFood(e.target.value)}
+              required
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <TextField
+              label="العلف الشهري"
+              type="number"
+              value={monthlyFood}
+              onChange={(e) => setMonthlyFood(e.target.value)}
+              required
+              fullWidth
+            />
+          </Grid>
+        </Grid>
 
-        <div className="mt-4">
-          <Button variant="primary" type="submit" className="me-2">
+        <Stack direction="row" spacing={2} mb={3}>
+          <Button
+            variant="contained"
+            type="submit"
+            sx={{
+              backgroundColor: "#c62828",
+              color: "#fff",
+              fontWeight: 700,
+              '&:hover': { backgroundColor: '#b71c1c' }
+            }}
+          >
             {editMode ? 'تحديث التقرير' : 'حفظ التقرير'}
           </Button>
           {editMode && (
-            <Button variant="secondary" onClick={resetForm}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              onClick={resetForm}
+            >
               إلغاء التعديل
             </Button>
           )}
-        </div>
-      </Form>
+        </Stack>
+      </Box>
 
-      {/* جدول التقارير */}
-      <h2 className="mt-5 mb-4">قائمة التقارير</h2>
+      <Divider sx={{ my: 3, borderColor: "#c62828" }} />
+
+      <Typography variant="h6" fontWeight={700} mb={2} mt={4} sx={{ color: '#c62828' }}>
+        قائمة التقارير
+      </Typography>
       {loading ? (
-        <p>جاري تحميل البيانات...</p>
+        <Typography>جاري تحميل البيانات...</Typography>
       ) : (
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>التاريخ</th>
-              <th>الوقت</th>
-              <th>المزرعة</th>
-              <th>الإنتاج</th>
-              <th>الإنتاج المشوّه</th>
-              <th>النفوق</th>
-              <th>العلف اليومي</th>
-              <th>الإجراءات</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reports.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="text-center">
-                  لا توجد تقارير مسجلة
-                </td>
-              </tr>
-            ) : (
-              reports.map((report, index) => {
-                const farm = farms?.find((f) => f.$id === report.farmId);
-                return (
-                  <tr key={report.$id}>
-                    <td>{index + 1}</td>
-                    <td>{report.date}</td>
-                    <td>{report.time}</td>
-                    <td>{farm?.name || report.farmId}</td>
-                    <td>{report.production}</td>
-                    <td>{report.distortedProduction}</td>
-                    <td>{report.death}</td>
-                    <td>{report.dailyFood}</td>
-                    <td>
-                      <Button
-                        variant="info"
-                        size="sm"
-                        className="me-2"
-                        onClick={() => loadReportForEdit(report)}
-                      >
-                        تعديل
-                      </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => {
-                          setReportToDelete(report);
-                          setShowDeleteModal(true);
-                        }}
-                      >
-                        حذف
-                      </Button>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </Table>
+        <TableContainer component={Paper}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell
+                  align="center"
+                  sx={{
+                    background: "#c62828",
+                    color: "#fff",
+                    fontWeight: 900,
+                    fontSize: "1.1rem",
+                    letterSpacing: 1
+                  }}
+                >
+                  #
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    background: "#c62828",
+                    color: "#fff",
+                    fontWeight: 900,
+                    fontSize: "1.1rem",
+                    letterSpacing: 1
+                  }}
+                >
+                  التاريخ
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    background: "#c62828",
+                    color: "#fff",
+                    fontWeight: 900,
+                    fontSize: "1.1rem",
+                    letterSpacing: 1
+                  }}
+                >
+                  الوقت
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    background: "#c62828",
+                    color: "#fff",
+                    fontWeight: 900,
+                    fontSize: "1.1rem",
+                    letterSpacing: 1
+                  }}
+                >
+                  المزرعة
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    background: "#c62828",
+                    color: "#fff",
+                    fontWeight: 900,
+                    fontSize: "1.1rem",
+                    letterSpacing: 1
+                  }}
+                >
+                  الإنتاج
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    background: "#c62828",
+                    color: "#fff",
+                    fontWeight: 900,
+                    fontSize: "1.1rem",
+                    letterSpacing: 1
+                  }}
+                >
+                  الإنتاج المشوّه
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    background: "#c62828",
+                    color: "#fff",
+                    fontWeight: 900,
+                    fontSize: "1.1rem",
+                    letterSpacing: 1
+                  }}
+                >
+                  النفوق
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    background: "#c62828",
+                    color: "#fff",
+                    fontWeight: 900,
+                    fontSize: "1.1rem",
+                    letterSpacing: 1
+                  }}
+                >
+                  العلف اليومي
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{
+                    background: "#c62828",
+                    color: "#fff",
+                    fontWeight: 900,
+                    fontSize: "1.1rem",
+                    letterSpacing: 1
+                  }}
+                >
+                  الإجراءات
+                </TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {reports.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={9} align="center">
+                    لا توجد تقارير مسجلة
+                  </TableCell>
+                </TableRow>
+              ) : (
+                reports.map((report, index) => {
+                  const farm = farms?.find((f) => f.$id === report.farmId);
+                  return (
+                    <TableRow key={report.$id}>
+                      <TableCell align="center">{index + 1}</TableCell>
+                      <TableCell align="center">{report.date}</TableCell>
+                      <TableCell align="center">{report.time}</TableCell>
+                      <TableCell align="center">{farm?.name || report.farmId}</TableCell>
+                      <TableCell align="center">{report.production}</TableCell>
+                      <TableCell align="center">{report.distortedProduction}</TableCell>
+                      <TableCell align="center">{report.death}</TableCell>
+                      <TableCell align="center">{report.dailyFood}</TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          color="primary"
+                          size="small"
+                          onClick={() => loadReportForEdit(report)}
+                          sx={{
+                            color: "#fff",
+                            backgroundColor: "#1976d2",
+                            mx: 0.5,
+                            "&:hover": { backgroundColor: "#115293" }
+                          }}
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          color="error"
+                          size="small"
+                          onClick={() => {
+                            setReportToDelete(report);
+                            setShowDeleteModal(true);
+                          }}
+                          sx={{
+                            color: "#fff",
+                            backgroundColor: "#c62828",
+                            mx: 0.5,
+                            "&:hover": { backgroundColor: "#b71c1c" }
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
 
-      {/* مودال تأكيد الحذف */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>تأكيد الحذف</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+      <Dialog open={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
+        <DialogTitle>تأكيد الحذف</DialogTitle>
+        <DialogContent>
           هل أنت متأكد من حذف التقرير بتاريخ {reportToDelete?.date}؟
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDeleteModal(false)} color="secondary">
             إلغاء
           </Button>
-          <Button variant="danger" onClick={handleDelete}>
+          <Button onClick={handleDelete} color="error" sx={{ color: '#c62828' }}>
             تأكيد الحذف
           </Button>
-        </Modal.Footer>
-      </Modal>
-    </div>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }

@@ -1,8 +1,36 @@
 import { useState, type FormEvent, useEffect } from 'react';
-import { Form, Button, Row, Col, Table, Modal } from 'react-bootstrap';
+import {
+  Box,
+  Button,
+  TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  Typography,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Stack,
+  colors,
+} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import AddIcon from '@mui/icons-material/Add';
 import type { InvoiceTypes, IInvoice, IRecursiveInvoice } from '../models';
 import { useFarms } from '../contexts';
 import { invoiceService, fileService } from '../lib/appwrite';
+import '../Pages/styles.css'
 
 export interface InvoiceItem {
   meterial: string;
@@ -240,7 +268,7 @@ export default function InvoicesForm() {
           fileIds: existingFiles.map(f => f.fid),
         };
         const filesArray = item.files ? Array.from(item.files) : [];
-        
+
         if (editMode && currentInvoiceId) {
           return new Promise<void>((resolve, reject) => {
             invoiceService.update(
@@ -275,365 +303,349 @@ export default function InvoicesForm() {
   };
 
   return (
-    <div>
-      <h2 className="mb-4">{editMode ? 'تعديل الفاتورة' : 'إضافة فاتورة جديدة'}</h2>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 1, sm: 3 } }}>
+      <Typography variant="h5" color="#c62828" fontWeight={700} mb={3} textAlign="center">
+        {editMode ? 'تعديل الفاتورة' : 'إضافة فاتورة جديدة'}
+      </Typography>
 
-      <Form onSubmit={handleSubmit}>
-        {/* حقول الأعلى */}
-        <Row className="mb-3">
-          <Col>
-            <Form.Group>
-              <Form.Label>نوع الفاتورة</Form.Label>
-              <Form.Select
-                value={type}
-                onChange={(e) => setType(e.target.value as InvoiceTypes)}
-                disabled={isSubmitting}
-              >
-                <option value="Sale">بيض</option>
-                <option value="DarkMeet">سواد</option>
-                <option value="Medicine">دواء</option>
-              </Form.Select>
-            </Form.Group>
-          </Col>
-          <Col>
-            <Form.Group>
-              <Form.Label>رقم الفاتورة</Form.Label>
-              <Form.Control
-                type="number"
-                value={index}
-                onChange={(e) =>
-                  setIndex(e.target.value === '' ? '' : Number(e.target.value))
-                }
-                required
-                disabled={isSubmitting}
-              />
-            </Form.Group>
-          </Col>
-          <Col>
-            <Form.Group>
-              <Form.Label>المزرعة</Form.Label>
-              <Form.Select
-                value={farm}
-                onChange={(e) => setFarm(e.target.value)}
-                required
-                disabled={isSubmitting}
-              >
-                <option value="">اختر المزرعة</option>
-                {farms.map((f) => (
-                  <option key={f.$id} value={f.$id}>
-                    {f.name}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-          </Col>
-        </Row>
+      <Box component="form" onSubmit={handleSubmit} sx={{ mb: 4 }}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={2}>
+          <FormControl fullWidth>
+            <InputLabel id="type-label">نوع الفاتورة</InputLabel>
+            <Select
+              labelId="type-label"
+              value={type}
+              label="نوع الفاتورة"
+              onChange={(e) => setType(e.target.value as InvoiceTypes)}
+              disabled={isSubmitting}
+              sx={{ borderRadius: 2 }}
+            >
+              <MenuItem value="Sale">بيض</MenuItem>
+              <MenuItem value="DarkMeet">سواد</MenuItem>
+              <MenuItem value="Medicine">دواء</MenuItem>
+            </Select>
+          </FormControl>
+          <TextField
+            label="رقم الفاتورة"
+            type="number"
+            value={index}
+            onChange={(e) => setIndex(e.target.value === '' ? '' : Number(e.target.value))}
+            required
+            disabled={isSubmitting}
+            fullWidth
+            inputProps={{ min: 0 }}
+          />
+          <FormControl fullWidth>
+            <InputLabel id="farm-label">المزرعة</InputLabel>
+            <Select
+              labelId="farm-label"
+              value={farm}
+              label="المزرعة"
+              onChange={(e) => setFarm(e.target.value)}
+              required
+              disabled={isSubmitting}
+              sx={{ borderRadius: 2 }}
+            >
+              <MenuItem value="">اختر المزرعة</MenuItem>
+              {farms.map((f) => (
+                <MenuItem key={f.$id} value={f.$id}>
+                  {f.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Stack>
 
-        <Row className="mb-3">
-          <Col>
-            <Form.Group>
-              <Form.Label>التاريخ</Form.Label>
-              <Form.Control
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-                disabled={isSubmitting}
-              />
-            </Form.Group>
-          </Col>
-          <Col>
-            <Form.Group>
-              <Form.Label>التوقيت</Form.Label>
-              <Form.Control
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                required
-                disabled={isSubmitting}
-              />
-            </Form.Group>
-          </Col>
-          <Col>
-            <Form.Group>
-              <Form.Label>العميل</Form.Label>
-              <Form.Control
-                type="text"
-                value={customer}
-                onChange={(e) => setCustomer(e.target.value)}
-                required
-                disabled={isSubmitting}
-              />
-            </Form.Group>
-          </Col>
-        </Row>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={2}>
+          <TextField
+            label="التاريخ"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            required
+            disabled={isSubmitting}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+          />
+          <TextField
+            label="التوقيت"
+            type="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            required
+            disabled={isSubmitting}
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+          />
+          <TextField
+            label="العميل"
+            type="text"
+            value={customer}
+            onChange={(e) => setCustomer(e.target.value)}
+            required
+            disabled={isSubmitting}
+            fullWidth
+          />
+        </Stack>
 
-        {/* عناصر الفاتورة كاملة مع رفع ملفات لكل صف */}
-        <div className="mb-3">
-          <h5>عناصر الفاتورة</h5>
-          <Table className="mb-3">
-            <thead>
-              <tr>
-                <th>المادة</th>
-                <th>الوحدة</th>
-                <th>الكمية</th>
-                <th>السعر</th>
-                <th>الملفات</th>
-                <th>الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoiceItems.map((item, index) => (
-                <tr key={index}>
-                  <td>
+        <Typography variant="subtitle1" fontWeight={600} mb={1}>
+          عناصر الفاتورة
+        </Typography>
+        <TableContainer component={Paper} sx={{ mb: 2 }}>
+          <Table size="small">
+            <TableHead sx={{ backgroundColor: '#c62828'}}>
+              <TableRow>
+                <TableCell align="center" sx={{color:'#fff', fontWeight:'bold'}}>المادة</TableCell>
+                <TableCell align="center" sx={{color:'#fff', fontWeight:'bold'}}>الوحدة</TableCell>
+                <TableCell align="center" sx={{color:'#fff', fontWeight:'bold'}}>الكمية</TableCell>
+                <TableCell align="center" sx={{color:'#fff', fontWeight:'bold'}}>السعر</TableCell>
+                <TableCell align="center" sx={{color:'#fff', fontWeight:'bold'}}>الملفات</TableCell>
+                <TableCell align="center" sx={{color:'#fff', fontWeight:'bold'}}>الإجراءات</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {invoiceItems.map((item, idx) => (
+                <TableRow key={idx}>
+                  <TableCell align="center">
                     {type === 'Sale' ? (
-                      <Form.Select
-                        value={item.meterial}
-                        onChange={(e) => handleItemChange(index, 'meterial', e.target.value)}
-                        required
-                        disabled={isSubmitting}
-                      >
-                        <option value="">اختر الوزن</option>
-                        {weightRanges.map((weight) => (
-                          <option key={weight} value={weight}>
-                            {weight}
-                          </option>
-                        ))}
-                      </Form.Select>
+                      <FormControl fullWidth>
+                        <InputLabel id={`meterial-label-${idx}`}>اختر الوزن</InputLabel>
+                        <Select
+                          labelId={`meterial-label-${idx}`}
+                          value={item.meterial}
+                          label="اختر الوزن"
+                          onChange={(e) => handleItemChange(idx, 'meterial', e.target.value)}
+                          required
+                          disabled={isSubmitting}
+                          sx={{ borderRadius: 2 }}
+                        >
+                          <MenuItem value="">اختر الوزن</MenuItem>
+                          {weightRanges.map((weight) => (
+                            <MenuItem key={weight} value={weight}>
+                              {weight}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
                     ) : (
-                      <Form.Control
-                        type="text"
+                      <TextField
                         value={item.meterial}
-                        onChange={(e) => handleItemChange(index, 'meterial', e.target.value)}
-                        placeholder="أدخل المادة"
+                        onChange={(e) => handleItemChange(idx, 'meterial', e.target.value)}
                         required
                         disabled={isSubmitting}
+                        fullWidth
                       />
                     )}
-                  </td>
-                  <td>
-                    <Form.Control
-                      type="text"
-                      placeholder="الوحدة"
+                  </TableCell>
+                  <TableCell align="center">
+                    <TextField
                       value={item.unit}
-                      onChange={(e) => handleItemChange(index, 'unit', e.target.value)}
+                      onChange={(e) => handleItemChange(idx, 'unit', e.target.value)}
                       required
                       disabled={isSubmitting}
+                      fullWidth
                     />
-                  </td>
-                  <td>
-                    <Form.Control
+                  </TableCell>
+                  <TableCell align="center">
+                    <TextField
                       type="number"
-                      placeholder="الكمية"
                       value={item.amount}
-                      onChange={(e) =>
-                        handleItemChange(index, 'amount', e.target.value)
-                      }
+                      onChange={(e) => handleItemChange(idx, 'amount', e.target.value)}
                       required
                       disabled={isSubmitting}
+                      fullWidth
+                      inputProps={{ min: 0 }}
                     />
-                  </td>
-                  <td>
-                    <Form.Control
+                  </TableCell>
+                  <TableCell align="center">
+                    <TextField
                       type="number"
-                      placeholder="السعر"
                       value={item.price}
-                      onChange={(e) => handleItemChange(index, 'price', e.target.value)}
+                      onChange={(e) => handleItemChange(idx, 'price', e.target.value)}
                       required
                       disabled={isSubmitting}
+                      fullWidth
+                      inputProps={{ min: 0 }}
                     />
-                  </td>
-                  <td>
-                    <Form.Control
-                      type="file"
-                      multiple
-                      onChange={(e) =>
-                        handleItemChange(
-                          index,
-                          'files',
-                          (e.target as HTMLInputElement).files
-                        )
-                      }
+                  </TableCell>
+                  <TableCell align="center">
+                    <Stack direction="row" spacing={1} justifyContent="center">
+                      {existingFiles.map((file) => (
+                        <Box key={file.fid} sx={{ position: 'relative' }}>
+                          <a
+                            href={file.downloadUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <IconButton size="small" color="primary">
+                              <CloudUploadIcon fontSize="small" />
+                            </IconButton>
+                          </a>
+                          <IconButton
+                            size="small"
+                            color="secondary"
+                            onClick={() => handleDeleteFile(file.fid)}
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      ))}
+                    </Stack>
+                  </TableCell>
+                  <TableCell align="center">
+                    <IconButton
+                      color="primary"
+                      onClick={() => handleRemoveItem(idx)}
                       disabled={isSubmitting}
-                    />
-                  </td>
-                  <td>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleRemoveItem(index)}
-                      disabled={invoiceItems.length === 1 || isSubmitting}
                     >
-                      حذف
-                    </Button>
-                  </td>
-                </tr>
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
+            </TableBody>
           </Table>
+        </TableContainer>
+
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={2}
+          mb={2}
+          justifyContent="space-between"
+          // justifyContent="center"
+        >
           <Button
-            variant="secondary"
+            variant="contained"
             onClick={handleAddItem}
+            startIcon={<AddIcon />}
             disabled={isSubmitting}
+            sx={{
+              borderRadius: 2,
+              width: '30%',
+              minWidth: 120,
+              backgroundColor: "#c62828",
+              color: "#fff",
+              fontWeight: 700,
+              '&:hover': { backgroundColor: '#FFF'
+                , color: '#c62828', borderColor: '#b71c1c'
+               }
+            }}
           >
             إضافة عنصر
           </Button>
-        </div>
-
-        {/* عرض الملفات الموجودة في وضع التعديل */}
-        {editMode && existingFiles.length > 0 && (
-          <div className="mb-3">
-            <h5>الملفات المرفقة</h5>
-            <div className="d-flex flex-wrap gap-3">
-              {existingFiles.map((file) => (
-                <div key={file.fid} className="text-center">
-                  {file.mimeType.startsWith('image/') ? (
-                    <img
-                      src={file.previewUrl}
-                      alt="preview"
-                      style={{
-                        width: '100px',
-                        height: '100px',
-                        objectFit: 'cover',
-                        border: '1px solid #ddd',
-                        borderRadius: '4px',
-                        marginBottom: '8px'
-                      }}
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: '100px',
-                        height: '100px',
-                        border: '1px solid #ddd',
-                        borderRadius: '4px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: '#f8f9fa',
-                        marginBottom: '8px'
-                      }}
-                    >
-                      <i className="bi bi-file-earmark"></i>
-                    </div>
-                  )}
-                  <div className="d-flex flex-column gap-1">
-                    <a
-                      href={file.downloadUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-decoration-none"
-                    >
-                      تحميل
-                    </a>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleDeleteFile(file.fid)}
-                    >
-                      حذف
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* أزرار الإرسال والملء التلقائي */}
-        <div className="d-flex gap-2 mb-4">
-          <Button variant="primary" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'جاري الحفظ...' : editMode ? 'تحديث الفاتورة' : 'حفظ الفاتورة'}
-          </Button>
           <Button
-            variant="warning"
-            type="button"
+            variant="outlined"
             onClick={handleAutoFill}
             disabled={isSubmitting}
+            sx={{
+              borderRadius: 2,
+              width: '30%',
+              minWidth: 120,
+              color: "#c62828",
+              borderColor: "#c62828",
+              fontWeight: 700,
+              '&:hover': {
+                backgroundColor: '#c62828',
+                borderColor: '#b71c1c',
+                color: '#fff'
+              }
+            }}
           >
-            ملء تلقائي
+            تعبئة وهمية
           </Button>
-        </div>
-      </Form>
+           <Button
+          type="submit"
+          variant="contained"
+          disabled={isSubmitting}
+          fullWidth
+          sx={{ borderRadius: 2, py: 1.5 ,
+           width: { xs: '100%', sm: '30%' }, backgroundColor: "#c62828", color: "#fff", '&:hover': { backgroundColor: '#b71c1c' }
+          }}
+        >
+          {isSubmitting ? 'جاري الحفظ...' : 'حفظ الفاتورة'}
+        </Button>
+        </Stack>
 
-      {/* جدول الفواتير */}
-      <h3 className="mt-5 mb-3">الفواتير</h3>
-      <Table striped bordered hover responsive>
-        <thead>
-          <tr>
-            <th>نوع الفاتورة</th>
-            <th>رقم الفاتورة</th>
-            <th>المزرعة</th>
-            <th>التاريخ</th>
-            <th>التوقيت</th>
-            <th>العميل</th>
-            <th>المادة</th>
-            <th>الوحدة</th>
-            <th>الكمية</th>
-            <th>السعر</th>
-            <th>المبلغ الإجمالي</th>
-            <th>الإجراءات</th>
-          </tr>
-        </thead>
-        <tbody>
-          {invoices.map((invoice) => (
-            <tr key={invoice.$id}>
-              <td>
-                {invoice.type === 'Sale' ? 'بيض' : 
-                 invoice.type === 'DarkMeet' ? 'سواد' : 'دواء'}
-              </td>
-              <td>{invoice.index}</td>
-              <td>{farms.find(f => f.$id === invoice.farmId)?.name || 'غير معروف'}</td>
-              <td>{invoice.date}</td>
-              <td>{invoice.time}</td>
-              <td>{invoice.customer}</td>
-              <td>{invoice.meterial}</td>
-              <td>{invoice.unit}</td>
-              <td>{invoice.amount}</td>
-              <td>{invoice.price}</td>
-              <td>{invoice.amount * invoice.price}</td>
-              <td>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  className="me-2"
-                  onClick={() => loadInvoiceForEdit(invoice)}
-                >
-                  تعديل
-                </Button>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => {
-                    setInvoiceToDelete(invoice);
-                    setShowDeleteModal(true);
-                  }}
-                >
-                  حذف
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      </Box>
 
-      {/* نافذة تأكيد الحذف */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>تأكيد الحذف</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          هل أنت متأكد من حذف هذه الفاتورة؟
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+      {/* قائمة الفواتير */}
+      <Typography variant="h6" fontWeight={600} mb={2}>
+        قائمة الفواتير
+      </Typography>
+      <TableContainer component={Paper} sx={{ mb: 2 }}>
+        <Table size="small">
+          <TableHead sx={{ backgroundColor: '#c62828' }}>
+            <TableRow>
+              <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>رقم الفاتورة</TableCell>
+              <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>المزرعة</TableCell>
+              <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>التاريخ</TableCell>
+              <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>العميل</TableCell>
+              <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>الإجمالي</TableCell>
+              <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>الإجراءات</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {invoices.map((invoice) => (
+              <TableRow key={invoice.$id}>
+                <TableCell align="center">{invoice.index}</TableCell>
+                <TableCell align="center">
+                  {farms.find((f) => f.$id === invoice.farmId)?.name}
+                </TableCell>
+                <TableCell align="center">{invoice.date}</TableCell>
+                <TableCell align="center">{invoice.customer}</TableCell>
+                <TableCell align="center">
+                  {invoiceItems.reduce((sum, item) => sum + item.amount * item.price, 0)}
+                </TableCell>
+                <TableCell align="center">
+                  <IconButton
+                    color="primary"
+                    onClick={() => loadInvoiceForEdit(invoice)}
+                    disabled={isSubmitting}
+                  >
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                  sx={{ color: '#c62828' }}
+                    
+                    onClick={() => {
+                      setInvoiceToDelete(invoice);
+                      setShowDeleteModal(true);
+                    }}
+                    disabled={isSubmitting}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      {/* حوار تأكيد الحذف */}
+      <Dialog
+        open={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          تأكيد حذف الفاتورة
+        </DialogTitle>
+        <DialogContent>
+          <Typography>
+            هل أنت متأكد أنك تريد حذف هذه الفاتورة؟ هذه العملية不可 عكسها.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDeleteModal(false)} color="primary">
             إلغاء
           </Button>
-          <Button variant="danger" onClick={handleDelete}>
+          <Button onClick={handleDelete} color="secondary" autoFocus>
             حذف
           </Button>
-        </Modal.Footer>
-      </Modal>
-    </div>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }

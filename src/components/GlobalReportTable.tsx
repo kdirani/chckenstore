@@ -1,4 +1,4 @@
-import { Table } from 'react-bootstrap';
+import { Table, TableHead, TableBody, TableRow, TableCell } from '@mui/material';
 import {
   filterReportsBeforeDate,
   filterReportsByPeriod,
@@ -14,12 +14,19 @@ import {
 import { useSelectedFarmContext } from '../contexts';
 import type { FilterDateMod, IDailyReport } from '../models';
 
-export default function GlobalReportTable(props: {
-  dateMode: FilterDateMod;
-  reports: IDailyReport[];
-}) {
+interface GlobalReportTableProps {
+  dateMode: string;
+  reports: any[];
+  tableSx?: object; // أضف هذا السطر
+}
+
+export default function GlobalReportTable({
+  dateMode,
+  reports,
+  tableSx,
+}: GlobalReportTableProps) {
   const selectedFarm = useSelectedFarmContext()[0];
-  const currentReports = props.reports.filter(
+  const currentReports = reports.filter(
     (report) => report.farmId === selectedFarm
   );
   const previousReport = getPreviousReportByFarm(
@@ -32,13 +39,13 @@ export default function GlobalReportTable(props: {
     return <div>لا توجد تقارير متاحة</div>;
   }
 
-  const filteredReports = filterReportsByPeriod(currentReports, props.dateMode);
+  const filteredReports = filterReportsByPeriod(currentReports, dateMode);
   if (!filteredReports || filteredReports.length === 0) {
     return <div>لا توجد تقارير متاحة للفترة المحددة</div>;
   }
 
-  const startDate = getStartDate(new Date(), props.dateMode);
-  const endDate = getEndDate(new Date(), props.dateMode);
+  const startDate = getStartDate(new Date(), dateMode);
+  const endDate = getEndDate(new Date(), dateMode);
   const previousCumulative = previousReport
     ? getPreviousCumulative(
         previousReport,
@@ -58,70 +65,100 @@ export default function GlobalReportTable(props: {
   );
   const totalDeaths = totalize(filteredReports, 'death').amount;
   const endingChickenCount = startingChickenCount - totalDeaths;
-  const avgDeath = getAvarageOfDeath(filteredReports, props.dateMode);
+  const avgDeath = getAvarageOfDeath(filteredReports, dateMode);
   const totalFood = totalize(filteredReports, 'dailyFood').amount;
   const daysInPeriod =
-    props.dateMode === 'day' ? 1 : props.dateMode === 'week' ? 7 : 30;
+    dateMode === 'day' ? 1 : dateMode === 'week' ? 7 : 30;
   const avgFoodPerChicken = getAvarageOfFoodProductionPercentage(
     filteredReports,
-    props.dateMode,
+    dateMode,
     'food'
   );
   const avgEggProduction = getAvarageOfFoodProductionPercentage(
     filteredReports,
-    props.dateMode,
+    dateMode,
     'production'
   );
   const totalDarkMeat = totalize(filteredReports, 'darkMeat').amount;
 
   return (
-    <div>
-      <h2>
-        {props.dateMode === 'day'
+    <div style={{ width: '100%', overflowX: 'auto', marginBottom: 24 }}>
+      <h2
+        style={{
+          color: '#c62828',
+          fontWeight: 'bold',
+          fontSize: 22,
+          margin: '16px 0 12px 0',
+          textAlign: 'right',
+        }}
+      >
+        {dateMode === 'day'
           ? 'تقرير يومي'
-          : props.dateMode === 'week'
+          : dateMode === 'week'
           ? 'تقرير أسبوعي'
           : 'تقرير شهري'}
       </h2>
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>تاريخ البداية</th>
-            <th>تاريخ النهاية</th>
-            <th>الرصيد التراكمي السابق</th>
-            <th>كمية الإنتاج</th>
-            <th>كمية المبيعات</th>
-            <th>الرصيد التراكمي الحالي</th>
-            <th>عدد الفرخة بداية الفلترة</th>
-            <th>عدد النفوق ضمن فترة الفلترة</th>
-            <th>عدد الفرخة نهاية الفلترة</th>
-            <th>متوسط النفوق</th>
-            <th>كمية العلف المستهلك</th>
-            <th>عدد الأيام</th>
-            <th>متوسط استهلاك الفرخة من العلف</th>
-            <th>متوسط إنتاج البيض</th>
-            <th>كمية السواد المنتج</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{startDate.toLocaleDateString()}</td>
-            <td>{endDate.toLocaleDateString()}</td>
-            <td>{previousCumulative}</td>
-            <td>{totalProduction}</td>
-            <td>{totalSales}</td>
-            <td>{currentCumulative}</td>
-            <td>{startingChickenCount}</td>
-            <td>{totalDeaths}</td>
-            <td>{endingChickenCount}</td>
-            <td>{avgDeath}</td>
-            <td>{totalFood}</td>
-            <td>{daysInPeriod}</td>
-            <td>{avgFoodPerChicken}</td>
-            <td>{avgEggProduction}</td>
-            <td>{totalDarkMeat}</td>
-          </tr>
-        </tbody>
+      <Table
+        sx={{
+          minWidth: 900,
+          borderRadius: 3,
+          boxShadow: '0 2px 12px 0 rgba(198,40,40,0.07)',
+          '& thead tr': {
+            background: '#c62828',
+          },
+          '& thead th': {
+            color: '#fff',
+            fontWeight: 'bold',
+            fontSize: { xs: 13, md: 16 },
+            borderBottom: '2px solid #fff',
+            textAlign: 'center',
+          },
+          '& tbody td': {
+            textAlign: 'center',
+            fontSize: { xs: 12, md: 15 },
+          },
+          '& tbody tr:nth-of-type(odd)': { backgroundColor: '#fff5f5' },
+          '& tbody tr:hover': { backgroundColor: '#ffeaea' },
+        }}
+      >
+        <TableHead>
+          <TableRow>
+            <TableCell>تاريخ البداية</TableCell>
+            <TableCell>تاريخ النهاية</TableCell>
+            <TableCell>الرصيد التراكمي السابق</TableCell>
+            <TableCell>كمية الإنتاج</TableCell>
+            <TableCell>كمية المبيعات</TableCell>
+            <TableCell>الرصيد التراكمي الحالي</TableCell>
+            <TableCell>عدد الفرخة بداية الفلترة</TableCell>
+            <TableCell>عدد النفوق ضمن فترة الفلترة</TableCell>
+            <TableCell>عدد الفرخة نهاية الفلترة</TableCell>
+            <TableCell>متوسط النفوق</TableCell>
+            <TableCell>كمية العلف المستهلك</TableCell>
+            <TableCell>عدد الأيام</TableCell>
+            <TableCell>متوسط استهلاك الفرخة من العلف</TableCell>
+            <TableCell>متوسط إنتاج البيض</TableCell>
+            <TableCell>كمية السواد المنتج</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          <TableRow>
+            <TableCell>{startDate.toLocaleDateString()}</TableCell>
+            <TableCell>{endDate.toLocaleDateString()}</TableCell>
+            <TableCell>{previousCumulative}</TableCell>
+            <TableCell>{totalProduction}</TableCell>
+            <TableCell>{totalSales}</TableCell>
+            <TableCell>{currentCumulative}</TableCell>
+            <TableCell>{startingChickenCount}</TableCell>
+            <TableCell>{totalDeaths}</TableCell>
+            <TableCell>{endingChickenCount}</TableCell>
+            <TableCell>{avgDeath}</TableCell>
+            <TableCell>{totalFood}</TableCell>
+            <TableCell>{daysInPeriod}</TableCell>
+            <TableCell>{avgFoodPerChicken}</TableCell>
+            <TableCell>{avgEggProduction}</TableCell>
+            <TableCell>{totalDarkMeat}</TableCell>
+          </TableRow>
+        </TableBody>
       </Table>
     </div>
   );

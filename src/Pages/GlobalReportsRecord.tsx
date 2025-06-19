@@ -1,33 +1,47 @@
-import { Form, Table } from 'react-bootstrap';
-import FarmsFilter from '../components/FarmsFilter';
-import { useSelectedFarmContext } from '../contexts';
-import { useEffect, useMemo, useState } from 'react';
-import type { FilterDateMod, IDailyReport } from '../models';
-import { groupReportsByPeriod } from '../utils';
-import GlobalReportsRecordItem from '../components/GlobalReportsRecordItem';
-import { reportsService } from '../lib/appwrite';
-import { Query } from 'appwrite';
+import { useEffect, useMemo, useState } from "react";
+import FarmsFilter from "../components/FarmsFilter";
+import { useSelectedFarmContext } from "../contexts";
+import type { FilterDateMod, IDailyReport } from "../models";
+import { groupReportsByPeriod } from "../utils";
+import GlobalReportsRecordItem from "../components/GlobalReportsRecordItem";
+import { reportsService } from "../lib/appwrite";
+import { Query } from "appwrite";
+import "../Pages/styles.css";
+import {
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Divider,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Box,
+  Stack,
+} from "@mui/material";
 
 export default function GlobalReportsRecord() {
-  const [dateMode, setDateMode] = useState<FilterDateMod>('day');
+  const [dateMode, setDateMode] = useState<FilterDateMod>("day");
   const selectedFarm = useSelectedFarmContext()[0];
   const [reports, setReports] = useState<IDailyReport[]>([]);
+
   useEffect(() => {
     if (!selectedFarm) return;
-    console.log(selectedFarm);
-
     const init = async () => {
       reportsService.list(
         (docs) => setReports(docs),
-        () => alert('Error in reports fetch'),
-        [Query.equal('farmId', selectedFarm || '')]
+        () => alert("Error in reports fetch"),
+        [Query.equal("farmId", selectedFarm || "")]
       );
     };
     init();
   }, [selectedFarm]);
-  console.log(reports);
 
-  // Group them by day/week/month
   const groupedReports = useMemo(() => {
     if (!reports || reports.length === 0) {
       return [];
@@ -36,71 +50,179 @@ export default function GlobalReportsRecord() {
   }, [reports, dateMode]);
 
   return (
-    <div>
-      <h1>سجل التقارير الشاملة</h1>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        width: "100vw",
+        backgroundColor: "#fff",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <Stack
+        direction="column"
+        alignItems="center"
+        justifyContent="flex-start"
+        sx={{
+          minHeight: "100vh",
+          width: "100vw",
+          pt: 5,
+          pb: 5,
+          px: 2,
+        }}
+      >
+        <Typography
+          variant="h4"
+          align="center"
+          gutterBottom
+          sx={{
+            fontWeight: "bold",
+            color: "#c62828",
+            letterSpacing: 1,
+            mb: 1,
+            fontSize: { xs: 22, md: 32 },
+            fontFamily: `'IBM Plex Sans Arabic', 'Ancizar Sans', Arial, sans-serif`,
+          }}
+        >
+          سجل التقارير الشاملة
+        </Typography>
 
-      <FarmsFilter />
+        <Divider
+          sx={{
+            my: { xs: 1, md: 3 },
+            borderColor: "#c62828",
+            borderBottomWidth: 3,
+            width: "90vw",
+            maxWidth: 1200,
+          }}
+        />
 
-      <Form className="mb-3">
-        <Form.Group>
-          <Form.Select
-            onChange={(e) => setDateMode(e.target.value as FilterDateMod)}
-            value={dateMode}
+        <Box
+          sx={{
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: 2,
+            mb: 3,
+          }}
+        >
+          <FarmsFilter />
+          <FormControl size="small" sx={{ minWidth: 140 }}>
+            <InputLabel id="date-mode-label">نوع التقرير</InputLabel>
+            <Select
+              labelId="date-mode-label"
+              value={dateMode}
+              label="نوع التقرير"
+              onChange={(e) => setDateMode(e.target.value as FilterDateMod)}
+            >
+              <MenuItem value="day">يومي</MenuItem>
+              <MenuItem value="week">أسبوعي</MenuItem>
+              <MenuItem value="month">شهري</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+
+        <Box
+          sx={{
+            width: "100%",
+            maxWidth: "100vw",
+            overflowX: "auto",
+            px: 1,
+            "&::-webkit-scrollbar": {
+              height: "8px",
+              background: "#ffeaea",
+              borderRadius: 4,
+              display: "block",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background: "#c62828",
+              borderRadius: 4,
+            },
+            scrollbarColor: "#c62828 #ffeaea",
+            scrollbarWidth: "thin",
+          }}
+        >
+          <TableContainer
+            component={Paper}
+            elevation={3}
+            sx={{
+              minWidth: "1200px",
+              borderRadius: 4,
+              boxShadow: "0 4px 24px 0 rgba(198,40,40,0.10)",
+              background: "rgba(255,255,255,0.98)",
+            }}
           >
-            <option value="day">يومي</option>
-            <option value="week">اسبوعي</option>
-            <option value="month">شهري</option>
-          </Form.Select>
-        </Form.Group>
-      </Form>
-
-      <Table bordered hover responsive>
-        <thead>
-          <tr>
-            <th>تاريخ البداية</th>
-            <th>تاريخ النهاية</th>
-            <th>الرصيد التراكمي السابق</th>
-            <th>كمية الإنتاج</th>
-            <th>كمية المبيعات</th>
-            <th>الرصيد التراكمي الحالي</th>
-            <th>عدد الفرخة بداية الفلترة</th>
-            <th>عدد النفوق ضمن فترة الفلترة</th>
-            <th>عدد الفرخة نهاية الفلترة</th>
-            <th>متوسط النفوق</th>
-            <th>كمية العلف المستهلك</th>
-            <th>عدد الأيام</th>
-            <th>متوسط استهلاك الفرخة من العلف</th>
-            <th>كمية السواد المنتج</th>
-            <th>متوسط إنتاج البيض</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {reports && reports.length > 0 ? (
-            groupedReports.map((group, index) => (
-              <tr key={index}>
-                {/**
-                 * Instead of writing <td>periodStart</td><td>periodEnd</td> here
-                 * and then letting GlobalReportsRecordItem return several <td> for each report
-                 * (which caused duplication), we simply render a single <GlobalReportsRecordItem>
-                 * that returns exactly one <td> per column, using group.periodStart, group.periodEnd, and group.reports[].
-                 */}
-                <GlobalReportsRecordItem
-                  currentReports={reports}
-                  groupReports={group.reports}
-                  periodStart={group.periodStart}
-                  periodEnd={group.periodEnd}
-                  dateMode={dateMode}
-                />
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td>لا توجد تقارير متاحة</td>
-            </tr>
-          )}
-        </tbody>
-      </Table>
-    </div>
+            <Table
+              sx={{
+                minWidth: 1200,
+                "& thead tr": {
+                  background: "#c62828",
+                },
+                "& thead th": {
+                  color: "#fff",
+                  fontWeight: "bold",
+                  fontSize: { xs: 12, md: 15 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  whiteSpace: "nowrap",
+                },
+                "& tbody td": {
+                  textAlign: "center",
+                  fontSize: { xs: 11, md: 14 },
+                  transition: "background 0.3s",
+                },
+                "& tbody tr:nth-of-type(odd)": { backgroundColor: "#fff5f5" },
+                "& tbody tr:nth-of-type(even)": { backgroundColor: "#fff" },
+                "& tbody tr:hover": { backgroundColor: "#ffeaea" },
+              }}
+            >
+              <TableHead>
+                <TableRow>
+                  {[
+                    "تاريخ البداية",
+                    "تاريخ النهاية",
+                    "الرصيد التراكمي السابق",
+                    "كمية الإنتاج",
+                    "كمية المبيعات",
+                    "الرصيد التراكمي الحالي",
+                    "عدد الفرخة بداية الفلترة",
+                    "عدد النفوق ضمن فترة الفلترة",
+                    "عدد الفرخة نهاية الفلترة",
+                    "متوسط النفوق",
+                    "كمية العلف المستهلك",
+                    "عدد الأيام",
+                    "متوسط استهلاك الفرخة من العلف",
+                    "كمية السواد المنتج",
+                    "متوسط إنتاج البيض",
+                  ].map((label, idx) => (
+                    <TableCell key={idx}>{label}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {reports.length > 0 ? (
+                  groupedReports.map((group, index) => (
+                    <GlobalReportsRecordItem
+                      key={index}
+                      currentReports={reports}
+                      groupReports={group.reports}
+                      periodStart={group.periodStart}
+                      periodEnd={group.periodEnd}
+                      dateMode={dateMode}
+                    />
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={15} align="center">
+                      لا توجد تقارير متاحة
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Stack>
+    </Box>
   );
 }
