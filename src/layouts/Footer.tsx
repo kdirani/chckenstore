@@ -7,7 +7,7 @@ const Footer = () => (
       background: '#c62828',
       color: '#fff',
     
-      padding: '18px 0 12px 0',
+      padding: '18px 0 11px 0',
       marginTop: 32,
       display: 'flex',
       alignItems: 'center',
