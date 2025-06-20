@@ -209,8 +209,8 @@ export default function ReportsForm() {
   const handleAutoFill = () => {
     if (!farms?.length) return alert('أضف مزرعة أولاً.');
     const fId = farms[0].$id;
-    setDate('2025-06-04');
-    setTime('12:30');
+    // setDate('2025-06-04');
+    // setTime('12:30');
     setFarmId(fId);
     setProduction('1000');
     setDistortedProduction('50');
