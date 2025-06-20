@@ -323,6 +323,21 @@ export default function ReportsForm() {
     }
   };
 
+  useEffect(() => {
+    // تعبئة التاريخ بصيغة yyyy-mm-dd
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    setDate(`${yyyy}-${mm}-${dd}`);
+
+    // تعبئة الوقت بصيغة hh:mm:ss
+    const hh = String(now.getHours()).padStart(2, "0");
+    const min = String(now.getMinutes()).padStart(2, "0");
+    const ss = String(now.getSeconds()).padStart(2, "0");
+    setTime(`${hh}:${min}:${ss}`);
+  }, []);
+
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 1, sm: 3 } }}>
       <Typography variant="h5" sx={{ color: '#c62828', fontWeight: 700 }} mb={3} textAlign="center">
@@ -441,7 +456,7 @@ export default function ReportsForm() {
           <Grid item xs={12} sm={4}>
             <TextField
               label="الوقت"
-              type="time"
+              type="text"
               value={time}
               onChange={(e) => setTime(e.target.value)}
               required
