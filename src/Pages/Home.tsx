@@ -308,6 +308,13 @@ export default function HomePage() {
         </Typography>
       </Container>
       <Footer />
+      <style>
+        {`
+         body {
+          overflow-y:hidden;
+          }
+        `}
+      </style>
     </Box>
   );
 }
