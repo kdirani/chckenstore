@@ -137,7 +137,7 @@ export default function DailyReport() {
               boxShadow: "0 4px 24px 0 rgba(198,40,40,0.10)",
               minWidth: { xs: "1200px", md: "900px" },
               background: "rgba(255,255,255,0.98)",
-              overflow: "hidden",
+              // overflow: "hidden",
             }}
           >
             <Table
