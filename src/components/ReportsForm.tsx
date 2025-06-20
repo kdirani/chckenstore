@@ -59,12 +59,8 @@ export default function ReportsForm() {
   const [darkAmount, setDarkAmount] = useState('');
   const [darkClient, setDarkClient] = useState('');
   // جداول ديناميكية
-  const [saleItems, setSaleItems] = useState<SaleItem[]>([
-    { amount: '', weigh: '', client: '' },
-  ]);
-  const [medicineItems, setMedicineItems] = useState<MedicineItem[]>([
-    { amount: '', unit: '', type: '', stor: '' },
-  ]);
+  const [saleItems, setSaleItems] = useState<SaleItem[]>([]);
+  const [medicineItems, setMedicineItems] = useState<MedicineItem[]>([]);
   // ملفات متعددة
   const [files, setFiles] = useState<FileList | null>(null);
 
@@ -179,7 +175,6 @@ export default function ReportsForm() {
   const handleAddSale = () =>
     setSaleItems([...saleItems, { amount: '', weigh: '', client: '' }]);
   const handleRemoveSale = (i: number) =>
-    saleItems.length > 1 &&
     setSaleItems(saleItems.filter((_, idx) => idx !== i));
 
   const handleMedicineChange = (
@@ -197,7 +192,6 @@ export default function ReportsForm() {
       { amount: '', unit: '', type: '', stor: '' },
     ]);
   const handleRemoveMedicine = (i: number) =>
-    medicineItems.length > 1 &&
     setMedicineItems(medicineItems.filter((_, idx) => idx !== i));
 
   // رفع الملفات
@@ -520,10 +514,10 @@ export default function ReportsForm() {
 
         {/* المبيعات */}
         <Box mb={2} p={2} border="1px solid #eee" borderRadius={2}>
-          <Typography variant="subtitle1" fontWeight={600} mb={1} sx={{ color: '#c62828',fontSize: '1.2rem' }}>
+          <Typography variant="subtitle1" fontWeight={600} mb={1} sx={{ color: '#c62828', fontSize: '1.2rem' }}>
             المبيعات
           </Typography>
-          {saleItems.map((item, idx) => (
+          {saleItems.length > 0 && saleItems.map((item, idx) => (
             <Grid container spacing={2} alignItems="center" mb={1} key={idx}>
               <Grid item xs={12} sm={3}>
                 <TextField
@@ -578,7 +572,6 @@ export default function ReportsForm() {
                   variant="outlined"
                   color="error"
                   onClick={() => handleRemoveSale(idx)}
-                  disabled={saleItems.length === 1}
                   sx={{ minWidth: 0, px: 2 }}
                 >
                   حذف
@@ -586,28 +579,41 @@ export default function ReportsForm() {
               </Grid>
             </Grid>
           ))}
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleAddSale}
-            sx={{
-              mt: 1,
-              backgroundColor: "#c62828",
-              color: "#fff",
-              fontWeight: 700,
-              "&:hover": { backgroundColor: "#b71c1c" },
-            }}
-          >
-            إضافة بيع
-          </Button>
+          <Stack direction="row" gap={1} mt={1}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleAddSale}
+              sx={{
+                backgroundColor: "#c62828",
+                color: "#fff",
+                fontWeight: 700,
+                "&:hover": { backgroundColor: "#b71c1c" },
+              }}
+            >
+              إضافة بيع
+            </Button>
+            {saleItems.length > 1 && (
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => setSaleItems([])}
+                sx={{ color: '#c62828',
+                  // marginRight: 2,
+                 }}
+              >
+                حذف الكل
+              </Button>
+            )}
+          </Stack>
         </Box>
 
         {/* الأدوية */}
         <Box mb={2} p={2} border="1px solid #eee" borderRadius={2}>
-          <Typography variant="subtitle1" fontWeight={600} mb={1} sx={{ color: '#c62828',fontSize: '1.2rem' }}>
+          <Typography variant="subtitle1" fontWeight={600} mb={1} sx={{ color: '#c62828', fontSize: '1.2rem' }}>
             الأدوية
           </Typography>
-          {medicineItems.map((item, idx) => (
+          {medicineItems.length > 0 && medicineItems.map((item, idx) => (
             <Grid container spacing={2} alignItems="center" mb={1} key={idx}>
               <Grid item xs={12} sm={2}>
                 <TextField
@@ -651,7 +657,6 @@ export default function ReportsForm() {
                   variant="outlined"
                   color="error"
                   onClick={() => handleRemoveMedicine(idx)}
-                  disabled={medicineItems.length === 1}
                   sx={{ minWidth: 0, px: 2 }}
                 >
                   حذف
@@ -659,20 +664,30 @@ export default function ReportsForm() {
               </Grid>
             </Grid>
           ))}
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleAddMedicine}
-            sx={{
-              mt: 1,
-              backgroundColor: "#c62828",
-              color: "#fff",
-              fontWeight: 700,
-              "&:hover": { backgroundColor: "#b71c1c" },
-            }}
-          >
-            إضافة دواء
-          </Button>
+          <Stack direction="row" gap={1} mt={1}>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleAddMedicine}
+              sx={{
+                backgroundColor: "#c62828",
+                color: "#fff",
+                fontWeight: 700,
+                "&:hover": { backgroundColor: "#b71c1c" },
+              }}
+            >
+              إضافة دواء
+            </Button>
+            {medicineItems.length > 1 && (
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => setMedicineItems([])}
+              >
+                حذف الكل
+              </Button>
+            )}
+          </Stack>
         </Box>
 
         {/* السواد */}
