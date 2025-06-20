@@ -6,6 +6,7 @@ import {
   getCheckenAmountBefore,
   getFoodPercentage,
   getPreviousCumulative,
+  getInitialCheckenFromFarm,
 } from '../utils';
 import { fileService } from '../lib/appwrite';
 
@@ -21,6 +22,22 @@ export default function DailyReportItem(props: {
 }) {
   // fileMetas: خريطة لكل تقرير إلى بيانات ملفاته
   const [fileMetas, setFileMetas] = useState<Record<number, FileMeta[]>>({});
+  const [initialChecken, setInitialChecken] = useState<number>(40000);
+
+  useEffect(() => {
+    // جلب initialChecken من جدول المزرعة إذا كان هناك تقارير
+    if (props.dailyReports.length > 0) {
+      const farmId = props.dailyReports[0].farmId;
+      if (farmId) {
+        getInitialCheckenFromFarm(farmId)
+          .then(setInitialChecken)
+          .catch((error) => {
+            console.error('خطأ في جلب initialChecken:', error);
+            setInitialChecken(40000);
+          });
+      }
+    }
+  }, [props.dailyReports]);
 
   useEffect(() => {
     props.dailyReports.forEach((item, idx) => {
@@ -79,22 +96,22 @@ export default function DailyReportItem(props: {
             <td>
               {calculatePercentageAndTotal(
                 (item.production + item.distortedProduction) * 30,
-                getCheckenAmountBefore(item, undefined, props.dailyReports)
+                getCheckenAmountBefore(item, initialChecken, props.dailyReports)
               )}
             </td>
             <td>
-              {getCheckenAmountBefore(item, undefined, props.dailyReports)}
+              {getCheckenAmountBefore(item, initialChecken, props.dailyReports)}
             </td>
             <td>{item.death}</td>
             <td>
-              {getCheckenAmountBefore(item, undefined, props.dailyReports) -
+              {getCheckenAmountBefore(item, initialChecken, props.dailyReports) -
                 item.death}
             </td>
             <td>{item.dailyFood}</td>
             <td>
               {getFoodPercentage(
                 item.dailyFood,
-                getCheckenAmountBefore(item, undefined, props.dailyReports)
+                getCheckenAmountBefore(item, initialChecken, props.dailyReports)
               )}
             </td>
             <td>{darkMeat.amount}</td>
