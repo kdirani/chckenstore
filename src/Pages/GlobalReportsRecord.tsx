@@ -125,31 +125,23 @@ export default function GlobalReportsRecord() {
         <Box
           sx={{
             width: "100%",
-            maxWidth: "100vw",
-            overflowX: "auto",
-            px: 1,
-            "&::-webkit-scrollbar": {
-              height: "8px",
-              background: "#ffeaea",
-              borderRadius: 4,
-              display: "block",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              background: "#c62828",
-              borderRadius: 4,
-            },
-            scrollbarColor: "#c62828 #ffeaea",
-            scrollbarWidth: "thin",
+            maxWidth: 1200,
+            mx: "auto",
+            px: { xs: 1, md: 2 },
+            mb: 3,
           }}
         >
           <TableContainer
             component={Paper}
             elevation={3}
             sx={{
-              minWidth: "1200px",
               borderRadius: 4,
               boxShadow: "0 4px 24px 0 rgba(198,40,40,0.10)",
               background: "rgba(255,255,255,0.98)",
+              width: "100%",
+              minWidth: 0,
+              display: "flex",
+
             }}
           >
             <Table
@@ -178,7 +170,7 @@ export default function GlobalReportsRecord() {
             >
               <TableHead>
                 <TableRow>
-                  {[
+                  { [
                     "تاريخ البداية",
                     "تاريخ النهاية",
                     "الرصيد التراكمي السابق",
@@ -195,7 +187,18 @@ export default function GlobalReportsRecord() {
                     "كمية السواد المنتج",
                     "متوسط إنتاج البيض",
                   ].map((label, idx) => (
-                    <TableCell key={idx}>{label}</TableCell>
+                    <TableCell key={idx}>
+                      {label.includes(" ") ? (
+                        label.split(" ").map((word, i, arr) => (
+                          <span key={i}>
+                            {word}
+                            {i !== arr.length - 1 && <br />}
+                          </span>
+                        ))
+                      ) : (
+                        label
+                      )}
+                    </TableCell>
                   ))}
                 </TableRow>
               </TableHead>
@@ -222,6 +225,21 @@ export default function GlobalReportsRecord() {
             </Table>
           </TableContainer>
         </Box>
+          <button
+          onClick={() => window.print()}
+          style={{
+            background: "#c62828",
+            color: "#fff",
+            padding: "8px 16px",
+            border: "none",
+            borderRadius: 8,
+            cursor: "pointer",
+            fontSize: 14,
+            // marginLeft: "75rem",
+          }}
+        >
+          طباعة التقرير
+        </button>
       </Stack>
     </Box>
   );

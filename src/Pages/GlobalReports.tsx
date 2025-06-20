@@ -30,22 +30,18 @@ export default function GlobalReports() {
   }, [selectedFarm]);
 
   const tableContainerSx = {
-    overflowX: "auto",
-    width: "100vw",
-    mb: 3,
+    width: "100%",
+    maxWidth: 1300,
+    mx: "auto",
+    my: 4,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    pb: 1,
     px: { xs: 0, md: 2 },
-    "&::-webkit-scrollbar": {
-      height: "10px",
-      background: "#ffcdd2",
-      borderRadius: 4,
-      display: "block",
-    },
-    "&::-webkit-scrollbar-thumb": {
-      background: "#c62828",
-      borderRadius: 4,
-    },
-    scrollbarColor: "#c62828 #ffcdd2",
-    scrollbarWidth: "thin",
+    borderRadius: 10 ,
+    overflow: "hidden",
+
   };
 
   return (
@@ -108,15 +104,27 @@ export default function GlobalReports() {
         >
           <FarmsFilter />
         </Box>
-
+  <button
+          onClick={() => window.print()}
+          style={{
+            background: "#c62828",
+            color: "#fff",
+            padding: "8px 16px",
+            border: "none",
+            borderRadius: 8,
+            cursor: "pointer",
+            fontSize: 14,
+            // marginLeft: "75rem",
+          }}
+        >
+          طباعة التقرير
+        </button>
         <Box sx={tableContainerSx}>
           <GlobalReportTable dateMode="day" reports={reports} />
         </Box>
-
         <Box sx={tableContainerSx}>
           <GlobalReportTable dateMode="week" reports={reports} />
         </Box>
-
         <Box sx={tableContainerSx}>
           <GlobalReportTable dateMode="month" reports={reports} />
         </Box>

@@ -35,7 +35,6 @@ export default function DailyReport() {
     };
     init();
   }, [selectedFarm]);
-
   return (
     <Box
       sx={{
@@ -84,6 +83,10 @@ export default function DailyReport() {
             maxWidth: 1200,
           }}
         />
+        <Box sx={{ mt: 1 }}>
+
+
+        </Box>
 
         <Box
           sx={{
@@ -99,9 +102,13 @@ export default function DailyReport() {
 
         <Box
           sx={{
-            width: "100vw",
+            width: "100%",
             maxWidth: 1300,
-            overflowX: "auto",
+            mx: "auto",
+            my: 4,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
             pb: 1,
             px: { xs: 0, md: 2 },
             "&::-webkit-scrollbar": {
@@ -126,6 +133,7 @@ export default function DailyReport() {
               boxShadow: "0 4px 24px 0 rgba(198,40,40,0.10)",
               minWidth: { xs: "1200px", md: "900px" },
               background: "rgba(255,255,255,0.98)",
+              overflow: "hidden",
             }}
           >
             <Table
@@ -177,14 +185,23 @@ export default function DailyReport() {
                         fontWeight: "bold",
                         color: "#fff",
                         p: { xs: 0.5, md: 2 },
-                        whiteSpace: "nowrap",
+                        whiteSpace: "pre-line",
                         fontSize: { xs: 11, md: 16 },
                         borderBottom: "2px solid #fff",
                         textAlign: "center",
                         background: "transparent",
                       }}
                     >
-                      {label}
+                      {label.includes(" ") ? (
+                        label.split(" ").map((word, i, arr) => (
+                          <span key={i}>
+                            {word}
+                            {i !== arr.length - 1 && <br />}
+                          </span>
+                        ))
+                      ) : (
+                        label
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -195,6 +212,21 @@ export default function DailyReport() {
             </Table>
           </TableContainer>
         </Box>
+        <button
+          onClick={() => window.print()}
+          style={{
+            background: "#c62828",
+            color: "#fff",
+            padding: "8px 16px",
+            border: "none",
+            borderRadius: 8,
+            cursor: "pointer",
+            fontSize: 14,
+            // marginLeft: "75rem",
+          }}
+        >
+          طباعة التقرير
+        </button>
       </Stack>
 
       {/* تحسين العرض على الجوال */}

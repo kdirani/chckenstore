@@ -135,7 +135,7 @@ export default function InvoiceRecord() {
                 color: "#c62828",
                 fontWeight: "bold",
                 borderRadius: 1,
-                
+
                 "& .MuiSelect-icon": { color: "#c62828" },
               }}
             >
@@ -147,7 +147,13 @@ export default function InvoiceRecord() {
         </Stack>
       </Box>
 
-      <Box sx={{ width: "100%", overflowX: "auto" }}>
+      <Box sx={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        mt: 2,
+        px: { xs: 1, sm: 8 }, // هوامش من الطرفين
+      }}>
         <TableContainer
           component={Paper}
           elevation={3}
@@ -214,6 +220,24 @@ export default function InvoiceRecord() {
             </TableBody>
           </Table>
         </TableContainer>
+      </Box>
+
+      {/* زر طباعة التقرير */}
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+        <button
+          onClick={() => window.print()}
+          style={{
+            background: "#c62828",
+            color: "#fff",
+            padding: "8px 16px",
+            border: "none",
+            borderRadius: 8,
+            cursor: "pointer",
+            fontSize: 14,
+          }}
+        >
+          طباعة التقرير
+        </button>
       </Box>
     </Box>
   );
@@ -301,5 +325,7 @@ function InvoiceTableRow(props: {
         })}
       </TableCell>
     </TableRow>
+
   );
+
 }
