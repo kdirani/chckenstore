@@ -11,7 +11,7 @@ import {
   getStartDate,
   totalize,
 } from '../utils';
-import { useSelectedFarmContext, useFarms } from '../contexts';
+import { useSelectedFarmContext } from '../contexts';
 import type { FilterDateMod } from '../models';
 import type { IDailyReport } from '../models';
 
@@ -25,7 +25,6 @@ export default function GlobalReportTable({
   reports,
 }: GlobalReportTableProps) {
   const selectedFarm = useSelectedFarmContext()[0];
-  const { farms } = useFarms();
   const currentReports = reports.filter(
     (report) => report.farmId === selectedFarm
   );
@@ -61,8 +60,7 @@ export default function GlobalReportTable({
   const startingChickenCount = getCheckenAmountBefore(
     filteredReports[0],
     undefined,
-    currentReports,
-    farms
+    currentReports
   );
   const totalDeaths = totalize(filteredReports, 'death').amount;
   const endingChickenCount = startingChickenCount - totalDeaths;
@@ -73,14 +71,12 @@ export default function GlobalReportTable({
   const avgFoodPerChicken = getAvarageOfFoodProductionPercentage(
     filteredReports,
     dateMode,
-    'food',
-    farms
+    'food'
   );
   const avgEggProduction = getAvarageOfFoodProductionPercentage(
     filteredReports,
     dateMode,
-    'production',
-    farms
+    'production'
   );
   const totalDarkMeat = totalize(filteredReports, 'darkMeat').amount;
 

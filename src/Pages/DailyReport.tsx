@@ -30,7 +30,11 @@ export default function DailyReport() {
       reportsService.list(
         (docs) => setReports(docs),
         () => alert("حدث خطأ أثناء جلب التقارير"),
-        [Query.equal("farmId", selectedFarm || "")]
+        [
+          Query.equal("farmId", selectedFarm || ""),
+          Query.orderAsc("date"),
+          Query.orderAsc("time"),
+        ]
       );
     };
     init();

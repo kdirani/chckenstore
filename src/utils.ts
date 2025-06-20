@@ -55,30 +55,54 @@ export const getPreviousCumulative = (
 export const getCheckenAmountBefore = (
   report: IDailyReport,
   init: number = 40000,
-  allReports: IDailyReport[],
-  farms?: any[]
+  allReports: IDailyReport[]
 ) => {
-  const amounts: number[] = [];
-  
-  // البحث عن المزرعة المحددة في التقرير
-  let initialChickenCount = init;
-  if (farms && farms.length > 0) {
-    const farm = farms.find(f => f.$id === report.farmId);
-    if (farm && farm.initialChecken) {
-      initialChickenCount = farm.initialChecken;
-    }
+  const reportIndex = allReports.findIndex(
+    (r) => r.date === report.date && r.time === report.time
+  );
+
+  if (reportIndex <= 0) {
+    return init;
   }
-  
-  if (allReports.indexOf(report) === 0) return initialChickenCount;
-  allReports.forEach((item) => {
-    const currentDate = new Date(report.date).getTime();
-    const itemDate = new Date(item.date).getTime();
-    if (itemDate < currentDate) {
-      amounts.push(item.death);
-    }
-  });
-  const total = amounts.reduce((acc, amount) => acc + amount, 0);
-  return initialChickenCount - total;
+
+  const previousDeaths = allReports
+    .slice(0, reportIndex)
+    .reduce((total, r) => total + r.death, 0);
+
+  return init - previousDeaths;
+};
+
+export const getInitialCheckenFromFarm = async (farmId: string): Promise<number> => {
+  if (!farmId) {
+    console.warn('farmId غير محدد، استخدام القيمة الافتراضية');
+    return 40000;
+  }
+
+  try {
+    const { farmsService } = await import('./lib/appwrite');
+    return new Promise((resolve) => {
+      farmsService.list(
+        (farms) => {
+          const farm = farms.find((f: any) => f.farmId === farmId || f.$id === farmId);
+          if (farm && typeof farm.initialChecken === 'number') {
+            console.log(`تم العثور على المزرعة: ${farm.name}, initialChecken: ${farm.initialChecken}`);
+            resolve(farm.initialChecken);
+          } else {
+            console.warn(`لم يتم العثور على المزرعة أو initialChecken غير محدد، استخدام القيمة الافتراضية: 40000`);
+            resolve(40000);
+          }
+        },
+        (error) => {
+          console.error('خطأ في جلب بيانات المزرعة:', error);
+          resolve(40000); // القيمة الافتراضية في حالة الخطأ
+        },
+        []
+      );
+    });
+  } catch (error) {
+    console.error('خطأ في استيراد farmsService:', error);
+    return 40000; // القيمة الافتراضية في حالة الخطأ
+  }
 };
 
 export const getCartorCalc = (report: IDailyReport) => {
@@ -301,15 +325,14 @@ export function getAvarageOfDeath(
 export const getAvarageOfFoodProductionPercentage = (
   reports: IDailyReport[],
   filterDate: FilterDateMod,
-  type: 'food' | 'production',
-  farms?: any[]
+  type: 'food' | 'production'
 ) => {
   let totalPercentage = 0;
   reports.forEach((report) => {
     if (type === 'food') {
       const percentage = getFoodPercentage(
         report.dailyFood,
-        getCheckenAmountBefore(report, undefined, reports, farms)
+        getCheckenAmountBefore(report, undefined, reports)
       );
       totalPercentage += Number(percentage.replace('%', ''));
       return;
@@ -317,7 +340,7 @@ export const getAvarageOfFoodProductionPercentage = (
 
     const percentage = calculatePercentageAndTotal(
       (report.production + report.distortedProduction) * 30,
-      getCheckenAmountBefore(report, undefined, reports, farms)
+      getCheckenAmountBefore(report, undefined, reports)
     );
     totalPercentage += Number(percentage.replace('%', ''));
   });
