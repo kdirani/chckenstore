@@ -1,17 +1,17 @@
-import { Route, Routes } from 'react-router-dom';
-import './App.css';
-import DailyReport from './Pages/DailyReport';
-import Header from './layouts/Header';
-import Home from './Pages/Home';
-import GlobalReports from './Pages/GlobalReports';
-import { SelectedFarmContext } from './contexts';
-import { useState } from 'react';
-import GlobalReportsRecord from './Pages/GlobalReportsRecord';
-import InvoiceRecord from './Pages/InvoiceRecord';
-import InvoicesForm from './components/InvoicesForm';
-import { FarmProvider } from './context/FarmsProvider';
-import FarmsForm from './components/FarmsForm';
-import ReportsForm from './components/ReportsForm';
+import { Route, Routes } from "react-router-dom";
+import "./App.css";
+import DailyReport from "./Pages/DailyReport";
+import Header from "./layouts/Header";
+import Home from "./Pages/Home";
+import GlobalReports from "./Pages/GlobalReports";
+import { SelectedFarmContext } from "./contexts";
+import { useState } from "react";
+import GlobalReportsRecord from "./Pages/GlobalReportsRecord";
+import InvoiceRecord from "./Pages/InvoiceRecord";
+import InvoicesForm from "./components/InvoicesForm";
+import { FarmProvider } from "./context/FarmsProvider";
+import FarmsForm from "./components/FarmsForm";
+import ReportsForm from "./components/ReportsForm";
 
 function App() {
   const [selectedFarm, setSelectedFarm] = useState<string | null>(null);

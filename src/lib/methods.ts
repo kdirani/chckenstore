@@ -76,30 +76,36 @@ export const createDocument = async (
     const response = await databases.createDocument(
       import.meta.env.VITE_APPWRITE_DB_ID,
       collectionId,
-      'unique()',
-      data,
+      "unique()",
+      data
     );
-    console.log('Created:', response);
-    onSucess(response.$id)
-    return response.$id
+    console.log("Created:", response);
+    onSucess(response.$id);
+    return response.$id;
   } catch (error) {
-    console.error('Error creating document:', error);
-    onError()
-    return ''
+    console.error("Error creating document:", error);
+    onError();
+    return "";
   }
 };
 
-export const deleteDocument = async (collectionId: string, documentId: string, onSucess: () => void) => {
+export const deleteDocument = async (
+  collectionId: string,
+  documentId: string,
+  onSucess: () => void
+) => {
   try {
     await databases.deleteDocument(
       import.meta.env.VITE_APPWRITE_DB_ID,
       collectionId,
       documentId
     );
-    console.log('Documen/home/munirdev/projects/Courses/src/lib/appwrite.tst deleted');
+    console.log(
+      "Documen/home/munirdev/projects/Courses/src/lib/appwrite.tst deleted"
+    );
     onSucess();
   } catch (error) {
-    console.error('Error deleting document:', error);
+    console.error("Error deleting document:", error);
   }
 };
 
@@ -118,12 +124,12 @@ export const updateDocument = async (
       documentId,
       data
     );
-    
-    console.log('Updated:', response);
+
+    console.log("Updated:", response);
     onSucess();
   } catch (error) {
-    console.error('Error updating document:', error);
-    if(onError) {
+    console.error("Error updating document:", error);
+    if (onError) {
       onError();
     }
   }
@@ -141,18 +147,18 @@ export const fetchDocuments = async (
       collectionId,
       queries
     );
-    console.log('Documents:', response.documents);
+    console.log("Documents:", response.documents);
     onSucess(response.documents);
-    return response.documents // Return the documents for further use if needed
+    return response.documents; // Return the documents for further use if needed
   } catch (error) {
-    console.error('Error fetching documents:', error);
-    onError()
+    console.error("Error fetching documents:", error);
+    onError();
   }
 };
 
 export const getSingleDocument = async (
   collectionId: string,
-  documentId: string,
+  documentId: string
 ) => {
   try {
     const document = await databases.getDocument(
@@ -160,13 +166,13 @@ export const getSingleDocument = async (
       collectionId,
       documentId
     );
-    console.log('Document:', document);
-    return document
+    console.log("Document:", document);
+    return document;
   } catch (error) {
-    console.error('Error fetching document:', error);
-    return null
+    console.error("Error fetching document:", error);
+    return null;
   }
-}
+};
 
 // export async function getUserProfile(
 //   userId: string,
@@ -180,10 +186,10 @@ export const getSingleDocument = async (
 //           Query.limit(1) // Limit to 1 result
 //         ]
 //     );
-//     return response.documents.length > 0 
-//         ? response.documents[0] 
+//     return response.documents.length > 0
+//         ? response.documents[0]
 //         : null;
-        
+
 //   } catch (error) {
 //       console.error('Appwrite Error:', error);
 //       throw error; // Or handle error as needed

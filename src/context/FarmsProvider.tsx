@@ -1,10 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 // src/contexts/FarmContext.tsx
-import {
-  useState,
-  useEffect,
-  type ReactNode,
-} from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import type { IRecursiveFarm } from "../models"; // تأكد أن مسار النموذج صحيح
 import { fetchDocuments } from "../lib/methods"; // دوال CRUD الخاصة بـ Appwrite
 import { client } from "../lib/appwrite"; // كائن Appwrite client
@@ -56,9 +52,7 @@ export function FarmProvider({ children }: { children: ReactNode }) {
 
           // عند حذف مستند
           case event.includes("databases.*.collections.*.documents.*.delete"):
-            setFarms((prev) =>
-              prev.filter((farm) => farm.$id !== payload.$id)
-            );
+            setFarms((prev) => prev.filter((farm) => farm.$id !== payload.$id));
             break;
         }
       }

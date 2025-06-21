@@ -141,7 +141,6 @@ export default function GlobalReportsRecord() {
               width: "100%",
               minWidth: 0,
               display: "flex",
-
             }}
           >
             <Table
@@ -170,7 +169,7 @@ export default function GlobalReportsRecord() {
             >
               <TableHead>
                 <TableRow>
-                  { [
+                  {[
                     "تاريخ البداية",
                     "تاريخ النهاية",
                     "الرصيد التراكمي السابق",
@@ -188,16 +187,14 @@ export default function GlobalReportsRecord() {
                     "متوسط إنتاج البيض",
                   ].map((label, idx) => (
                     <TableCell key={idx}>
-                      {label.includes(" ") ? (
-                        label.split(" ").map((word, i, arr) => (
-                          <span key={i}>
-                            {word}
-                            {i !== arr.length - 1 && <br />}
-                          </span>
-                        ))
-                      ) : (
-                        label
-                      )}
+                      {label.includes(" ")
+                        ? label.split(" ").map((word, i, arr) => (
+                            <span key={i}>
+                              {word}
+                              {i !== arr.length - 1 && <br />}
+                            </span>
+                          ))
+                        : label}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -225,7 +222,7 @@ export default function GlobalReportsRecord() {
             </Table>
           </TableContainer>
         </Box>
-          <button
+        <button
           onClick={() => window.print()}
           style={{
             background: "#c62828",

@@ -5,7 +5,7 @@ import { Query } from "appwrite";
 import DailyReportItem from "../components/DailyReportItem";
 import FarmsFilter from "../components/FarmsFilter";
 import type { IDailyReport } from "../models";
-import '../Pages/styles.css'
+import "../Pages/styles.css";
 import {
   Typography,
   Box,
@@ -87,10 +87,7 @@ export default function DailyReport() {
             maxWidth: 1200,
           }}
         />
-        <Box sx={{ mt: 1 }}>
-
-
-        </Box>
+        <Box sx={{ mt: 1 }}></Box>
 
         <Box
           sx={{
@@ -196,16 +193,14 @@ export default function DailyReport() {
                         background: "transparent",
                       }}
                     >
-                      {label.includes(" ") ? (
-                        label.split(" ").map((word, i, arr) => (
-                          <span key={i}>
-                            {word}
-                            {i !== arr.length - 1 && <br />}
-                          </span>
-                        ))
-                      ) : (
-                        label
-                      )}
+                      {label.includes(" ")
+                        ? label.split(" ").map((word, i, arr) => (
+                            <span key={i}>
+                              {word}
+                              {i !== arr.length - 1 && <br />}
+                            </span>
+                          ))
+                        : label}
                     </TableCell>
                   ))}
                 </TableRow>

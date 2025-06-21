@@ -141,7 +141,9 @@ export default function FarmsForm() {
               <TextField
                 label="اسم المزرعة"
                 value={name}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setName(e.target.value)
+                }
                 placeholder="أدخل اسم المزرعة"
                 required
                 fullWidth
@@ -154,7 +156,9 @@ export default function FarmsForm() {
                 type="number"
                 value={initialChecken}
                 onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setInitialChecken(e.target.value === "" ? "" : Number(e.target.value))
+                  setInitialChecken(
+                    e.target.value === "" ? "" : Number(e.target.value)
+                  )
                 }
                 placeholder="أدخل عدد الدجاج"
                 required
@@ -208,16 +212,28 @@ export default function FarmsForm() {
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell align="center" sx={{ background: "#c62828", color: "#fff", fontWeight: 700 }}>
+                <TableCell
+                  align="center"
+                  sx={{ background: "#c62828", color: "#fff", fontWeight: 700 }}
+                >
                   #
                 </TableCell>
-                <TableCell align="center" sx={{ background: "#c62828", color: "#fff", fontWeight: 700 }}>
+                <TableCell
+                  align="center"
+                  sx={{ background: "#c62828", color: "#fff", fontWeight: 700 }}
+                >
                   اسم المزرعة
                 </TableCell>
-                <TableCell align="center" sx={{ background: "#c62828", color: "#fff", fontWeight: 700 }}>
+                <TableCell
+                  align="center"
+                  sx={{ background: "#c62828", color: "#fff", fontWeight: 700 }}
+                >
                   عدد الدجاج الابتدائي
                 </TableCell>
-                <TableCell align="center" sx={{ background: "#c62828", color: "#fff", fontWeight: 700 }}>
+                <TableCell
+                  align="center"
+                  sx={{ background: "#c62828", color: "#fff", fontWeight: 700 }}
+                >
                   الإجراءات
                 </TableCell>
               </TableRow>
@@ -306,13 +322,19 @@ export default function FarmsForm() {
         }}
       >
         <DialogTitle sx={{ pb: 0 }}>
-          <CheckCircleOutlineIcon sx={{ color: "#43a047", fontSize: 60, mb: 1 }} />
+          <CheckCircleOutlineIcon
+            sx={{ color: "#43a047", fontSize: 60, mb: 1 }}
+          />
         </DialogTitle>
         <DialogContent>
           <Typography variant="h6" fontWeight={700} color="#43a047" mb={1}>
             تم حفظ المزرعة بنجاح!
           </Typography>
-          <Typography variant="body2" color="text.secondary" id="success-dialog-description">
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            id="success-dialog-description"
+          >
             يمكنك الآن إضافة مزرعة أخرى أو تعديل المزارع.
           </Typography>
         </DialogContent>

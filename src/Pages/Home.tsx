@@ -99,7 +99,8 @@ const CollisionMechanism = React.forwardRef<
         const parentRect = parentRef.current.getBoundingClientRect();
 
         if (beamRect.bottom >= containerRect.top) {
-          const relativeX = beamRect.left - parentRect.left + beamRect.width / 2;
+          const relativeX =
+            beamRect.left - parentRect.left + beamRect.width / 2;
           const relativeY = beamRect.bottom - parentRect.top;
 
           setCollision({
@@ -113,7 +114,7 @@ const CollisionMechanism = React.forwardRef<
 
     const animationInterval = setInterval(checkCollision, 50);
     return () => clearInterval(animationInterval);
-  }, [cycleCollisionDetected]);
+  }, [containerRef, cycleCollisionDetected, parentRef]);
 
   useEffect(() => {
     if (collision.detected) {
@@ -205,7 +206,8 @@ const Explosion = ({ ...props }: React.HTMLProps<HTMLDivElement>) => {
           height: "8px",
           width: "80px",
           borderRadius: "8px",
-          background: "linear-gradient(to right, transparent, #c62828, transparent)",
+          background:
+            "linear-gradient(to right, transparent, #c62828, transparent)",
           filter: "blur(4px)",
         }}
       />
@@ -235,7 +237,14 @@ const Explosion = ({ ...props }: React.HTMLProps<HTMLDivElement>) => {
 // ===== الصفحة الرئيسية =====
 export default function HomePage() {
   return (
-    <Box sx={{ position: "relative", minHeight: "100vh", overflow: "hidden" ,bgcolor: "#fff"}}>
+    <Box
+      sx={{
+        position: "relative",
+        minHeight: "100vh",
+        overflow: "hidden",
+        bgcolor: "#fff",
+      }}
+    >
       {/* الخلفية المتحركة */}
       <BackgroundBeamsWithCollision />
 
@@ -307,7 +316,8 @@ export default function HomePage() {
             textAlign: "center",
           }}
         >
-          يمكنك التنقل بين الأقسام من القائمة العلوية للاطلاع على تقارير أو إضافة بيانات جديدة
+          يمكنك التنقل بين الأقسام من القائمة العلوية للاطلاع على تقارير أو
+          إضافة بيانات جديدة
         </Typography>
       </Container>
       <Footer />

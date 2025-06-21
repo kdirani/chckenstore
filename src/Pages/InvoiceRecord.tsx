@@ -34,7 +34,9 @@ export default function InvoiceRecord() {
   const farms = useFarms().farms;
   const [type, setType] = useState<InvoiceTypes>("Sale");
   const [invoices, setInvoices] = useState<IRecursiveInvoice[]>([]);
-  const [fileMetasMap, setFileMetasMap] = useState<Record<string, FileMeta[]>>({});
+  const [fileMetasMap, setFileMetasMap] = useState<Record<string, FileMeta[]>>(
+    {}
+  );
 
   useEffect(() => {
     if (!selectedFarm) return;
@@ -147,13 +149,15 @@ export default function InvoiceRecord() {
         </Stack>
       </Box>
 
-      <Box sx={{
-        width: "100%",
-        display: "flex",
-        justifyContent: "center",
-        mt: 2,
-        px: { xs: 1, sm: 8 }, // هوامش من الطرفين
-      }}>
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          mt: 2,
+          px: { xs: 1, sm: 8 }, // هوامش من الطرفين
+        }}
+      >
         <TableContainer
           component={Paper}
           elevation={3}
@@ -212,7 +216,8 @@ export default function InvoiceRecord() {
                   invoice={invoice}
                   index={idx}
                   farmName={
-                    farms.find((f) => f.$id === invoice.farmId)?.name || "غير معروف"
+                    farms.find((f) => f.$id === invoice.farmId)?.name ||
+                    "غير معروف"
                   }
                   fileMetas={fileMetasMap[invoice.$id] || []}
                 />
@@ -293,7 +298,11 @@ function InvoiceTableRow(props: {
             <Box key={fid} sx={{ mb: 1 }}>
               {isImage && (
                 <img
-                  src={`https://cloud.appwrite.io/v1/storage/buckets/${import.meta.env.VITE_APPWRITE_FILE_BUCKET_ID}/files/${fid}/view?project=${import.meta.env.VITE_APPWRITE_PROJECT_ID}`}
+                  src={`https://cloud.appwrite.io/v1/storage/buckets/${
+                    import.meta.env.VITE_APPWRITE_FILE_BUCKET_ID
+                  }/files/${fid}/view?project=${
+                    import.meta.env.VITE_APPWRITE_PROJECT_ID
+                  }`}
                   alt="preview"
                   style={{
                     maxWidth: 80,
@@ -325,7 +334,5 @@ function InvoiceTableRow(props: {
         })}
       </TableCell>
     </TableRow>
-
   );
-
 }

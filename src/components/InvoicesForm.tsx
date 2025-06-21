@@ -1,4 +1,4 @@
-import { useState, type FormEvent, useEffect } from 'react';
+import { useState, type FormEvent, useEffect } from "react";
 import {
   Box,
   Button,
@@ -21,15 +21,15 @@ import {
   DialogContent,
   DialogActions,
   Stack,
-} from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import AddIcon from '@mui/icons-material/Add';
-import type { InvoiceTypes, IInvoice, IRecursiveInvoice } from '../models';
-import { useFarms } from '../contexts';
-import { invoiceService, fileService } from '../lib/appwrite';
-import '../Pages/styles.css'
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import AddIcon from "@mui/icons-material/Add";
+import type { InvoiceTypes, IInvoice, IRecursiveInvoice } from "../models";
+import { useFarms } from "../contexts";
+import { invoiceService, fileService } from "../lib/appwrite";
+import "../Pages/styles.css";
 
 export interface InvoiceItem {
   meterial: string;
@@ -50,17 +50,17 @@ export default function InvoicesForm() {
   const { farms } = useFarms();
 
   // حقول رئيسية
-  const [type, setType] = useState<InvoiceTypes>('Sale');
-  const [index, setIndex] = useState<number | ''>('');
-  const [farm, setFarm] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [customer, setCustomer] = useState('');
+  const [type, setType] = useState<InvoiceTypes>("Sale");
+  const [index, setIndex] = useState<number | "">("");
+  const [farm, setFarm] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [customer, setCustomer] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // عناصر الفاتورة مع ملفات لكل عنصر
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>([
-    { meterial: '', unit: '', amount: 0, price: 0, files: null },
+    { meterial: "", unit: "", amount: 0, price: 0, files: null },
   ]);
 
   // حالة الفواتير
@@ -68,7 +68,8 @@ export default function InvoicesForm() {
   const [editMode, setEditMode] = useState(false);
   const [currentInvoiceId, setCurrentInvoiceId] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [invoiceToDelete, setInvoiceToDelete] = useState<IRecursiveInvoice | null>(null);
+  const [invoiceToDelete, setInvoiceToDelete] =
+    useState<IRecursiveInvoice | null>(null);
   const [existingFiles, setExistingFiles] = useState<FileMeta[]>([]);
 
   // قائمة الأوزان للبيض
@@ -92,7 +93,7 @@ export default function InvoicesForm() {
         setInvoices(data);
       },
       () => {
-        alert('حدث خطأ أثناء تحميل الفواتير');
+        alert("حدث خطأ أثناء تحميل الفواتير");
       }
     );
   };
@@ -110,7 +111,7 @@ export default function InvoicesForm() {
           mimeType: res.mimeType,
         });
       } catch (err) {
-        console.error('خطأ في جلب بيانات الملف', fid, err);
+        console.error("خطأ في جلب بيانات الملف", fid, err);
       }
     }
     setExistingFiles(fileMetas);
@@ -118,13 +119,15 @@ export default function InvoicesForm() {
 
   // إعادة تعيين النموذج
   const resetForm = () => {
-    setType('Sale');
-    setIndex('');
-    setFarm('');
-    setDate('');
-    setTime('');
-    setCustomer('');
-    setInvoiceItems([{ meterial: '', unit: '', amount: 0, price: 0, files: null }]);
+    setType("Sale");
+    setIndex("");
+    setFarm("");
+    setDate("");
+    setTime("");
+    setCustomer("");
+    setInvoiceItems([
+      { meterial: "", unit: "", amount: 0, price: 0, files: null },
+    ]);
     setCurrentInvoiceId(null);
     setEditMode(false);
     setExistingFiles([]);
@@ -136,10 +139,10 @@ export default function InvoicesForm() {
       // حذف الملف من التخزين
       await fileService.deleteFile(fileId);
       // تحديث قائمة الملفات
-      setExistingFiles(prev => prev.filter(f => f.fid !== fileId));
+      setExistingFiles((prev) => prev.filter((f) => f.fid !== fileId));
     } catch (err) {
-      console.error('خطأ في حذف الملف', err);
-      alert('حدث خطأ أثناء حذف الملف');
+      console.error("خطأ في حذف الملف", err);
+      alert("حدث خطأ أثناء حذف الملف");
     }
   };
 
@@ -151,13 +154,15 @@ export default function InvoicesForm() {
     setDate(invoice.date);
     setTime(invoice.time);
     setCustomer(invoice.customer);
-    setInvoiceItems([{
-      meterial: invoice.meterial,
-      unit: invoice.unit,
-      amount: invoice.amount,
-      price: invoice.price,
-      files: null
-    }]);
+    setInvoiceItems([
+      {
+        meterial: invoice.meterial,
+        unit: invoice.unit,
+        amount: invoice.amount,
+        price: invoice.price,
+        files: null,
+      },
+    ]);
     setCurrentInvoiceId(invoice.$id);
     setEditMode(true);
     loadInvoiceFiles(invoice.fileIds);
@@ -166,15 +171,12 @@ export default function InvoicesForm() {
   // حذف فاتورة
   const handleDelete = () => {
     if (invoiceToDelete) {
-      invoiceService.delete(
-        invoiceToDelete.$id,
-        () => {
-          setShowDeleteModal(false);
-          setInvoiceToDelete(null);
-          loadInvoices();
-          alert('تم حذف الفاتورة بنجاح');
-        }
-      );
+      invoiceService.delete(invoiceToDelete.$id, () => {
+        setShowDeleteModal(false);
+        setInvoiceToDelete(null);
+        loadInvoices();
+        alert("تم حذف الفاتورة بنجاح");
+      });
     }
   };
 
@@ -185,9 +187,9 @@ export default function InvoicesForm() {
     value: string | FileList | null
   ) => {
     const updated = [...invoiceItems];
-    if (field === 'amount' || field === 'price') {
+    if (field === "amount" || field === "price") {
       updated[idx][field] = Number(value as string);
-    } else if (field === 'files') {
+    } else if (field === "files") {
       updated[idx].files = value as FileList;
     } else {
       updated[idx][field] = value as string;
@@ -198,7 +200,7 @@ export default function InvoicesForm() {
   const handleAddItem = () =>
     setInvoiceItems([
       ...invoiceItems,
-      { meterial: '', unit: '', amount: 0, price: 0, files: null },
+      { meterial: "", unit: "", amount: 0, price: 0, files: null },
     ]);
   const handleRemoveItem = (idx: number) => {
     if (invoiceItems.length === 1) return;
@@ -208,20 +210,20 @@ export default function InvoicesForm() {
   // تعبئة وهمية
   const handleAutoFill = () => {
     if (!farms.length) {
-      alert('لا توجد مزارع متاحة');
+      alert("لا توجد مزارع متاحة");
       return;
     }
     const farmId = farms[0].$id;
     const now = new Date();
-    setType('Sale');
+    setType("Sale");
     setIndex(12345);
     setFarm(farmId);
-    setDate(now.toISOString().split('T')[0]);
-    setTime(now.toTimeString().split(' ')[0]);
-    setCustomer('عميل تجريبي');
+    setDate(now.toISOString().split("T")[0]);
+    setTime(now.toTimeString().split(" ")[0]);
+    setCustomer("عميل تجريبي");
     setInvoiceItems([
-      { meterial: 'بيض', unit: 'صندوق', amount: 10, price: 15, files: null },
-      { meterial: 'دجاج', unit: 'كيلو', amount: 5, price: 20, files: null },
+      { meterial: "بيض", unit: "صندوق", amount: 10, price: 15, files: null },
+      { meterial: "دجاج", unit: "كيلو", amount: 5, price: 20, files: null },
     ]);
   };
 
@@ -232,7 +234,7 @@ export default function InvoicesForm() {
 
     // تحقق من الحقول الأساسية
     if (
-      index === '' ||
+      index === "" ||
       !farm ||
       !date ||
       !time ||
@@ -245,7 +247,7 @@ export default function InvoicesForm() {
           it.price <= 0
       )
     ) {
-      alert('يرجى تعبئة جميع الحقول والتحقق من صحة عناصر الفاتورة');
+      alert("يرجى تعبئة جميع الحقول والتحقق من صحة عناصر الفاتورة");
       setIsSubmitting(false);
       return;
     }
@@ -264,7 +266,7 @@ export default function InvoicesForm() {
           unit: item.unit,
           amount: item.amount,
           price: item.price,
-          fileIds: existingFiles.map(f => f.fid),
+          fileIds: existingFiles.map((f) => f.fid),
         };
         const filesArray = item.files ? Array.from(item.files) : [];
 
@@ -291,24 +293,30 @@ export default function InvoicesForm() {
       });
 
       await Promise.all(promises);
-      alert(editMode ? 'تم تحديث الفاتورة بنجاح' : 'تم حفظ الفاتورة بنجاح');
+      alert(editMode ? "تم تحديث الفاتورة بنجاح" : "تم حفظ الفاتورة بنجاح");
       resetForm();
       loadInvoices();
     } catch {
-      alert('حدث خطأ أثناء حفظ الفاتورة');
+      alert("حدث خطأ أثناء حفظ الفاتورة");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 1, sm: 3 } }}>
-      <Typography variant="h5" color="#c62828" fontWeight={700} mb={3} textAlign="center">
-        {editMode ? 'تعديل الفاتورة' : 'إضافة فاتورة جديدة'}
+    <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, sm: 3 } }}>
+      <Typography
+        variant="h5"
+        color="#c62828"
+        fontWeight={700}
+        mb={3}
+        textAlign="center"
+      >
+        {editMode ? "تعديل الفاتورة" : "إضافة فاتورة جديدة"}
       </Typography>
 
       <Box component="form" onSubmit={handleSubmit} sx={{ mb: 4 }}>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={2}>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} mb={2}>
           <FormControl fullWidth>
             <InputLabel id="type-label">نوع الفاتورة</InputLabel>
             <Select
@@ -328,7 +336,9 @@ export default function InvoicesForm() {
             label="رقم الفاتورة"
             type="number"
             value={index}
-            onChange={(e) => setIndex(e.target.value === '' ? '' : Number(e.target.value))}
+            onChange={(e) =>
+              setIndex(e.target.value === "" ? "" : Number(e.target.value))
+            }
             required
             disabled={isSubmitting}
             fullWidth
@@ -355,7 +365,7 @@ export default function InvoicesForm() {
           </FormControl>
         </Stack>
 
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={2}>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={2} mb={2}>
           <TextField
             label="التاريخ"
             type="date"
@@ -392,28 +402,62 @@ export default function InvoicesForm() {
         </Typography>
         <TableContainer component={Paper} sx={{ mb: 2 }}>
           <Table size="small">
-            <TableHead sx={{ backgroundColor: '#c62828'}}>
+            <TableHead sx={{ backgroundColor: "#c62828" }}>
               <TableRow>
-                <TableCell align="center" sx={{color:'#fff', fontWeight:'bold'}}>المادة</TableCell>
-                <TableCell align="center" sx={{color:'#fff', fontWeight:'bold'}}>الوحدة</TableCell>
-                <TableCell align="center" sx={{color:'#fff', fontWeight:'bold'}}>الكمية</TableCell>
-                <TableCell align="center" sx={{color:'#fff', fontWeight:'bold'}}>السعر</TableCell>
-                <TableCell align="center" sx={{color:'#fff', fontWeight:'bold'}}>الملفات</TableCell>
-                <TableCell align="center" sx={{color:'#fff', fontWeight:'bold'}}>الإجراءات</TableCell>
+                <TableCell
+                  align="center"
+                  sx={{ color: "#fff", fontWeight: "bold" }}
+                >
+                  المادة
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{ color: "#fff", fontWeight: "bold" }}
+                >
+                  الوحدة
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{ color: "#fff", fontWeight: "bold" }}
+                >
+                  الكمية
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{ color: "#fff", fontWeight: "bold" }}
+                >
+                  السعر
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{ color: "#fff", fontWeight: "bold" }}
+                >
+                  الملفات
+                </TableCell>
+                <TableCell
+                  align="center"
+                  sx={{ color: "#fff", fontWeight: "bold" }}
+                >
+                  الإجراءات
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {invoiceItems.map((item, idx) => (
                 <TableRow key={idx}>
                   <TableCell align="center">
-                    {type === 'Sale' ? (
+                    {type === "Sale" ? (
                       <FormControl fullWidth>
-                        <InputLabel id={`meterial-label-${idx}`}>اختر الوزن</InputLabel>
+                        <InputLabel id={`meterial-label-${idx}`}>
+                          اختر الوزن
+                        </InputLabel>
                         <Select
                           labelId={`meterial-label-${idx}`}
                           value={item.meterial}
                           label="اختر الوزن"
-                          onChange={(e) => handleItemChange(idx, 'meterial', e.target.value)}
+                          onChange={(e) =>
+                            handleItemChange(idx, "meterial", e.target.value)
+                          }
                           required
                           disabled={isSubmitting}
                           sx={{ borderRadius: 2 }}
@@ -429,7 +473,9 @@ export default function InvoicesForm() {
                     ) : (
                       <TextField
                         value={item.meterial}
-                        onChange={(e) => handleItemChange(idx, 'meterial', e.target.value)}
+                        onChange={(e) =>
+                          handleItemChange(idx, "meterial", e.target.value)
+                        }
                         required
                         disabled={isSubmitting}
                         fullWidth
@@ -439,7 +485,9 @@ export default function InvoicesForm() {
                   <TableCell align="center">
                     <TextField
                       value={item.unit}
-                      onChange={(e) => handleItemChange(idx, 'unit', e.target.value)}
+                      onChange={(e) =>
+                        handleItemChange(idx, "unit", e.target.value)
+                      }
                       required
                       disabled={isSubmitting}
                       fullWidth
@@ -449,7 +497,9 @@ export default function InvoicesForm() {
                     <TextField
                       type="number"
                       value={item.amount}
-                      onChange={(e) => handleItemChange(idx, 'amount', e.target.value)}
+                      onChange={(e) =>
+                        handleItemChange(idx, "amount", e.target.value)
+                      }
                       required
                       disabled={isSubmitting}
                       fullWidth
@@ -460,7 +510,9 @@ export default function InvoicesForm() {
                     <TextField
                       type="number"
                       value={item.price}
-                      onChange={(e) => handleItemChange(idx, 'price', e.target.value)}
+                      onChange={(e) =>
+                        handleItemChange(idx, "price", e.target.value)
+                      }
                       required
                       disabled={isSubmitting}
                       fullWidth
@@ -470,7 +522,7 @@ export default function InvoicesForm() {
                   <TableCell align="center">
                     <Stack direction="row" spacing={1} justifyContent="center">
                       {existingFiles.map((file) => (
-                        <Box key={file.fid} sx={{ position: 'relative' }}>
+                        <Box key={file.fid} sx={{ position: "relative" }}>
                           <a
                             href={file.downloadUrl}
                             target="_blank"
@@ -507,7 +559,7 @@ export default function InvoicesForm() {
         </TableContainer>
 
         <Stack
-          direction={{ xs: 'column', sm: 'row' }}
+          direction={{ xs: "column", sm: "row" }}
           spacing={2}
           mb={2}
           justifyContent="space-between"
@@ -520,14 +572,16 @@ export default function InvoicesForm() {
             disabled={isSubmitting}
             sx={{
               borderRadius: 2,
-              width: '30%',
+              width: "30%",
               minWidth: 120,
               backgroundColor: "#c62828",
               color: "#fff",
               fontWeight: 700,
-              '&:hover': { backgroundColor: '#FFF'
-                , color: '#c62828', borderColor: '#b71c1c'
-               }
+              "&:hover": {
+                backgroundColor: "#FFF",
+                color: "#c62828",
+                borderColor: "#b71c1c",
+              },
             }}
           >
             إضافة عنصر
@@ -538,33 +592,37 @@ export default function InvoicesForm() {
             disabled={isSubmitting}
             sx={{
               borderRadius: 2,
-              width: '30%',
+              width: "30%",
               minWidth: 120,
               color: "#c62828",
               borderColor: "#c62828",
               fontWeight: 700,
-              '&:hover': {
-                backgroundColor: '#c62828',
-                borderColor: '#b71c1c',
-                color: '#fff'
-              }
+              "&:hover": {
+                backgroundColor: "#c62828",
+                borderColor: "#b71c1c",
+                color: "#fff",
+              },
             }}
           >
             تعبئة وهمية
           </Button>
-           <Button
-          type="submit"
-          variant="contained"
-          disabled={isSubmitting}
-          fullWidth
-          sx={{ borderRadius: 2, py: 1.5 ,
-           width: { xs: '100%', sm: '30%' }, backgroundColor: "#c62828", color: "#fff", '&:hover': { backgroundColor: '#b71c1c' }
-          }}
-        >
-          {isSubmitting ? 'جاري الحفظ...' : 'حفظ الفاتورة'}
-        </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={isSubmitting}
+            fullWidth
+            sx={{
+              borderRadius: 2,
+              py: 1.5,
+              width: { xs: "100%", sm: "30%" },
+              backgroundColor: "#c62828",
+              color: "#fff",
+              "&:hover": { backgroundColor: "#b71c1c" },
+            }}
+          >
+            {isSubmitting ? "جاري الحفظ..." : "حفظ الفاتورة"}
+          </Button>
         </Stack>
-
       </Box>
 
       {/* قائمة الفواتير */}
@@ -573,14 +631,44 @@ export default function InvoicesForm() {
       </Typography>
       <TableContainer component={Paper} sx={{ mb: 2 }}>
         <Table size="small">
-          <TableHead sx={{ backgroundColor: '#c62828' }}>
+          <TableHead sx={{ backgroundColor: "#c62828" }}>
             <TableRow>
-              <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>رقم الفاتورة</TableCell>
-              <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>المزرعة</TableCell>
-              <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>التاريخ</TableCell>
-              <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>العميل</TableCell>
-              <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>الإجمالي</TableCell>
-              <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>الإجراءات</TableCell>
+              <TableCell
+                align="center"
+                sx={{ color: "#fff", fontWeight: "bold" }}
+              >
+                رقم الفاتورة
+              </TableCell>
+              <TableCell
+                align="center"
+                sx={{ color: "#fff", fontWeight: "bold" }}
+              >
+                المزرعة
+              </TableCell>
+              <TableCell
+                align="center"
+                sx={{ color: "#fff", fontWeight: "bold" }}
+              >
+                التاريخ
+              </TableCell>
+              <TableCell
+                align="center"
+                sx={{ color: "#fff", fontWeight: "bold" }}
+              >
+                العميل
+              </TableCell>
+              <TableCell
+                align="center"
+                sx={{ color: "#fff", fontWeight: "bold" }}
+              >
+                الإجمالي
+              </TableCell>
+              <TableCell
+                align="center"
+                sx={{ color: "#fff", fontWeight: "bold" }}
+              >
+                الإجراءات
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -593,7 +681,10 @@ export default function InvoicesForm() {
                 <TableCell align="center">{invoice.date}</TableCell>
                 <TableCell align="center">{invoice.customer}</TableCell>
                 <TableCell align="center">
-                  {invoiceItems.reduce((sum, item) => sum + item.amount * item.price, 0)}
+                  {invoiceItems.reduce(
+                    (sum, item) => sum + item.amount * item.price,
+                    0
+                  )}
                 </TableCell>
                 <TableCell align="center">
                   <IconButton
@@ -604,8 +695,7 @@ export default function InvoicesForm() {
                     <EditIcon />
                   </IconButton>
                   <IconButton
-                  sx={{ color: '#c62828' }}
-                    
+                    sx={{ color: "#c62828" }}
                     onClick={() => {
                       setInvoiceToDelete(invoice);
                       setShowDeleteModal(true);
@@ -628,9 +718,7 @@ export default function InvoicesForm() {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          تأكيد حذف الفاتورة
-        </DialogTitle>
+        <DialogTitle id="alert-dialog-title">تأكيد حذف الفاتورة</DialogTitle>
         <DialogContent>
           <Typography>
             هل أنت متأكد أنك تريد حذف هذه الفاتورة؟ هذه العملية不可 عكسها.

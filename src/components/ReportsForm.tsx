@@ -1,17 +1,38 @@
-import { useState, type ChangeEvent, type FormEvent, useEffect } from 'react';
+import { useState, type ChangeEvent, type FormEvent, useEffect } from "react";
 import {
-  Box, Button, Grid, Stack, Typography, TextField, Select, MenuItem, InputLabel, FormControl,
-  TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Divider
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import type { IDailyReport, IٍٍDailySale, IDailyMedicine } from '../models';
-import { reportsService, fileService } from '../lib/appwrite';
-import { useFarms } from '../contexts';
-import type { Models } from 'appwrite';
-import '../Pages/styles.css'
+  Box,
+  Button,
+  Grid,
+  Stack,
+  Typography,
+  TextField,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
+  TableContainer,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Divider,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import type { IDailyReport, IٍٍDailySale, IDailyMedicine } from "../models";
+import { reportsService, fileService } from "../lib/appwrite";
+import { useFarms } from "../contexts";
+import type { Models } from "appwrite";
+import "../Pages/styles.css";
 interface SaleItem {
   amount: string;
   weigh: string;
@@ -47,17 +68,17 @@ const weightRanges = [
 export default function ReportsForm() {
   const { farms } = useFarms();
   // حقول أساسية
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
-  const [farmId, setFarmId] = useState('');
-  const [production, setProduction] = useState('');
-  const [distortedProduction, setDistortedProduction] = useState('');
-  const [death, setDeath] = useState('');
-  const [dailyFood, setDailyFood] = useState('');
-  const [monthlyFood, setMonthlyFood] = useState('');
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [farmId, setFarmId] = useState("");
+  const [production, setProduction] = useState("");
+  const [distortedProduction, setDistortedProduction] = useState("");
+  const [death, setDeath] = useState("");
+  const [dailyFood, setDailyFood] = useState("");
+  const [monthlyFood, setMonthlyFood] = useState("");
   // darkMeat كسلسلة JSON
-  const [darkAmount, setDarkAmount] = useState('');
-  const [darkClient, setDarkClient] = useState('');
+  const [darkAmount, setDarkAmount] = useState("");
+  const [darkClient, setDarkClient] = useState("");
   // جداول ديناميكية
   const [saleItems, setSaleItems] = useState<SaleItem[]>([]);
   const [medicineItems, setMedicineItems] = useState<MedicineItem[]>([]);
@@ -70,7 +91,8 @@ export default function ReportsForm() {
   const [editMode, setEditMode] = useState(false);
   const [currentReportId, setCurrentReportId] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [reportToDelete, setReportToDelete] = useState<IRecursiveDailyReport | null>(null);
+  const [reportToDelete, setReportToDelete] =
+    useState<IRecursiveDailyReport | null>(null);
   const [existingFiles, setExistingFiles] = useState<FileMeta[]>([]);
 
   // تحميل التقارير
@@ -86,7 +108,7 @@ export default function ReportsForm() {
         setLoading(false);
       },
       () => {
-        alert('حدث خطأ أثناء تحميل التقارير');
+        alert("حدث خطأ أثناء تحميل التقارير");
         setLoading(false);
       }
     );
@@ -105,7 +127,7 @@ export default function ReportsForm() {
           mimeType: res.mimeType,
         });
       } catch (err) {
-        console.error('خطأ في جلب بيانات الملف', fid, err);
+        console.error("خطأ في جلب بيانات الملف", fid, err);
       }
     }
     setExistingFiles(fileMetas);
@@ -113,18 +135,18 @@ export default function ReportsForm() {
 
   // إعادة تعيين النموذج
   const resetForm = () => {
-    setDate('');
-    setTime('');
-    setFarmId('');
-    setProduction('');
-    setDistortedProduction('');
-    setDeath('');
-    setDailyFood('');
-    setMonthlyFood('');
-    setDarkAmount('');
-    setDarkClient('');
-    setSaleItems([{ amount: '', weigh: '', client: '' }]);
-    setMedicineItems([{ amount: '', unit: '', type: '', stor: '' }]);
+    setDate("");
+    setTime("");
+    setFarmId("");
+    setProduction("");
+    setDistortedProduction("");
+    setDeath("");
+    setDailyFood("");
+    setMonthlyFood("");
+    setDarkAmount("");
+    setDarkClient("");
+    setSaleItems([{ amount: "", weigh: "", client: "" }]);
+    setMedicineItems([{ amount: "", unit: "", type: "", stor: "" }]);
     setFiles(null);
     setCurrentReportId(null);
     setEditMode(false);
@@ -141,25 +163,36 @@ export default function ReportsForm() {
     setDeath(report.death.toString());
     setDailyFood(report.dailyFood.toString());
     setMonthlyFood(report.MonthlyFood.toString());
-    
-    const darkMeat = typeof report.darkMeat === 'string' ? JSON.parse(report.darkMeat) : report.darkMeat;
+
+    const darkMeat =
+      typeof report.darkMeat === "string"
+        ? JSON.parse(report.darkMeat)
+        : report.darkMeat;
     setDarkAmount(darkMeat.amount.toString());
     setDarkClient(darkMeat.client);
 
-    const sale = typeof report.sale === 'string' ? JSON.parse(report.sale) : report.sale;
-    setSaleItems(sale.map((item: IٍٍDailySale) => ({
-      amount: item.amount.toString(),
-      weigh: item.weigh.toString(),
-      client: item.client
-    })));
+    const sale =
+      typeof report.sale === "string" ? JSON.parse(report.sale) : report.sale;
+    setSaleItems(
+      sale.map((item: IٍٍDailySale) => ({
+        amount: item.amount.toString(),
+        weigh: item.weigh.toString(),
+        client: item.client,
+      }))
+    );
 
-    const medicine = typeof report.medicine === 'string' ? JSON.parse(report.medicine) : report.medicine;
-    setMedicineItems(medicine.map((item: IDailyMedicine) => ({
-      amount: item.amount.toString(),
-      unit: item.unit,
-      type: item.type,
-      stor: item.stor
-    })));
+    const medicine =
+      typeof report.medicine === "string"
+        ? JSON.parse(report.medicine)
+        : report.medicine;
+    setMedicineItems(
+      medicine.map((item: IDailyMedicine) => ({
+        amount: item.amount.toString(),
+        unit: item.unit,
+        type: item.type,
+        stor: item.stor,
+      }))
+    );
 
     setCurrentReportId(report.$id);
     setEditMode(true);
@@ -173,7 +206,7 @@ export default function ReportsForm() {
     setSaleItems(upd);
   };
   const handleAddSale = () =>
-    setSaleItems([...saleItems, { amount: '', weigh: '', client: '' }]);
+    setSaleItems([...saleItems, { amount: "", weigh: "", client: "" }]);
   const handleRemoveSale = (i: number) =>
     setSaleItems(saleItems.filter((_, idx) => idx !== i));
 
@@ -189,7 +222,7 @@ export default function ReportsForm() {
   const handleAddMedicine = () =>
     setMedicineItems([
       ...medicineItems,
-      { amount: '', unit: '', type: '', stor: '' },
+      { amount: "", unit: "", type: "", stor: "" },
     ]);
   const handleRemoveMedicine = (i: number) =>
     setMedicineItems(medicineItems.filter((_, idx) => idx !== i));
@@ -201,25 +234,25 @@ export default function ReportsForm() {
 
   // تعبئة وهمية
   const handleAutoFill = () => {
-    if (!farms?.length) return alert('أضف مزرعة أولاً.');
+    if (!farms?.length) return alert("أضف مزرعة أولاً.");
     const fId = farms[0].$id;
     // setDate('2025-06-04');
     // setTime('12:30');
     setFarmId(fId);
-    setProduction('1000');
-    setDistortedProduction('50');
-    setDeath('5');
-    setDailyFood('200');
-    setMonthlyFood('6000');
-    setDarkAmount('12000');
-    setDarkClient('وليد محمد عيد');
+    setProduction("1000");
+    setDistortedProduction("50");
+    setDeath("5");
+    setDailyFood("200");
+    setMonthlyFood("6000");
+    setDarkAmount("12000");
+    setDarkClient("وليد محمد عيد");
     setSaleItems([
-      { amount: '10', weigh: weightRanges[0], client: 'عميل أول' },
-      { amount: '8', weigh: weightRanges[1], client: 'عميل ثاني' },
+      { amount: "10", weigh: weightRanges[0], client: "عميل أول" },
+      { amount: "8", weigh: weightRanges[1], client: "عميل ثاني" },
     ]);
     setMedicineItems([
-      { amount: '2', unit: 'علبة', type: 'مضاد حيوي', stor: 'المخزن الرئيسي' },
-      { amount: '5', unit: 'حقنة', type: 'فيتامينات', stor: 'المخزن الجانبي' },
+      { amount: "2", unit: "علبة", type: "مضاد حيوي", stor: "المخزن الرئيسي" },
+      { amount: "5", unit: "حقنة", type: "فيتامينات", stor: "المخزن الجانبي" },
     ]);
   };
 
@@ -229,10 +262,10 @@ export default function ReportsForm() {
       // حذف الملف من التخزين
       await fileService.deleteFile(fileId);
       // تحديث قائمة الملفات
-      setExistingFiles(prev => prev.filter(f => f.fid !== fileId));
+      setExistingFiles((prev) => prev.filter((f) => f.fid !== fileId));
     } catch (err) {
-      console.error('خطأ في حذف الملف', err);
-      alert('حدث خطأ أثناء حذف الملف');
+      console.error("خطأ في حذف الملف", err);
+      alert("حدث خطأ أثناء حذف الملف");
     }
   };
 
@@ -268,7 +301,7 @@ export default function ReportsForm() {
           stor: item.stor,
         }))
       ),
-      fileIds: existingFiles.map(f => f.fid), // تحديث قائمة الملفات المتبقية فقط
+      fileIds: existingFiles.map((f) => f.fid), // تحديث قائمة الملفات المتبقية فقط
     };
 
     // تحويل FileList إلى مصفوفة
@@ -281,11 +314,11 @@ export default function ReportsForm() {
         report,
         fileArray,
         () => {
-          alert('تم تحديث التقرير بنجاح');
+          alert("تم تحديث التقرير بنجاح");
           resetForm();
           loadReports();
         },
-        () => alert('خطأ أثناء التحديث، حاول مجدداً.')
+        () => alert("خطأ أثناء التحديث، حاول مجدداً.")
       );
     } else {
       // إنشاء تقرير جديد
@@ -293,11 +326,11 @@ export default function ReportsForm() {
         report,
         fileArray,
         (newId) => {
-          alert('تم الحفظ بنجاح. المعرف: ' + newId);
+          alert("تم الحفظ بنجاح. المعرف: " + newId);
           resetForm();
           loadReports();
         },
-        () => alert('خطأ أثناء الحفظ، حاول مجدداً.')
+        () => alert("خطأ أثناء الحفظ، حاول مجدداً.")
       );
     }
   };
@@ -305,15 +338,12 @@ export default function ReportsForm() {
   // حذف تقرير
   const handleDelete = () => {
     if (reportToDelete) {
-      reportsService.delete(
-        reportToDelete.$id,
-        () => {
-          setShowDeleteModal(false);
-          setReportToDelete(null);
-          loadReports();
-          alert('تم حذف التقرير بنجاح');
-        }
-      );
+      reportsService.delete(reportToDelete.$id, () => {
+        setShowDeleteModal(false);
+        setReportToDelete(null);
+        loadReports();
+        alert("تم حذف التقرير بنجاح");
+      });
     }
   };
 
@@ -333,9 +363,14 @@ export default function ReportsForm() {
   }, []);
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 1, sm: 3 } }}>
-      <Typography variant="h5" sx={{ color: '#c62828', fontWeight: 700 }} mb={3} textAlign="center">
-        {editMode ? 'تعديل التقرير' : 'إضافة تقرير جديد'}
+    <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, sm: 3 } }}>
+      <Typography
+        variant="h5"
+        sx={{ color: "#c62828", fontWeight: 700 }}
+        mb={3}
+        textAlign="center"
+      >
+        {editMode ? "تعديل التقرير" : "إضافة تقرير جديد"}
       </Typography>
 
       <Box component="form" onSubmit={handleSubmit} sx={{ mb: 4 }}>
@@ -360,20 +395,15 @@ export default function ReportsForm() {
               borderColor: "#c62828",
               color: "#c62828",
               fontWeight: 700,
-              '&:hover': {
-                borderColor: '#b71c1c',
-                color: '#b71c1c',
-                backgroundColor: '#ffeaea'
-              }
+              "&:hover": {
+                borderColor: "#b71c1c",
+                color: "#b71c1c",
+                backgroundColor: "#ffeaea",
+              },
             }}
           >
             رفع مرفقات
-            <input
-              type="file"
-              hidden
-              multiple
-              onChange={handleFilesChange}
-            />
+            <input type="file" hidden multiple onChange={handleFilesChange} />
           </Button>
         </Box>
 
@@ -386,30 +416,39 @@ export default function ReportsForm() {
             <Stack direction="row" spacing={2} flexWrap="wrap">
               {existingFiles.map((file) => (
                 <Box key={file.fid} textAlign="center">
-                  {file.mimeType.startsWith('image/') ? (
+                  {file.mimeType.startsWith("image/") ? (
                     <img
                       src={file.previewUrl}
                       alt="معاينة"
-                      style={{ maxWidth: '150px', maxHeight: '150px', objectFit: 'cover' }}
+                      style={{
+                        maxWidth: "150px",
+                        maxHeight: "150px",
+                        objectFit: "cover",
+                      }}
                     />
                   ) : (
                     <Box
                       sx={{
                         width: 150,
                         height: 150,
-                        border: '1px solid #ddd',
-                        borderRadius: '4px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        backgroundColor: '#f8f9fa',
-                        mb: 1
+                        border: "1px solid #ddd",
+                        borderRadius: "4px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "#f8f9fa",
+                        mb: 1,
                       }}
                     >
                       <CloudUploadIcon fontSize="large" color="disabled" />
                     </Box>
                   )}
-                  <Stack spacing={0.5} direction="row" justifyContent="center" mt={1}>
+                  <Stack
+                    spacing={0.5}
+                    direction="row"
+                    justifyContent="center"
+                    mt={1}
+                  >
                     <Button
                       href={file.downloadUrl}
                       target="_blank"
@@ -470,12 +509,12 @@ export default function ReportsForm() {
                 sx={{
                   borderRadius: 2,
                   background: "#fff",
-                  height: 56 // نفس ارتفاع TextField الافتراضي
+                  height: 56, // نفس ارتفاع TextField الافتراضي
                 }}
                 MenuProps={{
                   PaperProps: {
-                    sx: { maxHeight: 250 }
-                  }
+                    sx: { maxHeight: 250 },
+                  },
                 }}
               >
                 <MenuItem value="">اختر المزرعة</MenuItem>
@@ -514,71 +553,83 @@ export default function ReportsForm() {
 
         {/* المبيعات */}
         <Box mb={2} p={2} border="1px solid #eee" borderRadius={2}>
-          <Typography variant="subtitle1" fontWeight={600} mb={1} sx={{ color: '#c62828', fontSize: '1.2rem' }}>
+          <Typography
+            variant="subtitle1"
+            fontWeight={600}
+            mb={1}
+            sx={{ color: "#c62828", fontSize: "1.2rem" }}
+          >
             المبيعات
           </Typography>
-          {saleItems.length > 0 && saleItems.map((item, idx) => (
-            <Grid container spacing={2} alignItems="center" mb={1} key={idx}>
-              <Grid item xs={12} sm={3}>
-                <TextField
-                  type="number"
-                  label="الكمية"
-                  value={item.amount}
-                  onChange={(e) => handleSaleChange(idx, 'amount', e.target.value)}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <FormControl fullWidth sx={{ minWidth: 140 }}>
-                  <InputLabel id={`weigh-label-${idx}`}>الوزن</InputLabel>
-                  <Select
-                    labelId={`weigh-label-${idx}`}
-                    value={item.weigh}
-                    label="الوزن"
-                    onChange={(e) => handleSaleChange(idx, 'weigh', e.target.value)}
+          {saleItems.length > 0 &&
+            saleItems.map((item, idx) => (
+              <Grid container spacing={2} alignItems="center" mb={1} key={idx}>
+                <Grid item xs={12} sm={3}>
+                  <TextField
+                    type="number"
+                    label="الكمية"
+                    value={item.amount}
+                    onChange={(e) =>
+                      handleSaleChange(idx, "amount", e.target.value)
+                    }
                     required
-                    sx={{
-                      borderRadius: 2,
-                      background: "#fff",
-                      height: 56 // نفس ارتفاع TextField الافتراضي
-                    }}
-                    MenuProps={{
-                      PaperProps: {
-                        sx: { maxHeight: 250 }
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                  <FormControl fullWidth sx={{ minWidth: 140 }}>
+                    <InputLabel id={`weigh-label-${idx}`}>الوزن</InputLabel>
+                    <Select
+                      labelId={`weigh-label-${idx}`}
+                      value={item.weigh}
+                      label="الوزن"
+                      onChange={(e) =>
+                        handleSaleChange(idx, "weigh", e.target.value)
                       }
-                    }}
+                      required
+                      sx={{
+                        borderRadius: 2,
+                        background: "#fff",
+                        height: 56, // نفس ارتفاع TextField الافتراضي
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: { maxHeight: 250 },
+                        },
+                      }}
+                    >
+                      <MenuItem value="">اختر الوزن</MenuItem>
+                      {weightRanges.map((range) => (
+                        <MenuItem key={range} value={range}>
+                          {range}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="العميل"
+                    value={item.client}
+                    onChange={(e) =>
+                      handleSaleChange(idx, "client", e.target.value)
+                    }
+                    required
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={2}>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => handleRemoveSale(idx)}
+                    sx={{ minWidth: 0, px: 2 }}
                   >
-                    <MenuItem value="">اختر الوزن</MenuItem>
-                    {weightRanges.map((range) => (
-                      <MenuItem key={range} value={range}>
-                        {range}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                    حذف
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  label="العميل"
-                  value={item.client}
-                  onChange={(e) => handleSaleChange(idx, 'client', e.target.value)}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} sm={2}>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={() => handleRemoveSale(idx)}
-                  sx={{ minWidth: 0, px: 2 }}
-                >
-                  حذف
-                </Button>
-              </Grid>
-            </Grid>
-          ))}
+            ))}
           <Stack direction="row" gap={1} mt={1}>
             <Button
               variant="contained"
@@ -598,9 +649,10 @@ export default function ReportsForm() {
                 variant="outlined"
                 color="error"
                 onClick={() => setSaleItems([])}
-                sx={{ color: '#c62828',
+                sx={{
+                  color: "#c62828",
                   // marginRight: 2,
-                 }}
+                }}
               >
                 حذف الكل
               </Button>
@@ -610,60 +662,74 @@ export default function ReportsForm() {
 
         {/* الأدوية */}
         <Box mb={2} p={2} border="1px solid #eee" borderRadius={2}>
-          <Typography variant="subtitle1" fontWeight={600} mb={1} sx={{ color: '#c62828', fontSize: '1.2rem' }}>
+          <Typography
+            variant="subtitle1"
+            fontWeight={600}
+            mb={1}
+            sx={{ color: "#c62828", fontSize: "1.2rem" }}
+          >
             الأدوية
           </Typography>
-          {medicineItems.length > 0 && medicineItems.map((item, idx) => (
-            <Grid container spacing={2} alignItems="center" mb={1} key={idx}>
-              <Grid item xs={12} sm={2}>
-                <TextField
-                  type="number"
-                  label="الكمية"
-                  value={item.amount}
-                  onChange={(e) => handleMedicineChange(idx, 'amount', e.target.value)}
-                  required
-                  fullWidth
-                />
+          {medicineItems.length > 0 &&
+            medicineItems.map((item, idx) => (
+              <Grid container spacing={2} alignItems="center" mb={1} key={idx}>
+                <Grid item xs={12} sm={2}>
+                  <TextField
+                    type="number"
+                    label="الكمية"
+                    value={item.amount}
+                    onChange={(e) =>
+                      handleMedicineChange(idx, "amount", e.target.value)
+                    }
+                    required
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={2}>
+                  <TextField
+                    label="الوحدة"
+                    value={item.unit}
+                    onChange={(e) =>
+                      handleMedicineChange(idx, "unit", e.target.value)
+                    }
+                    required
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                  <TextField
+                    label="النوع"
+                    value={item.type}
+                    onChange={(e) =>
+                      handleMedicineChange(idx, "type", e.target.value)
+                    }
+                    required
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={3}>
+                  <TextField
+                    label="المخزن"
+                    value={item.stor}
+                    onChange={(e) =>
+                      handleMedicineChange(idx, "stor", e.target.value)
+                    }
+                    required
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={12} sm={2}>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => handleRemoveMedicine(idx)}
+                    sx={{ minWidth: 0, px: 2 }}
+                  >
+                    حذف
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item xs={12} sm={2}>
-                <TextField
-                  label="الوحدة"
-                  value={item.unit}
-                  onChange={(e) => handleMedicineChange(idx, 'unit', e.target.value)}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <TextField
-                  label="النوع"
-                  value={item.type}
-                  onChange={(e) => handleMedicineChange(idx, 'type', e.target.value)}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} sm={3}>
-                <TextField
-                  label="المخزن"
-                  value={item.stor}
-                  onChange={(e) => handleMedicineChange(idx, 'stor', e.target.value)}
-                  required
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} sm={2}>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={() => handleRemoveMedicine(idx)}
-                  sx={{ minWidth: 0, px: 2 }}
-                >
-                  حذف
-                </Button>
-              </Grid>
-            </Grid>
-          ))}
+            ))}
           <Stack direction="row" gap={1} mt={1}>
             <Button
               variant="contained"
@@ -755,17 +821,13 @@ export default function ReportsForm() {
               backgroundColor: "#c62828",
               color: "#fff",
               fontWeight: 700,
-              '&:hover': { backgroundColor: '#b71c1c' }
+              "&:hover": { backgroundColor: "#b71c1c" },
             }}
           >
-            {editMode ? 'تحديث التقرير' : 'حفظ التقرير'}
+            {editMode ? "تحديث التقرير" : "حفظ التقرير"}
           </Button>
           {editMode && (
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={resetForm}
-            >
+            <Button variant="outlined" color="secondary" onClick={resetForm}>
               إلغاء التعديل
             </Button>
           )}
@@ -774,7 +836,13 @@ export default function ReportsForm() {
 
       <Divider sx={{ my: 3, borderColor: "#c62828" }} />
 
-      <Typography variant="h6" fontWeight={700} mb={2} mt={4} sx={{ color: '#c62828' }}>
+      <Typography
+        variant="h6"
+        fontWeight={700}
+        mb={2}
+        mt={4}
+        sx={{ color: "#c62828" }}
+      >
         قائمة التقارير
       </Typography>
       {loading ? (
@@ -791,7 +859,7 @@ export default function ReportsForm() {
                     color: "#fff",
                     fontWeight: 900,
                     fontSize: "1.1rem",
-                    letterSpacing: 1
+                    letterSpacing: 1,
                   }}
                 >
                   #
@@ -803,7 +871,7 @@ export default function ReportsForm() {
                     color: "#fff",
                     fontWeight: 900,
                     fontSize: "1.1rem",
-                    letterSpacing: 1
+                    letterSpacing: 1,
                   }}
                 >
                   التاريخ
@@ -815,7 +883,7 @@ export default function ReportsForm() {
                     color: "#fff",
                     fontWeight: 900,
                     fontSize: "1.1rem",
-                    letterSpacing: 1
+                    letterSpacing: 1,
                   }}
                 >
                   الوقت
@@ -827,7 +895,7 @@ export default function ReportsForm() {
                     color: "#fff",
                     fontWeight: 900,
                     fontSize: "1.1rem",
-                    letterSpacing: 1
+                    letterSpacing: 1,
                   }}
                 >
                   المزرعة
@@ -839,7 +907,7 @@ export default function ReportsForm() {
                     color: "#fff",
                     fontWeight: 900,
                     fontSize: "1.1rem",
-                    letterSpacing: 1
+                    letterSpacing: 1,
                   }}
                 >
                   الإنتاج
@@ -851,7 +919,7 @@ export default function ReportsForm() {
                     color: "#fff",
                     fontWeight: 900,
                     fontSize: "1.1rem",
-                    letterSpacing: 1
+                    letterSpacing: 1,
                   }}
                 >
                   الإنتاج المشوّه
@@ -863,7 +931,7 @@ export default function ReportsForm() {
                     color: "#fff",
                     fontWeight: 900,
                     fontSize: "1.1rem",
-                    letterSpacing: 1
+                    letterSpacing: 1,
                   }}
                 >
                   النفوق
@@ -875,7 +943,7 @@ export default function ReportsForm() {
                     color: "#fff",
                     fontWeight: 900,
                     fontSize: "1.1rem",
-                    letterSpacing: 1
+                    letterSpacing: 1,
                   }}
                 >
                   العلف اليومي
@@ -887,7 +955,7 @@ export default function ReportsForm() {
                     color: "#fff",
                     fontWeight: 900,
                     fontSize: "1.1rem",
-                    letterSpacing: 1
+                    letterSpacing: 1,
                   }}
                 >
                   الإجراءات
@@ -909,9 +977,13 @@ export default function ReportsForm() {
                       <TableCell align="center">{index + 1}</TableCell>
                       <TableCell align="center">{report.date}</TableCell>
                       <TableCell align="center">{report.time}</TableCell>
-                      <TableCell align="center">{farm?.name || report.farmId}</TableCell>
+                      <TableCell align="center">
+                        {farm?.name || report.farmId}
+                      </TableCell>
                       <TableCell align="center">{report.production}</TableCell>
-                      <TableCell align="center">{report.distortedProduction}</TableCell>
+                      <TableCell align="center">
+                        {report.distortedProduction}
+                      </TableCell>
                       <TableCell align="center">{report.death}</TableCell>
                       <TableCell align="center">{report.dailyFood}</TableCell>
                       <TableCell align="center">
@@ -923,7 +995,7 @@ export default function ReportsForm() {
                             color: "#fff",
                             backgroundColor: "#1976d2",
                             mx: 0.5,
-                            "&:hover": { backgroundColor: "#115293" }
+                            "&:hover": { backgroundColor: "#115293" },
                           }}
                         >
                           <EditIcon fontSize="small" />
@@ -939,7 +1011,7 @@ export default function ReportsForm() {
                             color: "#fff",
                             backgroundColor: "#c62828",
                             mx: 0.5,
-                            "&:hover": { backgroundColor: "#b71c1c" }
+                            "&:hover": { backgroundColor: "#b71c1c" },
                           }}
                         >
                           <DeleteIcon fontSize="small" />
@@ -963,7 +1035,11 @@ export default function ReportsForm() {
           <Button onClick={() => setShowDeleteModal(false)} color="secondary">
             إلغاء
           </Button>
-          <Button onClick={handleDelete} color="error" sx={{ color: '#c62828' }}>
+          <Button
+            onClick={handleDelete}
+            color="error"
+            sx={{ color: "#c62828" }}
+          >
             تأكيد الحذف
           </Button>
         </DialogActions>

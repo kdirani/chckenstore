@@ -1,47 +1,51 @@
 import type { Models } from "appwrite";
 
 export interface IDailyReport {
-    date: string;
-    time: string;
-    farmId:string;
-    production: number;
-    distortedProduction: number;
-    sale:IٍٍDailySale[];
-    death: number;
-    dailyFood: number;
-    MonthlyFood: number;
-    darkMeat: IDarkMeat;
-    medicine: IDailyMedicine[];
-    fileIds?: string[];
+  date: string;
+  time: string;
+  farmId: string;
+  production: number;
+  distortedProduction: number;
+  sale: IٍٍDailySale[];
+  death: number;
+  dailyFood: number;
+  MonthlyFood: number;
+  darkMeat: IDarkMeat;
+  medicine: IDailyMedicine[];
+  fileIds?: string[];
 }
 
 export interface IٍٍDailySale {
-    amount:number;
-    weigh: string;
-    client :string;
+  amount: number;
+  weigh: string;
+  client: string;
 }
-export interface IDarkMeat{
-    amount: number;
-    client: string;
+export interface IDarkMeat {
+  amount: number;
+  client: string;
 }
 
 export interface IDailyMedicine {
-    amount: number;
-    unit: string;
-    type: string;
-    stor: string;
+  amount: number;
+  unit: string;
+  type: string;
+  stor: string;
 }
 
 export interface IDataAmount {
-    amount: number;
-    unit: string;
+  amount: number;
+  unit: string;
 }
 
-export type FilterDateMod = 'day' | 'week' | 'month';
+export type FilterDateMod = "day" | "week" | "month";
 
-export interface IGroupedReport { periodStart: Date; periodEnd: Date; reports: IDailyReport[] };
+export interface IGroupedReport {
+  periodStart: Date;
+  periodEnd: Date;
+  reports: IDailyReport[];
+}
 
-export type InvoiceTypes = 'Sale' | 'DarkMeet' | 'Medicine'
+export type InvoiceTypes = "Sale" | "DarkMeet" | "Medicine";
 
 export interface IInvoice {
   type: InvoiceTypes;
@@ -54,7 +58,7 @@ export interface IInvoice {
   unit: string;
   amount: number;
   price: number;
-      fileIds?: string[];
+  fileIds?: string[];
 }
 
 export interface IFarm {
@@ -63,12 +67,12 @@ export interface IFarm {
 }
 
 export interface IRecursiveFarm extends Models.Document {
-    name: string;
-    initialChecken: number;
+  name: string;
+  initialChecken: number;
 }
 
 export interface IRecursiveInvoice extends Models.Document {
-    type: InvoiceTypes;
+  type: InvoiceTypes;
   index: number;
   farmId: string;
   date: string;

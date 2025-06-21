@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import type { IDailyReport, IٍٍDailySale } from '../models';
+import { useState, useEffect } from "react";
+import type { IDailyReport, IٍٍDailySale } from "../models";
 import {
   calculatePercentageAndTotal,
   getCartorCalc,
@@ -7,8 +7,8 @@ import {
   getFoodPercentage,
   getPreviousCumulative,
   getInitialCheckenFromFarm,
-} from '../utils';
-import { fileService } from '../lib/appwrite';
+} from "../utils";
+import { fileService } from "../lib/appwrite";
 
 type FileMeta = {
   fid: string;
@@ -32,7 +32,7 @@ export default function DailyReportItem(props: {
         getInitialCheckenFromFarm(farmId)
           .then(setInitialChecken)
           .catch((error) => {
-            console.error('خطأ في جلب initialChecken:', error);
+            console.error("خطأ في جلب initialChecken:", error);
             setInitialChecken(40000);
           });
       }
@@ -59,7 +59,7 @@ export default function DailyReportItem(props: {
             [idx]: prev[idx] ? [...prev[idx], meta] : [meta],
           }));
         } catch (err) {
-          console.error('خطأ جلب بيانات الملف', fid, err);
+          console.error("خطأ جلب بيانات الملف", fid, err);
         }
       });
     });
@@ -70,9 +70,9 @@ export default function DailyReportItem(props: {
       {props.dailyReports.map((item, index) => {
         // فك JSON إذا كان نصّياً
         const sale =
-          typeof item.sale === 'string' ? JSON.parse(item.sale) : item.sale;
+          typeof item.sale === "string" ? JSON.parse(item.sale) : item.sale;
         const darkMeat =
-          typeof item.darkMeat === 'string'
+          typeof item.darkMeat === "string"
             ? JSON.parse(item.darkMeat)
             : item.darkMeat;
         const metas = fileMetas[index] || [];
@@ -104,8 +104,11 @@ export default function DailyReportItem(props: {
             </td>
             <td>{item.death}</td>
             <td>
-              {getCheckenAmountBefore(item, initialChecken, props.dailyReports) -
-                item.death}
+              {getCheckenAmountBefore(
+                item,
+                initialChecken,
+                props.dailyReports
+              ) - item.death}
             </td>
             <td>{item.dailyFood}</td>
             <td>
@@ -121,20 +124,24 @@ export default function DailyReportItem(props: {
               {metas.length === 0 && <span>—</span>}
               {metas.map(({ fid, previewUrl, downloadUrl, mimeType }) => {
                 console.log(previewUrl);
-                
-                const isImage = mimeType.startsWith('image/');
+
+                const isImage = mimeType.startsWith("image/");
                 return (
                   <div key={fid} style={{ marginBottom: 8 }}>
                     {isImage && (
                       <img
-                        src={`https://cloud.appwrite.io/v1/storage/buckets/${import.meta.env.VITE_APPWRITE_FILE_BUCKET_ID}/files/${fid}/view?project=${import.meta.env.VITE_APPWRITE_PROJECT_ID}`}
+                        src={`https://cloud.appwrite.io/v1/storage/buckets/${
+                          import.meta.env.VITE_APPWRITE_FILE_BUCKET_ID
+                        }/files/${fid}/view?project=${
+                          import.meta.env.VITE_APPWRITE_PROJECT_ID
+                        }`}
                         alt="معاينة صورة"
                         style={{
                           maxWidth: 80,
                           maxHeight: 80,
-                          display: 'block',
+                          display: "block",
                           marginBottom: 4,
-                          objectFit: 'cover',
+                          objectFit: "cover",
                         }}
                       />
                     )}
@@ -143,7 +150,7 @@ export default function DailyReportItem(props: {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {isImage ? 'تحميل الصورة' : 'تحميل الملف'}
+                      {isImage ? "تحميل الصورة" : "تحميل الملف"}
                     </a>
                   </div>
                 );

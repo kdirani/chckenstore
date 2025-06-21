@@ -4,14 +4,17 @@ import type { IRecursiveFarm } from "./models";
 type SelectedFarmContextType = [
   farm: string | null,
   setFarm: (farm: string | null) => void
-]
+];
 
-export const SelectedFarmContext = createContext<SelectedFarmContextType | null>(null);
+export const SelectedFarmContext =
+  createContext<SelectedFarmContextType | null>(null);
 
 export function useSelectedFarmContext() {
   const context = useContext(SelectedFarmContext);
   if (context === null) {
-    throw new Error("useSelectedFarmContext must be used within a SelectedFarmContext");
+    throw new Error(
+      "useSelectedFarmContext must be used within a SelectedFarmContext"
+    );
   }
   return context;
 }
@@ -28,6 +31,7 @@ export const FarmContext = createContext<FarmContextValue>({
 
 export function useFarms() {
   const context = useContext(FarmContext);
-  if(!context) throw new Error('useFarms must be using with FarmContext provider')
-    return context
+  if (!context)
+    throw new Error("useFarms must be using with FarmContext provider");
+  return context;
 }

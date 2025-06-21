@@ -5,19 +5,19 @@ import type {
   IDataAmount,
   IGroupedReport,
   IٍٍDailySale,
-} from './models';
+} from "./models";
 
 export const getFoodPercentage = (
   foodAmount: number,
   checkensAmount: number
 ) => {
   const foodInG = foodAmount * 1000;
-  return (foodInG / checkensAmount).toFixed(2) + '%';
+  return (foodInG / checkensAmount).toFixed(2) + "%";
 };
 
 export const calculatePercentageAndTotal = (part: number, total: number) => {
   if (total === 0) {
-    throw new Error('Total cannot be zero.');
+    throw new Error("Total cannot be zero.");
   }
 
   const percentage = (part / total) * 100;
@@ -34,7 +34,7 @@ export const getPreviousCumulative = (
     const itemDate = new Date(item.date).getTime();
     if (itemDate < currentDate) {
       const sale =
-        typeof item.sale === 'string' ? JSON.parse(item.sale) : item.sale;
+        typeof item.sale === "string" ? JSON.parse(item.sale) : item.sale;
       amounts.push(
         item.production +
           item.distortedProduction -
@@ -44,7 +44,7 @@ export const getPreviousCumulative = (
   });
   const total = amounts.reduce((acc, amount) => acc + amount, 0);
   const sale =
-    typeof report.sale === 'string' ? JSON.parse(report.sale) : report.sale;
+    typeof report.sale === "string" ? JSON.parse(report.sale) : report.sale;
   const finalAmount =
     report.production +
     report.distortedProduction -
@@ -72,35 +72,43 @@ export const getCheckenAmountBefore = (
   return init - previousDeaths;
 };
 
-export const getInitialCheckenFromFarm = async (farmId: string): Promise<number> => {
+export const getInitialCheckenFromFarm = async (
+  farmId: string
+): Promise<number> => {
   if (!farmId) {
-    console.warn('farmId غير محدد، استخدام القيمة الافتراضية');
+    console.warn("farmId غير محدد، استخدام القيمة الافتراضية");
     return 40000;
   }
 
   try {
-    const { farmsService } = await import('./lib/appwrite');
+    const { farmsService } = await import("./lib/appwrite");
     return new Promise((resolve) => {
       farmsService.list(
         (farms) => {
-          const farm = farms.find((f: any) => f.farmId === farmId || f.$id === farmId);
-          if (farm && typeof farm.initialChecken === 'number') {
-            console.log(`تم العثور على المزرعة: ${farm.name}, initialChecken: ${farm.initialChecken}`);
+          const farm = farms.find(
+            (f: any) => f.farmId === farmId || f.$id === farmId
+          );
+          if (farm && typeof farm.initialChecken === "number") {
+            console.log(
+              `تم العثور على المزرعة: ${farm.name}, initialChecken: ${farm.initialChecken}`
+            );
             resolve(farm.initialChecken);
           } else {
-            console.warn(`لم يتم العثور على المزرعة أو initialChecken غير محدد، استخدام القيمة الافتراضية: 40000`);
+            console.warn(
+              `لم يتم العثور على المزرعة أو initialChecken غير محدد، استخدام القيمة الافتراضية: 40000`
+            );
             resolve(40000);
           }
         },
         (error) => {
-          console.error('خطأ في جلب بيانات المزرعة:', error);
+          console.error("خطأ في جلب بيانات المزرعة:", error);
           resolve(40000); // القيمة الافتراضية في حالة الخطأ
         },
         []
       );
     });
   } catch (error) {
-    console.error('خطأ في استيراد farmsService:', error);
+    console.error("خطأ في استيراد farmsService:", error);
     return 40000; // القيمة الافتراضية في حالة الخطأ
   }
 };
@@ -115,12 +123,12 @@ export function getStartDate(date: Date, mode: FilterDateMod): Date {
   const d = new Date(date);
   d.setHours(0, 0, 0, 0);
 
-  if (mode === 'month') {
+  if (mode === "month") {
     d.setDate(1);
     return d;
   }
 
-  if (mode === 'week') {
+  if (mode === "week") {
     const day = d.getDay(); // 0=Sun … 6=Sat
     const diff = (day + 7 - 6) % 7; // offset from Saturday
     d.setDate(d.getDate() - diff);
@@ -137,15 +145,15 @@ export function getStartDate(date: Date, mode: FilterDateMod): Date {
 export function getEndDate(date: Date, mode: FilterDateMod): Date {
   const d = new Date(date);
 
-  if (mode === 'day') {
+  if (mode === "day") {
     // 1) العبور إلى اليوم التالي
     d.setDate(d.getDate() + 1);
-  } else if (mode === 'week') {
+  } else if (mode === "week") {
     // 2) إيجاد نهاية أسبوع (الجمعة)
     const dayOfWeek = d.getDay();
     const daysUntilFriday = (5 - dayOfWeek + 7) % 7;
     d.setDate(d.getDate() + daysUntilFriday);
-  } else if (mode === 'month') {
+  } else if (mode === "month") {
     // 3) الانتقال إلى نهاية الشهر
     d.setMonth(d.getMonth() + 1, 0);
   }
@@ -235,7 +243,7 @@ export function totalize<K extends keyof IDailyReport>(
   key: K
 ): IDataAmount {
   let total = 0;
-  let unit = '';
+  let unit = "";
 
   if (reports.length === 0) {
     return { amount: 0, unit };
@@ -244,10 +252,10 @@ export function totalize<K extends keyof IDailyReport>(
   // Peek at first report to decide how to handle the key
   const sample = reports[0][key];
 
-  if (typeof sample === 'number') {
+  if (typeof sample === "number") {
     // Simple numeric sum
     total = reports.reduce((sum, rpt) => sum + (rpt[key] as number), 0);
-  } else if (typeof sample === 'string') {
+  } else if (typeof sample === "string") {
     // Handle JSON string fields
     try {
       const parsedSample = JSON.parse(sample);
@@ -262,8 +270,8 @@ export function totalize<K extends keyof IDailyReport>(
         }, 0);
       } else if (
         parsedSample &&
-        typeof parsedSample === 'object' &&
-        'amount' in parsedSample
+        typeof parsedSample === "object" &&
+        "amount" in parsedSample
       ) {
         // Single object with amount (like darkMeat)
         total = reports.reduce((sum, rpt) => {
@@ -280,7 +288,7 @@ export function totalize<K extends keyof IDailyReport>(
     // If items also have a `unit` field, we assume all use the same unit
     const arr = sample as any[];
     // grab unit from first item if present
-    if (arr.length > 0 && typeof arr[0].unit === 'string') {
+    if (arr.length > 0 && typeof arr[0].unit === "string") {
       unit = arr[0].unit;
     }
     total = reports.reduce((sum, rpt) => {
@@ -288,9 +296,9 @@ export function totalize<K extends keyof IDailyReport>(
       return sum + items.reduce((s, item) => s + (item.amount ?? 0), 0);
     }, 0);
   } else if (
-    typeof sample === 'object' &&
+    typeof sample === "object" &&
     sample !== null &&
-    'amount' in (sample as object)
+    "amount" in (sample as object)
   ) {
     // Single object with amount (like darkMeat)
     total = reports.reduce(
@@ -308,12 +316,12 @@ export function getAvarageOfDeath(
   reports: IDailyReport[],
   dateMode: FilterDateMod
 ) {
-  let amount = totalize(reports, 'death').amount;
+  let amount = totalize(reports, "death").amount;
   switch (dateMode) {
-    case 'week':
+    case "week":
       amount /= 7;
       break;
-    case 'month':
+    case "month":
       amount /= 30;
       break;
     default:
@@ -325,16 +333,16 @@ export function getAvarageOfDeath(
 export const getAvarageOfFoodProductionPercentage = (
   reports: IDailyReport[],
   filterDate: FilterDateMod,
-  type: 'food' | 'production'
+  type: "food" | "production"
 ) => {
   let totalPercentage = 0;
   reports.forEach((report) => {
-    if (type === 'food') {
+    if (type === "food") {
       const percentage = getFoodPercentage(
         report.dailyFood,
         getCheckenAmountBefore(report, undefined, reports)
       );
-      totalPercentage += Number(percentage.replace('%', ''));
+      totalPercentage += Number(percentage.replace("%", ""));
       return;
     }
 
@@ -342,13 +350,13 @@ export const getAvarageOfFoodProductionPercentage = (
       (report.production + report.distortedProduction) * 30,
       getCheckenAmountBefore(report, undefined, reports)
     );
-    totalPercentage += Number(percentage.replace('%', ''));
+    totalPercentage += Number(percentage.replace("%", ""));
   });
   switch (filterDate) {
-    case 'week':
+    case "week":
       totalPercentage /= 7;
       break;
-    case 'month':
+    case "month":
       totalPercentage /= 30; // Approximation
       break;
     default:
@@ -357,7 +365,7 @@ export const getAvarageOfFoodProductionPercentage = (
   // console.log('totalPercentage', totalPercentage);
   // console.log('reports', reports);
 
-  return totalPercentage.toFixed(2) + '%';
+  return totalPercentage.toFixed(2) + "%";
 };
 
 function getPeriodStart(date: Date, mode: FilterDateMod): Date {
@@ -365,12 +373,12 @@ function getPeriodStart(date: Date, mode: FilterDateMod): Date {
   // Zero out time so we are at 00:00:00.000 that day
   d.setHours(0, 0, 0, 0);
 
-  if (mode === 'day') {
+  if (mode === "day") {
     // Simply day@00:00
     return d;
   }
 
-  if (mode === 'month') {
+  if (mode === "month") {
     // Jump to day=1 at 00:00
     d.setDate(1);
     return d;
@@ -388,12 +396,12 @@ function getPeriodStart(date: Date, mode: FilterDateMod): Date {
 function getPeriodEnd(periodStart: Date, mode: FilterDateMod): Date {
   const end = new Date(periodStart);
 
-  if (mode === 'day') {
+  if (mode === "day") {
     end.setHours(23, 59, 59, 999);
     return end;
   }
 
-  if (mode === 'week') {
+  if (mode === "week") {
     // periodStart is Saturday@00:00 → add 6 days to get to Friday
     end.setDate(end.getDate() + 6);
     end.setHours(23, 59, 59, 999);

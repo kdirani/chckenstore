@@ -1,39 +1,46 @@
-import logo from '../assets/qudirani-logo.jpg';
+import logo from "../assets/qudirani-logo.jpg";
 
 const Footer = () => (
   <footer
     style={{
-      width: '100%',
-      background: '#c62828',
-      color: '#fff',
-    
-      padding: '18px 0 11px 0',
+      width: "100%",
+      background: "#c62828",
+      color: "#fff",
+
+      padding: "18px 0 11px 0",
       marginTop: 32,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
       fontFamily: '"IBM Plex Sans Arabic", "Ancizar Sans", Arial, sans-serif',
       fontSize: 16,
-      flexWrap: 'wrap',
+      flexWrap: "wrap",
       minHeight: 60,
     }}
   >
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginRight: 32 }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 12,
+        marginRight: 32,
+      }}
+    >
       <img
         src={logo}
         alt="شعار القديراني"
         style={{
           width: 40,
           height: 40,
-          borderRadius: '50%',
-          background: '#fff',
-          border: '2px solid #fff',
-          objectFit: 'contain',
+          borderRadius: "50%",
+          background: "#fff",
+          border: "2px solid #fff",
+          objectFit: "contain",
         }}
       />
-      <span style={{ fontWeight: 'bold', fontSize: 18 }}>مداجن القديراني</span>
-    </div>     
-    <div style={{ marginLeft: 32, textAlign: 'left', fontSize: 15 }}>
+      <span style={{ fontWeight: "bold", fontSize: 18 }}>مداجن القديراني</span>
+    </div>
+    <div style={{ marginLeft: 32, textAlign: "left", fontSize: 15 }}>
       جميع الحقوق محفوظة &copy; {new Date().getFullYear()}
     </div>
     <style>

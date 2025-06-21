@@ -11,7 +11,7 @@ import {
 
 // تهيئة عميل Appwrite
 export const client = new Client()
-  .setEndpoint('https://fra.cloud.appwrite.io/v1')
+  .setEndpoint("https://fra.cloud.appwrite.io/v1")
   .setProject(import.meta.env.VITE_APPWRITE_PROJECT_ID as string);
 
 // خدمات التخزين والبيانات
@@ -22,7 +22,7 @@ export const databases = new Databases(client);
 const FILE_BUCKET = import.meta.env.VITE_APPWRITE_FILE_BUCKET_ID as string;
 const REPORTS_COL = import.meta.env.VITE_APPWRITE_REPORTE_COL_ID as string;
 const INVOICES_COL = import.meta.env.VITE_APPWRITE_INVOICE_COL_ID as string;
-const FARMS_COL   = import.meta.env.VITE_APPWRITE_FARMS_COL_ID as string
+const FARMS_COL = import.meta.env.VITE_APPWRITE_FARMS_COL_ID as string;
 
 export type OnSuccessCreate = (newId: string) => void;
 export type OnSuccessUpload = (fileId: string) => void;
@@ -39,9 +39,10 @@ export type OnError = (error?: any) => void;
  */
 export const fileService = {
   upload: (file: File, onSuccess: OnSuccessUpload, onError: OnError) => {
-    storage.createFile(FILE_BUCKET,'unique()', file)
-      .then(res => onSuccess(res.$id))
-      .catch(err => onError(err));
+    storage
+      .createFile(FILE_BUCKET, "unique()", file)
+      .then((res) => onSuccess(res.$id))
+      .catch((err) => onError(err));
   },
   getFile: async (fileId: string) => storage.getFile(FILE_BUCKET, fileId),
   getPreview: (fileId: string) => storage.getFilePreview(FILE_BUCKET, fileId),
@@ -69,12 +70,20 @@ export const reportsService = {
   ) => {
     Promise.all(
       files.map(
-        file => new Promise<string>((resolve, reject) => {
-          fileService.upload(file, resolve, reject);
-        })
+        (file) =>
+          new Promise<string>((resolve, reject) => {
+            fileService.upload(file, resolve, reject);
+          })
       )
     )
-      .then(ids => createDocument(REPORTS_COL, { ...data, fileIds: ids }, onSuccess, onError))
+      .then((ids) =>
+        createDocument(
+          REPORTS_COL,
+          { ...data, fileIds: ids },
+          onSuccess,
+          onError
+        )
+      )
       .catch(onError);
   },
 
@@ -88,12 +97,13 @@ export const reportsService = {
     const existing = Array.isArray(data.fileIds) ? data.fileIds : [];
     Promise.all(
       files.map(
-        file => new Promise<string>((resolve, reject) => {
-          fileService.upload(file, resolve, reject);
-        })
+        (file) =>
+          new Promise<string>((resolve, reject) => {
+            fileService.upload(file, resolve, reject);
+          })
       )
     )
-      .then(newIds =>
+      .then((newIds) =>
         updateDocument(
           REPORTS_COL,
           documentId,
@@ -108,8 +118,7 @@ export const reportsService = {
   delete: (documentId: string, onSuccess: OnSuccessSimple) =>
     deleteDocument(REPORTS_COL, documentId, onSuccess),
 
-  getById: (documentId: string) =>
-    getSingleDocument(REPORTS_COL, documentId),
+  getById: (documentId: string) => getSingleDocument(REPORTS_COL, documentId),
 };
 
 /**
@@ -132,12 +141,20 @@ export const invoiceService = {
   ) => {
     Promise.all(
       files.map(
-        file => new Promise<string>((resolve, reject) => {
-          fileService.upload(file, resolve, reject);
-        })
+        (file) =>
+          new Promise<string>((resolve, reject) => {
+            fileService.upload(file, resolve, reject);
+          })
       )
     )
-      .then(ids => createDocument(INVOICES_COL, { ...data, fileIds: ids }, onSuccess, onError))
+      .then((ids) =>
+        createDocument(
+          INVOICES_COL,
+          { ...data, fileIds: ids },
+          onSuccess,
+          onError
+        )
+      )
       .catch(onError);
   },
 
@@ -151,12 +168,13 @@ export const invoiceService = {
     const existing = Array.isArray(data.fileIds) ? data.fileIds : [];
     Promise.all(
       files.map(
-        file => new Promise<string>((resolve, reject) => {
-          fileService.upload(file, resolve, reject);
-        })
+        (file) =>
+          new Promise<string>((resolve, reject) => {
+            fileService.upload(file, resolve, reject);
+          })
       )
     )
-      .then(newIds =>
+      .then((newIds) =>
         updateDocument(
           INVOICES_COL,
           documentId,
@@ -171,25 +189,16 @@ export const invoiceService = {
   delete: (documentId: string, onSuccess: OnSuccessSimple) =>
     deleteDocument(INVOICES_COL, documentId, onSuccess),
 
-  getById: (documentId: string) =>
-    getSingleDocument(INVOICES_COL, documentId),
+  getById: (documentId: string) => getSingleDocument(INVOICES_COL, documentId),
 };
 
 export const farmsService = {
-  list: (
-    onSuccess: OnSuccessFetch,
-    onError: OnError,
-    queries?: string[]
-  ) => {
-    return fetchDocuments(FARMS_COL, onSuccess, onError, queries)
+  list: (onSuccess: OnSuccessFetch, onError: OnError, queries?: string[]) => {
+    return fetchDocuments(FARMS_COL, onSuccess, onError, queries);
   },
 
-  create: (
-    data: any,
-    onSuccess: OnSuccessCreate,
-    onError: OnError
-  ) => {
-    return createDocument(FARMS_COL, data, onSuccess, onError)
+  create: (data: any, onSuccess: OnSuccessCreate, onError: OnError) => {
+    return createDocument(FARMS_COL, data, onSuccess, onError);
   },
 
   update: (
@@ -198,20 +207,17 @@ export const farmsService = {
     onSuccess: OnSuccessSimple,
     onError?: OnError
   ) => {
-    return updateDocument(FARMS_COL, documentId, data, onSuccess, onError)
+    return updateDocument(FARMS_COL, documentId, data, onSuccess, onError);
   },
 
-  delete: (
-    documentId: string,
-    onSuccess: OnSuccessSimple
-  ) => {
-    return deleteDocument(FARMS_COL, documentId, onSuccess)
+  delete: (documentId: string, onSuccess: OnSuccessSimple) => {
+    return deleteDocument(FARMS_COL, documentId, onSuccess);
   },
 
   /**
    * (optional) fetch a single farm by its ID
    */
   getById: async (documentId: string) => {
-    return getSingleDocument(FARMS_COL, documentId)
-  }
-}
+    return getSingleDocument(FARMS_COL, documentId);
+  },
+};

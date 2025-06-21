@@ -6,12 +6,7 @@ import { reportsService } from "../lib/appwrite";
 import { Query } from "appwrite";
 import type { IDailyReport } from "../models";
 import "../Pages/styles.css";
-import {
-  Typography,
-  Box,
-  Divider,
-  Stack,
-} from "@mui/material";
+import { Typography, Box, Divider, Stack } from "@mui/material";
 
 export default function GlobalReports() {
   const selectedFarm = useSelectedFarmContext()[0];
@@ -39,9 +34,8 @@ export default function GlobalReports() {
     alignItems: "center",
     pb: 1,
     px: { xs: 0, md: 2 },
-    borderRadius: 10 ,
+    borderRadius: 10,
     overflow: "hidden",
-
   };
 
   return (
@@ -104,7 +98,7 @@ export default function GlobalReports() {
         >
           <FarmsFilter />
         </Box>
-  <button
+        <button
           onClick={() => window.print()}
           style={{
             background: "#c62828",

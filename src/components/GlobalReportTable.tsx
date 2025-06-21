@@ -1,4 +1,10 @@
-import { Table, TableHead, TableBody, TableRow, TableCell } from '@mui/material';
+import {
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@mui/material";
 import {
   filterReportsBeforeDate,
   filterReportsByPeriod,
@@ -10,10 +16,10 @@ import {
   getPreviousReportByFarm,
   getStartDate,
   totalize,
-} from '../utils';
-import { useSelectedFarmContext } from '../contexts';
-import type { FilterDateMod } from '../models';
-import type { IDailyReport } from '../models';
+} from "../utils";
+import { useSelectedFarmContext } from "../contexts";
+import type { FilterDateMod } from "../models";
+import type { IDailyReport } from "../models";
 
 interface GlobalReportTableProps {
   dateMode: FilterDateMod;
@@ -30,7 +36,7 @@ export default function GlobalReportTable({
   );
   const previousReport = getPreviousReportByFarm(
     currentReports,
-    selectedFarm || '',
+    selectedFarm || "",
     new Date()
   );
 
@@ -51,8 +57,8 @@ export default function GlobalReportTable({
         filterReportsBeforeDate(currentReports, startDate)
       )
     : 0;
-  const totalProduction = totalize(filteredReports, 'production').amount;
-  const totalSales = totalize(filteredReports, 'sale').amount;
+  const totalProduction = totalize(filteredReports, "production").amount;
+  const totalSales = totalize(filteredReports, "sale").amount;
   const currentCumulative = getPreviousCumulative(
     filteredReports[filteredReports.length - 1],
     filterReportsBeforeDate(currentReports, endDate)
@@ -62,62 +68,61 @@ export default function GlobalReportTable({
     undefined,
     currentReports
   );
-  const totalDeaths = totalize(filteredReports, 'death').amount;
+  const totalDeaths = totalize(filteredReports, "death").amount;
   const endingChickenCount = startingChickenCount - totalDeaths;
   const avgDeath = getAvarageOfDeath(filteredReports, dateMode);
-  const totalFood = totalize(filteredReports, 'dailyFood').amount;
-  const daysInPeriod =
-    dateMode === 'day' ? 1 : dateMode === 'week' ? 7 : 30;
+  const totalFood = totalize(filteredReports, "dailyFood").amount;
+  const daysInPeriod = dateMode === "day" ? 1 : dateMode === "week" ? 7 : 30;
   const avgFoodPerChicken = getAvarageOfFoodProductionPercentage(
     filteredReports,
     dateMode,
-    'food'
+    "food"
   );
   const avgEggProduction = getAvarageOfFoodProductionPercentage(
     filteredReports,
     dateMode,
-    'production'
+    "production"
   );
-  const totalDarkMeat = totalize(filteredReports, 'darkMeat').amount;
+  const totalDarkMeat = totalize(filteredReports, "darkMeat").amount;
 
   return (
-    <div style={{ width: '100%', overflowX: 'auto', marginBottom: 24 }}>
+    <div style={{ width: "100%", overflowX: "auto", marginBottom: 24 }}>
       <h2
         style={{
-          color: '#c62828',
-          fontWeight: 'bold',
+          color: "#c62828",
+          fontWeight: "bold",
           fontSize: 22,
-          margin: '16px 0 12px 0',
-          textAlign: 'right',
+          margin: "16px 0 12px 0",
+          textAlign: "right",
         }}
       >
-        {dateMode === 'day'
-          ? 'تقرير يومي'
-          : dateMode === 'week'
-          ? 'تقرير أسبوعي'
-          : 'تقرير شهري'}
+        {dateMode === "day"
+          ? "تقرير يومي"
+          : dateMode === "week"
+          ? "تقرير أسبوعي"
+          : "تقرير شهري"}
       </h2>
       <Table
         sx={{
           minWidth: 900,
           borderRadius: 3,
-          boxShadow: '0 2px 12px 0 rgba(198,40,40,0.07)',
-          '& thead tr': {
-            background: '#c62828',
+          boxShadow: "0 2px 12px 0 rgba(198,40,40,0.07)",
+          "& thead tr": {
+            background: "#c62828",
           },
-          '& thead th': {
-            color: '#fff',
-            fontWeight: 'bold',
+          "& thead th": {
+            color: "#fff",
+            fontWeight: "bold",
             fontSize: { xs: 13, md: 16 },
-            borderBottom: '2px solid #fff',
-            textAlign: 'center',
+            borderBottom: "2px solid #fff",
+            textAlign: "center",
           },
-          '& tbody td': {
-            textAlign: 'center',
+          "& tbody td": {
+            textAlign: "center",
             fontSize: { xs: 12, md: 15 },
           },
-          '& tbody tr:nth-of-type(odd)': { backgroundColor: '#fff5f5' },
-          '& tbody tr:hover': { backgroundColor: '#ffeaea' },
+          "& tbody tr:nth-of-type(odd)": { backgroundColor: "#fff5f5" },
+          "& tbody tr:hover": { backgroundColor: "#ffeaea" },
         }}
       >
         <TableHead>
