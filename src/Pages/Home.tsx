@@ -243,6 +243,9 @@ export default function HomePage() {
       <Container
         maxWidth="md"
         sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
           position: "relative",
           zIndex: 2,
           minHeight: "100vh",
