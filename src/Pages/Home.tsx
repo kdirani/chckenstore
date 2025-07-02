@@ -1,241 +1,18 @@
 "use client";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Box, Typography, Stack, Container } from "@mui/material";
 import FarmImage from "../components/FarmImage";
 import farmImg1 from "../assets/1.jpeg";
 import farmImg2 from "../assets/2.jpg";
 import farmImg3 from "../assets/3.jpg";
-import Footer from "../layouts/Footer";
-import { motion, AnimatePresence } from "framer-motion";
-
-// ===== خلفية الأنيميشن فقط كخلفية مطلقة =====
-const BackgroundBeamsWithCollision = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const parentRef = useRef<HTMLDivElement>(null);
-
-  const beams = [
-    { initialX: 10, translateX: 10, duration: 7, repeatDelay: 3, delay: 2 },
-    { initialX: 600, translateX: 600, duration: 3, repeatDelay: 3, delay: 4 },
-    { initialX: 100, translateX: 100, duration: 7, repeatDelay: 7 },
-    { initialX: 400, translateX: 400, duration: 5, repeatDelay: 14, delay: 4 },
-    { initialX: 800, translateX: 800, duration: 11, repeatDelay: 2 },
-    { initialX: 1000, translateX: 1000, duration: 4, repeatDelay: 2 },
-    { initialX: 1200, translateX: 1200, duration: 6, repeatDelay: 4, delay: 2 },
-  ];
-
-  return (
-    <Box
-      ref={parentRef}
-      sx={{
-        position: "absolute",
-        inset: 0,
-        width: "100vw",
-        height: "100vh",
-        zIndex: 0,
-        pointerEvents: "none",
-        background: (theme) =>
-          `linear-gradient(to bottom, ${theme.palette.background.default}, ${theme.palette.grey[100]})`,
-        overflow: "hidden",
-      }}
-    >
-      {beams.map((beam, i) => (
-        <CollisionMechanism
-          key={`beam-${i}`}
-          beamOptions={beam}
-          containerRef={containerRef}
-          parentRef={parentRef}
-        />
-      ))}
-      <Box
-        ref={containerRef}
-        sx={{
-          position: "absolute",
-          bottom: 0,
-          width: "100%",
-          pointerEvents: "none",
-          boxShadow:
-            "0 0 24px rgba(34, 42, 53, 0.06), 0 1px 1px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(34, 42, 53, 0.04), 0 0 4px rgba(34, 42, 53, 0.08), 0 16px 68px rgba(47, 48, 55, 0.05), 0 1px 0 rgba(255, 255, 255, 0.1) inset",
-        }}
-      />
-    </Box>
-  );
-};
-
-const CollisionMechanism = React.forwardRef<
-  HTMLDivElement,
-  {
-    containerRef: React.RefObject<HTMLDivElement | null>;
-    parentRef: React.RefObject<HTMLDivElement | null>;
-    beamOptions?: {
-      initialX?: number;
-      x?: number;
-      initialY?: number;
-      y?: number;
-      rotate?: number;
-      duration?: number;
-      delay?: number;
-      repeatDelay?: number;
-    };
-  }
->(({ parentRef, containerRef, beamOptions = {} }) => {
-  const beamRef = useRef<HTMLDivElement>(null);
-  const [collision, setCollision] = useState({
-    detected: false,
-    coordinates: null as { x: number; y: number } | null,
-  });
-  const [beamKey, setBeamKey] = useState(0);
-  const [cycleCollisionDetected, setCycleCollisionDetected] = useState(false);
-
-  useEffect(() => {
-    const checkCollision = () => {
-      if (
-        beamRef.current &&
-        containerRef.current &&
-        parentRef.current &&
-        !cycleCollisionDetected
-      ) {
-        const beamRect = beamRef.current.getBoundingClientRect();
-        const containerRect = containerRef.current.getBoundingClientRect();
-        const parentRect = parentRef.current.getBoundingClientRect();
-
-        if (beamRect.bottom >= containerRect.top) {
-          const relativeX =
-            beamRect.left - parentRect.left + beamRect.width / 2;
-          const relativeY = beamRect.bottom - parentRect.top;
-
-          setCollision({
-            detected: true,
-            coordinates: { x: relativeX, y: relativeY },
-          });
-          setCycleCollisionDetected(true);
-        }
-      }
-    };
-
-    const animationInterval = setInterval(checkCollision, 50);
-    return () => clearInterval(animationInterval);
-  }, [containerRef, cycleCollisionDetected, parentRef]);
-
-  useEffect(() => {
-    if (collision.detected) {
-      setTimeout(() => {
-        setCollision({ detected: false, coordinates: null });
-        setCycleCollisionDetected(false);
-      }, 2000);
-      setTimeout(() => {
-        setBeamKey((prevKey) => prevKey + 1);
-      }, 2000);
-    }
-  }, [collision]);
-
-  return (
-    <>
-      <motion.div
-        key={beamKey}
-        ref={beamRef}
-        animate="animate"
-        initial={{
-          y: beamOptions.initialY || "-200px",
-          x: beamOptions.initialX || "0px",
-          rotate: beamOptions.rotate || 0,
-        }}
-        variants={{
-          animate: {
-            y: beamOptions.y || "1800px",
-            x: beamOptions.x || "0px",
-            rotate: beamOptions.rotate || 0,
-          },
-        }}
-        transition={{
-          duration: beamOptions.duration || 8,
-          repeat: Infinity,
-          repeatType: "loop",
-          ease: "linear",
-          delay: beamOptions.delay || 0,
-          repeatDelay: beamOptions.repeatDelay || 0,
-        }}
-        style={{
-          position: "absolute",
-          top: "80px",
-          left: 0,
-          margin: "auto",
-          height: "56px",
-          width: "1px",
-          borderRadius: "999px",
-          background: "linear-gradient(to top, #c62828, #c62828, transparent)",
-        }}
-      />
-      <AnimatePresence>
-        {collision.detected && collision.coordinates && (
-          <Explosion
-            key={`${collision.coordinates.x}-${collision.coordinates.y}`}
-            style={{
-              left: `${collision.coordinates.x}px`,
-              top: `${collision.coordinates.y}px`,
-              transform: "translate(-50%, -50%)",
-              position: "absolute",
-              zIndex: 50,
-            }}
-          />
-        )}
-      </AnimatePresence>
-    </>
-  );
-});
-
-CollisionMechanism.displayName = "CollisionMechanism";
-
-const Explosion = ({ ...props }: React.HTMLProps<HTMLDivElement>) => {
-  const spans = Array.from({ length: 20 }, (_, index) => ({
-    id: index,
-    directionX: Math.floor(Math.random() * 80 - 40),
-    directionY: Math.floor(Math.random() * -50 - 10),
-  }));
-
-  return (
-    <div {...props}>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: "calc(50% - 40px)",
-          height: "8px",
-          width: "80px",
-          borderRadius: "8px",
-          background:
-            "linear-gradient(to right, transparent, #c62828, transparent)",
-          filter: "blur(4px)",
-        }}
-      />
-      {spans.map((span) => (
-        <motion.span
-          key={span.id}
-          initial={{ x: 0, y: 0, opacity: 1 }}
-          animate={{
-            x: span.directionX,
-            y: span.directionY,
-            opacity: 0,
-          }}
-          transition={{ duration: Math.random() * 1.5 + 0.5, ease: "easeOut" }}
-          style={{
-            position: "absolute",
-            height: "4px",
-            width: "4px",
-            borderRadius: "999px",
-            background: "linear-gradient(to bottom, #c62828, #c62828)",
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
 // ===== الصفحة الرئيسية =====
 export default function HomePage() {
+  useEffect(() => {
+    document.body.style.overflowY = "hidden";
+    return () => {
+      document.body.style.overflowY = "";
+    };
+  }, []);
   return (
     <Box
       sx={{
@@ -243,12 +20,24 @@ export default function HomePage() {
         minHeight: "100vh",
         overflow: "hidden",
         bgcolor: "#fff",
+        background: "linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)",
+        backgroundImage: `url(${farmImg2})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        // Add a semi-transparent overlay
+        "&:before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          bgcolor: "rgba(255,255,255,0.7)",
+          zIndex: 1,
+        },
       }}
     >
-      {/* الخلفية المتحركة */}
-      <BackgroundBeamsWithCollision />
-
-      {/* محتوى الصفحة */}
       <Container
         maxWidth="md"
         sx={{
@@ -299,10 +88,13 @@ export default function HomePage() {
           alignItems="center"
           sx={{
             mb: 4,
+            cursor: "pointer", // Pointer cursor for all images
           }}
         >
           <FarmImage src={farmImg1} alt="مزرعة دواجن" />
+          <Box></Box>
           <FarmImage src={farmImg2} alt="مزرعة دواجن" />
+
           <FarmImage src={farmImg3} alt="مزرعة دواجن" />
         </Stack>
 
@@ -320,14 +112,6 @@ export default function HomePage() {
           إضافة بيانات جديدة
         </Typography>
       </Container>
-      <Footer />
-      <style>
-        {`
-         body {
-          overflow-y:hidden;
-          }
-        `}
-      </style>
     </Box>
   );
 }
