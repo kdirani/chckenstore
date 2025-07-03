@@ -984,16 +984,14 @@ export default function InvoicesForm() {
               {editInvoiceData.items && editInvoiceData.items.map((item, idx) => (
                 <Stack key={idx} direction="row" spacing={1}>
                   <FormControl fullWidth>
-                    <InputLabel id={`edit-meterial-label-${idx}`}>المادة</InputLabel>
+                    <InputLabel id="edit-meterial-label">المادة</InputLabel>
                     <Select
-                      labelId={`edit-meterial-label-${idx}`}
-                      value={item.meterial}
+                      labelId="edit-meterial-label"
+                      value={editInvoiceData.meterial}
                       label="المادة"
-                      onChange={e => {
-                        const items = [...editInvoiceData.items];
-                        items[idx].meterial = e.target.value;
-                        setEditInvoiceData({ ...editInvoiceData, items });
-                      }}
+                      onChange={e =>
+                        setEditInvoiceData({ ...editInvoiceData, meterial: e.target.value })
+                      }
                     >
                       <MenuItem value="">اختر الوزن</MenuItem>
                       {weightRanges.map((weight) => (
@@ -1005,37 +1003,30 @@ export default function InvoicesForm() {
                   </FormControl>
                   <TextField
                     label="الوحدة"
-                    value={item.unit}
-                    onChange={e => {
-                      const items = [...editInvoiceData.items];
-                      items[idx].unit = e.target.value;
-                      setEditInvoiceData({ ...editInvoiceData, items });
-                    }}
+                    value={editInvoiceData.unit}
+                    onChange={e =>
+                      setEditInvoiceData({ ...editInvoiceData, unit: e.target.value })
+                    }
                     fullWidth
                   />
                   <TextField
                     label="الكمية"
                     type="number"
-                    value={item.amount}
-                    onChange={e => {
-                      const items = [...editInvoiceData.items];
-                      items[idx].amount = Number(e.target.value);
-                      setEditInvoiceData({ ...editInvoiceData, items });
-                    }}
+                    value={editInvoiceData.amount}
+                    onChange={e =>
+                      setEditInvoiceData({ ...editInvoiceData, amount: Number(e.target.value) })
+                    }
                     fullWidth
                   />
                   <TextField
                     label="السعر"
                     type="number"
-                    value={item.price}
-                    onChange={e => {
-                      const items = [...editInvoiceData.items];
-                      items[idx].price = Number(e.target.value);
-                      setEditInvoiceData({ ...editInvoiceData, items });
-                    }}
+                    value={editInvoiceData.price}
+                    onChange={e =>
+                      setEditInvoiceData({ ...editInvoiceData, price: Number(e.target.value) })
+                    }
                     fullWidth
                   />
-                  {/* يمكنك إضافة رفع الملفات هنا إذا أردت */}
                 </Stack>
               ))}
             </Stack>
