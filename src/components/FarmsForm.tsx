@@ -111,13 +111,17 @@ export default function FarmsForm() {
     }
   };
 
+  // دالة حذف المزرعة
   const confirmDelete = () => {
     if (farmToDelete) {
-      farmsService.delete(farmToDelete.$id, () => {
-        setShowDeleteModal(false);
-        setFarmToDelete(null);
-        alert("تم حذف المزرعة بنجاح");
-      });
+      farmsService.delete(
+        farmToDelete.$id,
+        () => {
+          setShowDeleteModal(false);
+          setFarmToDelete(null);
+          setShowSuccessModal(true);
+        }
+      );
     }
   };
 
@@ -168,7 +172,7 @@ export default function FarmsForm() {
               />
             </Grid>
             <Grid item xs={12}>
-              <Stack direction="row" spacing={2}>
+              <Stack direction="row" gap={2} justifyContent="flex-end">
                 <Button
                   variant="contained"
                   color="primary"
@@ -189,7 +193,6 @@ export default function FarmsForm() {
                 {editMode && (
                   <Button
                     variant="outlined"
-                    color="secondary"
                     onClick={cancelEdit}
                     disabled={isSubmitting}
                   >

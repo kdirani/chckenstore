@@ -51,6 +51,23 @@ export type InvoiceItem = {
   fileName?: string;
 };
 
+// نوع خاص لبيانات المودال فقط
+export type EditInvoiceModalData = {
+  $id: string;
+  type: InvoiceTypes;
+  index: number;
+  farmId: string;
+  date: string;
+  time: string;
+  customer: string;
+  meterial: string;
+  unit: string;
+  amount: number;
+  price: number;
+  fileIds: string[];
+  items: InvoiceItem[];
+};
+
 const Transition = React.forwardRef(function Transition(
   props: any,
   ref
@@ -90,6 +107,10 @@ export default function InvoicesForm() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editInvoiceData, setEditInvoiceData] = useState<IRecursiveInvoice | null>(null);
 
+  // حالة مودال الخطأ
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+
   // قائمة الأوزان للبيض
   const weightRanges = [
     "1800/1850",
@@ -111,7 +132,8 @@ export default function InvoicesForm() {
         setInvoices(data);
       },
       () => {
-        alert("حدث خطأ أثناء تحميل الفواتير");
+        setErrorMessage("حدث خطأ أثناء تحميل الفواتير");
+        setShowErrorModal(true);
       }
     );
   };
@@ -138,7 +160,6 @@ export default function InvoicesForm() {
       invoiceService.delete(invoiceToDelete.$id, () => {
         setShowDeleteModal(false);
         setInvoiceToDelete(null);
-        loadInvoices();
         setShowDeleteSuccessModal(true); // عرض مودال النجاح بعد الحذف
       });
     }
@@ -176,7 +197,8 @@ export default function InvoicesForm() {
   // تعبئة وهمية
   const handleAutoFill = () => {
     if (!farms.length) {
-      alert("لا توجد مزارع متاحة");
+      setErrorMessage("لا توجد مزارع متاحة");
+      setShowErrorModal(true);
       return;
     }
     const farmId = farms[0].$id;
@@ -213,7 +235,8 @@ export default function InvoicesForm() {
           it.price <= 0
       )
     ) {
-      alert("يرجى تعبئة جميع الحقول والتحقق من صحة عناصر الفاتورة");
+      setErrorMessage("يرجى تعبئة جميع الحقول والتحقق من صحة عناصر الفاتورة");
+      setShowErrorModal(true);
       setIsSubmitting(false);
       return;
     }
@@ -263,7 +286,8 @@ export default function InvoicesForm() {
       resetForm();
       loadInvoices();
     } catch {
-      alert("حدث خطأ أثناء حفظ الفاتورة");
+      setErrorMessage("حدث خطأ أثناء حفظ الفاتورة");
+      setShowErrorModal(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -881,7 +905,7 @@ export default function InvoicesForm() {
                   value={editInvoiceData.type}
                   label="نوع الفاتورة"
                   onChange={e =>
-                    setEditInvoiceData({ ...editInvoiceData, type: e.target.value as InvoiceTypes })
+                    setEditInvoiceData(editInvoiceData ? { ...editInvoiceData, type: e.target.value as InvoiceTypes } : null)
                   }
                 >
                   <MenuItem value="Sale">بيض</MenuItem>
@@ -894,7 +918,7 @@ export default function InvoicesForm() {
                 type="number"
                 value={editInvoiceData.index}
                 onChange={e =>
-                  setEditInvoiceData({ ...editInvoiceData, index: Number(e.target.value) })
+                  setEditInvoiceData(editInvoiceData ? { ...editInvoiceData, index: Number(e.target.value) } : null)
                 }
                 fullWidth
               />
@@ -905,7 +929,7 @@ export default function InvoicesForm() {
                   value={editInvoiceData.farmId}
                   label="المزرعة"
                   onChange={e =>
-                    setEditInvoiceData({ ...editInvoiceData, farmId: e.target.value })
+                    setEditInvoiceData(editInvoiceData ? { ...editInvoiceData, farmId: e.target.value } : null)
                   }
                 >
                   {farms.map((f) => (
@@ -920,7 +944,7 @@ export default function InvoicesForm() {
                 type="date"
                 value={editInvoiceData.date}
                 onChange={e =>
-                  setEditInvoiceData({ ...editInvoiceData, date: e.target.value })
+                  setEditInvoiceData(editInvoiceData ? { ...editInvoiceData, date: e.target.value } : null)
                 }
                 fullWidth
                 InputLabelProps={{ shrink: true }}
@@ -930,7 +954,7 @@ export default function InvoicesForm() {
                 type="time"
                 value={editInvoiceData.time}
                 onChange={e =>
-                  setEditInvoiceData({ ...editInvoiceData, time: e.target.value })
+                  setEditInvoiceData(editInvoiceData ? { ...editInvoiceData, time: e.target.value } : null)
                 }
                 fullWidth
                 InputLabelProps={{ shrink: true }}
@@ -939,22 +963,25 @@ export default function InvoicesForm() {
                 label="العميل"
                 value={editInvoiceData.customer}
                 onChange={e =>
-                  setEditInvoiceData({ ...editInvoiceData, customer: e.target.value })
+                  setEditInvoiceData(editInvoiceData ? { ...editInvoiceData, customer: e.target.value } : null)
                 }
                 fullWidth
               />
               {/* يمكنك إضافة حقول عناصر الفاتورة إذا أردت تعديلها أيضاً */}
-              {editInvoiceData.items && editInvoiceData.items.map((_: InvoiceItem, idx: number) => (
+              {editInvoiceData.items && editInvoiceData.items.map((item: InvoiceItem, idx: number) => (
                 <Stack key={idx} direction="row" spacing={1}>
                   <FormControl fullWidth>
                     <InputLabel id="edit-meterial-label">المادة</InputLabel>
                     <Select
                       labelId="edit-meterial-label"
-                      value={editInvoiceData.meterial}
+                      value={item.meterial}
                       label="المادة"
-                      onChange={e =>
-                        setEditInvoiceData({ ...editInvoiceData, meterial: e.target.value })
-                      }
+                      onChange={e => {
+                        if (!editInvoiceData) return;
+                        const newItems = [...editInvoiceData.items];
+                        newItems[idx].meterial = e.target.value;
+                        setEditInvoiceData({ ...editInvoiceData, items: newItems });
+                      }}
                     >
                       <MenuItem value="">اختر الوزن</MenuItem>
                       {weightRanges.map((weight) => (
@@ -966,28 +993,37 @@ export default function InvoicesForm() {
                   </FormControl>
                   <TextField
                     label="الوحدة"
-                    value={editInvoiceData.unit}
-                    onChange={e =>
-                      setEditInvoiceData({ ...editInvoiceData, unit: e.target.value })
-                    }
+                    value={item.unit}
+                    onChange={e => {
+                      if (!editInvoiceData) return;
+                      const newItems = [...editInvoiceData.items];
+                      newItems[idx].unit = e.target.value;
+                      setEditInvoiceData({ ...editInvoiceData, items: newItems });
+                    }}
                     fullWidth
                   />
                   <TextField
                     label="الكمية"
                     type="number"
-                    value={editInvoiceData.amount}
-                    onChange={e =>
-                      setEditInvoiceData({ ...editInvoiceData, amount: Number(e.target.value) })
-                    }
+                    value={item.amount}
+                    onChange={e => {
+                      if (!editInvoiceData) return;
+                      const newItems = [...editInvoiceData.items];
+                      newItems[idx].amount = Number(e.target.value);
+                      setEditInvoiceData({ ...editInvoiceData, items: newItems });
+                    }}
                     fullWidth
                   />
                   <TextField
                     label="السعر"
                     type="number"
-                    value={editInvoiceData.price}
-                    onChange={e =>
-                      setEditInvoiceData({ ...editInvoiceData, price: Number(e.target.value) })
-                    }
+                    value={item.price}
+                    onChange={e => {
+                      if (!editInvoiceData) return;
+                      const newItems = [...editInvoiceData.items];
+                      newItems[idx].price = Number(e.target.value);
+                      setEditInvoiceData({ ...editInvoiceData, items: newItems });
+                    }}
                     fullWidth
                   />
                 </Stack>
@@ -1015,6 +1051,53 @@ export default function InvoicesForm() {
             حفظ التعديلات
           </Button>
           <Button onClick={() => setShowEditModal(false)}>إلغاء</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* مودال الخطأ العام */}
+      <Dialog
+        open={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        aria-describedby="error-dialog-description"
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            textAlign: "center",
+            p: 3,
+            minWidth: { xs: 260, sm: 350 },
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 0 }}>
+          <CheckCircleOutlineIcon sx={{ color: "#c62828", fontSize: 60, mb: 1 }} />
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="h6" fontWeight={700} color="#c62828" mb={1}>
+            حدث خطأ
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            id="error-dialog-description"
+          >
+            {errorMessage}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "#c62828",
+              color: "#fff",
+              fontWeight: 700,
+              borderRadius: 2,
+              px: 4,
+              "&:hover": { backgroundColor: "#b71c1c" },
+            }}
+            onClick={() => setShowErrorModal(false)}
+          >
+            إغلاق
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>

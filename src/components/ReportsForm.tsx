@@ -84,6 +84,8 @@ export default function ReportsForm() {
   const [medicineItems, setMedicineItems] = useState<MedicineItem[]>([]);
   // ملفات متعددة
   const [files, setFiles] = useState<FileList | null>(null);
+  // إضافة حالة لحفظ اسم الملف المرفوع
+  const [uploadedFileName, setUploadedFileName] = useState<string>("");
 
   // حالة التقارير
   const [reports, setReports] = useState<IRecursiveDailyReport[]>([]);
@@ -230,6 +232,11 @@ export default function ReportsForm() {
   // رفع الملفات
   const handleFilesChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFiles(e.target.files);
+    if (e.target.files && e.target.files.length > 0) {
+      setUploadedFileName(e.target.files[0].name);
+    } else {
+      setUploadedFileName("");
+    }
   };
 
   // تعبئة وهمية
@@ -402,7 +409,7 @@ export default function ReportsForm() {
               },
             }}
           >
-            رفع مرفقات
+            {uploadedFileName ? uploadedFileName : "رفع مرفقات"}
             <input type="file" hidden multiple onChange={handleFilesChange} />
           </Button>
         </Box>
@@ -531,6 +538,7 @@ export default function ReportsForm() {
         <Grid container spacing={2} mb={2}>
           <Grid item xs={12} sm={6}>
             <TextField
+             InputLabelProps={{ shrink: true }}
               label="الإنتاج"
               type="number"
               value={production}
@@ -541,6 +549,7 @@ export default function ReportsForm() {
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
+             InputLabelProps={{ shrink: true }}
               label="الإنتاج المشوّه"
               type="number"
               value={distortedProduction}
