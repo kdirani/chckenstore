@@ -70,6 +70,8 @@ export default function InvoicesForm() {
   // مودال النجاح
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editInvoiceData, setEditInvoiceData] = useState<IRecursiveInvoice | null>(null);
 
   // قائمة الأوزان للبيض
   const weightRanges = [
@@ -733,7 +735,10 @@ export default function InvoicesForm() {
                 <TableCell align="center">
                   <IconButton
                     color="primary"
-                    onClick={() => loadInvoiceForEdit(invoice)}
+                    onClick={() => {
+                      setEditInvoiceData(invoice);
+                      setShowEditModal(true);
+                    }}
                     disabled={isSubmitting}
                   >
                     <EditIcon />
@@ -879,6 +884,183 @@ export default function InvoicesForm() {
           >
             إغلاق
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* مودال تعديل الفاتورة */}
+      <Dialog
+        open={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        TransitionComponent={Transition}
+        keepMounted
+        aria-describedby="edit-invoice-dialog-description"
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            textAlign: "center",
+            p: 3,
+            minWidth: { xs: 260, sm: 400 },
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 0 }}>
+          <Typography variant="h6" fontWeight={700} color="#c62828">
+            تعديل الفاتورة
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          {editInvoiceData && (
+            <Stack spacing={2} mt={2}>
+              <FormControl fullWidth>
+                <InputLabel id="edit-type-label">نوع الفاتورة</InputLabel>
+                <Select
+                  labelId="edit-type-label"
+                  value={editInvoiceData.type}
+                  label="نوع الفاتورة"
+                  onChange={e =>
+                    setEditInvoiceData({ ...editInvoiceData, type: e.target.value as InvoiceTypes })
+                  }
+                >
+                  <MenuItem value="Sale">بيض</MenuItem>
+                  <MenuItem value="DarkMeet">سواد</MenuItem>
+                  <MenuItem value="Medicine">دواء</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField
+                label="رقم الفاتورة"
+                type="number"
+                value={editInvoiceData.index}
+                onChange={e =>
+                  setEditInvoiceData({ ...editInvoiceData, index: Number(e.target.value) })
+                }
+                fullWidth
+              />
+              <FormControl fullWidth>
+                <InputLabel id="edit-farm-label">المزرعة</InputLabel>
+                <Select
+                  labelId="edit-farm-label"
+                  value={editInvoiceData.farmId}
+                  label="المزرعة"
+                  onChange={e =>
+                    setEditInvoiceData({ ...editInvoiceData, farmId: e.target.value })
+                  }
+                >
+                  {farms.map((f) => (
+                    <MenuItem key={f.$id} value={f.$id}>
+                      {f.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                label="التاريخ"
+                type="date"
+                value={editInvoiceData.date}
+                onChange={e =>
+                  setEditInvoiceData({ ...editInvoiceData, date: e.target.value })
+                }
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+              />
+              <TextField
+                label="التوقيت"
+                type="time"
+                value={editInvoiceData.time}
+                onChange={e =>
+                  setEditInvoiceData({ ...editInvoiceData, time: e.target.value })
+                }
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+              />
+              <TextField
+                label="العميل"
+                value={editInvoiceData.customer}
+                onChange={e =>
+                  setEditInvoiceData({ ...editInvoiceData, customer: e.target.value })
+                }
+                fullWidth
+              />
+              {/* يمكنك إضافة حقول عناصر الفاتورة إذا أردت تعديلها أيضاً */}
+              {editInvoiceData.items && editInvoiceData.items.map((item, idx) => (
+                <Stack key={idx} direction="row" spacing={1}>
+                  <FormControl fullWidth>
+                    <InputLabel id={`edit-meterial-label-${idx}`}>المادة</InputLabel>
+                    <Select
+                      labelId={`edit-meterial-label-${idx}`}
+                      value={item.meterial}
+                      label="المادة"
+                      onChange={e => {
+                        const items = [...editInvoiceData.items];
+                        items[idx].meterial = e.target.value;
+                        setEditInvoiceData({ ...editInvoiceData, items });
+                      }}
+                    >
+                      <MenuItem value="">اختر الوزن</MenuItem>
+                      {weightRanges.map((weight) => (
+                        <MenuItem key={weight} value={weight}>
+                          {weight}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <TextField
+                    label="الوحدة"
+                    value={item.unit}
+                    onChange={e => {
+                      const items = [...editInvoiceData.items];
+                      items[idx].unit = e.target.value;
+                      setEditInvoiceData({ ...editInvoiceData, items });
+                    }}
+                    fullWidth
+                  />
+                  <TextField
+                    label="الكمية"
+                    type="number"
+                    value={item.amount}
+                    onChange={e => {
+                      const items = [...editInvoiceData.items];
+                      items[idx].amount = Number(e.target.value);
+                      setEditInvoiceData({ ...editInvoiceData, items });
+                    }}
+                    fullWidth
+                  />
+                  <TextField
+                    label="السعر"
+                    type="number"
+                    value={item.price}
+                    onChange={e => {
+                      const items = [...editInvoiceData.items];
+                      items[idx].price = Number(e.target.value);
+                      setEditInvoiceData({ ...editInvoiceData, items });
+                    }}
+                    fullWidth
+                  />
+                  {/* يمكنك إضافة رفع الملفات هنا إذا أردت */}
+                </Stack>
+              ))}
+            </Stack>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "#c62828",
+              color: "#fff",
+              fontWeight: 700,
+              borderRadius: 2,
+              px: 4,
+              "&:hover": { backgroundColor: "#b71c1c" },
+            }}
+            onClick={() => {
+              // هنا ضع منطق حفظ التعديل (استدعاء API أو تحديث الحالة)
+              // ثم أغلق المودال
+              setShowEditModal(false);
+            }}
+          >
+            حفظ التعديلات
+          </Button>
+          <Button onClick={() => setShowEditModal(false)}>إلغاء</Button>
         </DialogActions>
       </Dialog>
     </Box>
