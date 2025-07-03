@@ -42,7 +42,7 @@ export default function HomePage() {
     <Box
       sx={{
         position: "relative",
-        minHeight: "100vh",
+        minHeight: { xs: "100vh", sm: "100vh" },
         overflow: "hidden",
         bgcolor: "#fff",
         background: "linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)",
@@ -50,14 +50,15 @@ export default function HomePage() {
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        "&:before": {
+        p: { xs: 0, sm: 0 },
+        '&:before': {
           content: '""',
           position: "absolute",
           top: 0,
           left: 0,
           width: "100%",
           height: "100%",
-          bgcolor: "rgba(255,255,255,0.7)",
+          bgcolor: { xs: "rgba(255,255,255,0.85)", sm: "rgba(255,255,255,0.7)" },
           zIndex: 1,
         },
       }}
@@ -71,7 +72,8 @@ export default function HomePage() {
           justifyContent: "center",
           position: "relative",
           zIndex: 2,
-          minHeight: "100vh",
+          minHeight: { xs: "100vh", sm: "100vh" },
+          px: { xs: 1, sm: 2 },
         }}
       >
         <Typography
@@ -79,12 +81,13 @@ export default function HomePage() {
           fontWeight={700}
           color="#c62828"
           sx={{
-            mb: 2,
-            fontSize: { xs: 24, sm: 32, md: 38 },
+            mb: { xs: 1, sm: 2 },
+            fontSize: { xs: 20, sm: 32, md: 38 },
             fontFamily: `'IBM Plex Sans Arabic', Arial, sans-serif`,
             letterSpacing: 1,
             textAlign: "center",
-            mt: 6,
+            mt: { xs: 3, sm: 6 },
+            lineHeight: 1.2,
           }}
           gutterBottom
         >
@@ -95,9 +98,11 @@ export default function HomePage() {
           variant="h6"
           color="text.secondary"
           sx={{
-            mb: 4,
-            fontSize: { xs: 15, sm: 18 },
+            mb: { xs: 2, sm: 4 },
+            fontSize: { xs: 13, sm: 18 },
             textAlign: "center",
+            lineHeight: 1.5,
+            px: { xs: 1, sm: 0 },
           }}
         >
           هذا النظام يوفر لك تقارير يومية وشهرية واحصائيات دقيقة لإنتاج المداجن.
@@ -110,49 +115,57 @@ export default function HomePage() {
             justifyContent: "center",
             alignItems: "center",
             width: "100%",
-            minHeight: 400,
-            mb: 4,
+            minHeight: { xs: 180, sm: 400 },
+            mb: { xs: 2, sm: 4 },
             position: "relative",
+            px: { xs: 0.5, sm: 0 },
           }}
         >
           <IconButton
             onClick={handlePrev}
             sx={{
               position: "absolute",
-              left: { xs: 0, md: 30 },
+              left: { xs: 2, md: 30 },
               zIndex: 3,
               bgcolor: "#c62828",
-              "&:hover": { bgcolor: "rgba(161, 57, 57, 0.9)" },
+              p: { xs: 0.5, sm: 1 },
+              width: { xs: 32, sm: 40 },
+              height: { xs: 32, sm: 40 },
+              '&:hover': { bgcolor: "rgba(161, 57, 57, 0.9)" },
             }}
             aria-label="السابق"
           >
-            <ArrowBackIos sx={{color:"#fff"}} />
+            <ArrowBackIos sx={{ color: "#fff", fontSize: { xs: 18, sm: 22 } }} />
           </IconButton>
           <FarmImage
             src={images[current].src}
             alt={images[current].alt}
             sx={{
-              maxWidth: { xs: "100vw", sm: 600 },
-              maxHeight: { xs: 300, sm: 400 },
-              borderRadius: 4,
-              boxShadow: 3,
+              maxWidth: { xs: "95vw", sm: 600 },
+              maxHeight: { xs: 150, sm: 400 },
+              minHeight: { xs: 120, sm: 300 },
+              borderRadius: 3,
+              boxShadow: 2,
               transition: "all 0.5s",
               objectFit: "cover",
-              mx: 4,
+              mx: { xs: 1, sm: 4 },
             }}
           />
           <IconButton
             onClick={handleNext}
             sx={{
               position: "absolute",
-              right: { xs: 0, md: 30 },
+              right: { xs: 2, md: 30 },
               zIndex: 3,
               bgcolor: "#c62828",
-              "&:hover": { bgcolor: "rgba(161, 57, 57, 0.9)" },
+              p: { xs: 0.5, sm: 1 },
+              width: { xs: 32, sm: 40 },
+              height: { xs: 32, sm: 40 },
+              '&:hover': { bgcolor: "rgba(161, 57, 57, 0.9)" },
             }}
             aria-label="التالي"
           >
-            <ArrowForwardIos sx={{color:"#fff"}}  />
+            <ArrowForwardIos sx={{ color: "#fff", fontSize: { xs: 18, sm: 22 } }} />
           </IconButton>
         </Box>
 
@@ -160,11 +173,11 @@ export default function HomePage() {
           variant="body1"
           color="text.secondary"
           sx={{
-            mt: 2,
+            mt: { xs: 1, sm: 2 },
             fontWeight: "bold",
-            fontSize: { xs: 14, sm: 16 },
+            fontSize: { xs: 12.5, sm: 16 },
             textAlign: "center",
-
+            px: { xs: 1, sm: 0 },
           }}
         >
           يمكنك التنقل بين الأقسام من القائمة العلوية للاطلاع على تقارير أو إضافة بيانات جديدة
