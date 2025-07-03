@@ -116,3 +116,25 @@ body {
     font-size: 15px !important;
   }
 }
+/* شريط التمرير للصفحة أو للجدول */
+          ::-webkit-scrollbar {
+            height: 10px;
+            width: 10px;
+            background: #fff;      /* لون الخلفية */
+            border-radius: 8px;
+          }
+
+          ::-webkit-scrollbar-thumb {
+            background: #c62828;      /* لون الشريط نفسه */
+            border-radius: 8px;
+          }
+
+          ::-webkit-scrollbar-thumb:hover {
+            background: #ad2323;      /* لون عند المرور بالماوس */
+          }
+
+          /* للفايرفوكس */
+          * {
+            scrollbar-color: #c62828 #fff;
+            scrollbar-width: thin;
+          }

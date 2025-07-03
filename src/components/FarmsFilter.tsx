@@ -1,4 +1,6 @@
 import { Form } from "react-bootstrap";
+import { Box } from "@mui/material";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { useFarms, useSelectedFarmContext } from "../contexts";
 
 export default function FarmsFilter() {
@@ -8,43 +10,59 @@ export default function FarmsFilter() {
   return (
     <Form className="mt-3">
       <Form.Group>
-        <Form.Select
-          className="mb-3 farms-filter-select"
-          onChange={(e) => {
-            setSelectedFarm(e.target.value);
-          }}
-          value={selectedFarm || ""}
-        >
-          <option value="">اختر المزرعة</option>
-          {(farms || []).map((farm) => (
-            <option key={farm.$id} value={farm.$id}>
-              {farm.name}
-            </option>
-          ))}
-        </Form.Select>
+        <Box sx={{ position: "relative", width: "100%" }}>
+          <Form.Select
+            className="mb-3 farms-filter-select"
+            onChange={(e) => setSelectedFarm(e.target.value)}
+            value={selectedFarm || ""}
+            style={{
+              paddingRight: "2.5em", // مساحة للسهم
+            }}
+          >
+            <option value="">اختر المزرعة</option>
+            {(farms || []).map((farm) => (
+              <option key={farm.$id} value={farm.$id}>
+                {farm.name}
+              </option>
+            ))}
+          </Form.Select>
+          <ArrowDropDownIcon
+            sx={{
+              position: "absolute",
+              right: "0.2em",
+              top: "50%",
+              transform: "translateY(-50%)",
+              pointerEvents: "none",
+              color: "#444444",
+              fontSize: 32,
+            }}
+          />
+        </Box>
       </Form.Group>
       <style>
         {`
           .farms-filter-select {
-            background: #c62828 !important;
-            color: #fff !important;
-            border: 2px solid #c62828 !important;
-            border-radius: 10px !important;
-            font-weight: bold;
-            box-shadow: 0 2px 8px #ffcdd2;
-            transition: border 0.2s, box-shadow 0.2s;
+            background: #fff !important; 
+            color: rgb(104, 92, 83) !important;
+            border: 1px solid #ccc !important;
+            border-radius: 5px !important;
+            // font-weight: bold;
+            font-size: 1rem;
+            padding: 0.75em 2.5em 0.75em 1.2em !important;
+            // box-shadow: 0 4px 16px #ffcdd2a0;
+            transition: box-shadow 0.2s, border 0.2s;
             cursor: pointer;
           }
           .farms-filter-select:focus {
-            border-color: #ad2323 !important;
-            box-shadow: 0 0 0 2px #ffcdd2;
-            cursor: pointer;
+            box-shadow: 0 0 0 3px #444444;
+            border: none !important;
           }
           .farms-filter-select option {
-            color: #fff;
-            background: #c62828;
-            cursor: pointer;
-            
+            color: #444444;
+            background: #fff;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 10px;
           }
         `}
       </style>

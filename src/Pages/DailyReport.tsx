@@ -130,6 +130,7 @@ export default function DailyReport() {
             component={Paper}
             elevation={3}
             sx={{
+              margin: "0 10px",
               borderRadius: 4,
               boxShadow: "0 4px 24px 0 rgba(198,40,40,0.10)",
               minWidth: { xs: "1200px", md: "900px" },
@@ -152,12 +153,14 @@ export default function DailyReport() {
                   whiteSpace: "nowrap",
                 },
                 "& tbody td": {
-                  textAlign: "center",
-                  fontSize: { xs: 10, md: 15 },
-                  whiteSpace: "nowrap",
+                textAlign: "center",
+                  // border: "1px solid #ddd",
+                  fontSize: { xs: 12, md: 14 },
+                  transition: "background 0.3s",
+                  
                 },
-                "& tbody tr:nth-of-type(odd)": { backgroundColor: "#fff5f5" },
-                "& tbody tr:hover": { backgroundColor: "#ffeaea" },
+                "& tbody tr:nth-of-type(odd)": { backgroundColor: "#fff5" },
+                "& tbody tr:hover": { backgroundColor: "#ffea" },
               }}
             >
               <TableHead>
@@ -197,7 +200,7 @@ export default function DailyReport() {
                         ? label.split(" ").map((word, i, arr) => (
                             <span key={i}>
                               {word}
-                              {i !== arr.length - 1 && <br />}
+                              {i !== arr.length - 1 && "\u00A0"}
                             </span>
                           ))
                         : label}
@@ -240,6 +243,7 @@ export default function DailyReport() {
             .MuiTableContainer-root {
               min-width: 100vw !important;
               box-shadow: none !important;
+              margin: 20px !important;
             }
             .MuiTable-root {
               min-width: 700px !important;

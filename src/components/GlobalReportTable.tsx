@@ -4,6 +4,7 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  Paper,
 } from "@mui/material";
 import {
   filterReportsBeforeDate,
@@ -93,7 +94,7 @@ export default function GlobalReportTable({
           fontWeight: "bold",
           fontSize: 22,
           margin: "16px 0 12px 0",
-          textAlign: "right",
+          textAlign: "center",
         }}
       >
         {dateMode === "day"
@@ -102,68 +103,299 @@ export default function GlobalReportTable({
           ? "تقرير أسبوعي"
           : "تقرير شهري"}
       </h2>
-      <Table
+      <Paper
+        elevation={3}
         sx={{
-          minWidth: 900,
-          borderRadius: 3,
+          borderRadius: 4,
+          // overflow: "hidden", // important for rounded corners!
           boxShadow: "0 2px 12px 0 rgba(198,40,40,0.07)",
-          "& thead tr": {
-            background: "#c62828",
-          },
-          "& thead th": {
-            color: "#fff",
-            fontWeight: "bold",
-            fontSize: { xs: 13, md: 16 },
-            borderBottom: "2px solid #fff",
-            textAlign: "center",
-          },
-          "& tbody td": {
-            textAlign: "center",
-            fontSize: { xs: 12, md: 15 },
-          },
-          "& tbody tr:nth-of-type(odd)": { backgroundColor: "#fff5f5" },
-          "& tbody tr:hover": { backgroundColor: "#ffeaea" },
+          mb: 3,
         }}
       >
-        <TableHead>
-          <TableRow>
-            <TableCell>تاريخ البداية</TableCell>
-            <TableCell>تاريخ النهاية</TableCell>
-            <TableCell>الرصيد التراكمي السابق</TableCell>
-            <TableCell>كمية الإنتاج</TableCell>
-            <TableCell>كمية المبيعات</TableCell>
-            <TableCell>الرصيد التراكمي الحالي</TableCell>
-            <TableCell>عدد الفرخة بداية الفلترة</TableCell>
-            <TableCell>عدد النفوق ضمن فترة الفلترة</TableCell>
-            <TableCell>عدد الفرخة نهاية الفلترة</TableCell>
-            <TableCell>متوسط النفوق</TableCell>
-            <TableCell>كمية العلف المستهلك</TableCell>
-            <TableCell>عدد الأيام</TableCell>
-            <TableCell>متوسط استهلاك الفرخة من العلف</TableCell>
-            <TableCell>متوسط إنتاج البيض</TableCell>
-            <TableCell>كمية السواد المنتج</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow>
-            <TableCell>{startDate.toLocaleDateString()}</TableCell>
-            <TableCell>{endDate.toLocaleDateString()}</TableCell>
-            <TableCell>{previousCumulative}</TableCell>
-            <TableCell>{totalProduction}</TableCell>
-            <TableCell>{totalSales}</TableCell>
-            <TableCell>{currentCumulative}</TableCell>
-            <TableCell>{startingChickenCount}</TableCell>
-            <TableCell>{totalDeaths}</TableCell>
-            <TableCell>{endingChickenCount}</TableCell>
-            <TableCell>{avgDeath}</TableCell>
-            <TableCell>{totalFood}</TableCell>
-            <TableCell>{daysInPeriod}</TableCell>
-            <TableCell>{avgFoodPerChicken}</TableCell>
-            <TableCell>{avgEggProduction}</TableCell>
-            <TableCell>{totalDarkMeat}</TableCell>
-          </TableRow>
-        </TableBody>
-      </Table>
+        <Table
+          sx={{
+            minWidth: 900,
+            "& thead tr": {
+              background: "#b71c1c", // لون أحمر غامق للرأس
+            },
+            "& thead th": {
+              color: "#fff",
+              fontWeight: "bold",
+              fontSize: { xs: 11, md: 16 },
+              borderBottom: "2px solid #fff",
+              textAlign: "center",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              background: "transparent", // احذف هذا السطر إذا أردت اللون يظهر
+            },
+          }}
+        >
+          <TableHead>
+            <TableRow>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                تاريخ البداية
+              </TableCell>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                تاريخ النهاية
+              </TableCell>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                الرصيد التراكمي السابق
+              </TableCell>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                كمية الإنتاج
+              </TableCell>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                كمية المبيعات
+              </TableCell>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                الرصيد التراكمي الحالي
+              </TableCell>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                عدد الفرخة بداية الفلترة
+              </TableCell>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                عدد النفوق ضمن فترة الفلترة
+              </TableCell>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                عدد الفرخة نهاية الفلترة
+              </TableCell>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                متوسط النفوق
+              </TableCell>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                كمية العلف المستهلك
+              </TableCell>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                عدد الأيام
+              </TableCell>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                متوسط استهلاك الفرخة من العلف
+              </TableCell>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                متوسط إنتاج البيض
+              </TableCell>
+              <TableCell
+                sx={{
+                  whiteSpace: "nowrap", // يمنع الكسر
+                  overflow: "hidden",
+                  textOverflow: "ellipsis", // إذا كان طويل جداً يظهر ...
+                  fontWeight: "bold",
+                  color: "#fff",
+                  p: { xs: 0.5, md: 2 },
+                  fontSize: { xs: 11, md: 16 },
+                  borderBottom: "2px solid #fff",
+                  textAlign: "center",
+                  background: "transparent",
+                }}
+              >
+                كمية السواد المنتج
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow>
+              <TableCell>{startDate.toLocaleDateString()}</TableCell>
+              <TableCell>{endDate.toLocaleDateString()}</TableCell>
+              <TableCell>{previousCumulative}</TableCell>
+              <TableCell>{totalProduction}</TableCell>
+              <TableCell>{totalSales}</TableCell>
+              <TableCell>{currentCumulative}</TableCell>
+              <TableCell>{startingChickenCount}</TableCell>
+              <TableCell>{totalDeaths}</TableCell>
+              <TableCell>{endingChickenCount}</TableCell>
+              <TableCell>{avgDeath}</TableCell>
+              <TableCell>{totalFood}</TableCell>
+              <TableCell>{daysInPeriod}</TableCell>
+              <TableCell>{avgFoodPerChicken}</TableCell>
+              <TableCell>{avgEggProduction}</TableCell>
+              <TableCell>{totalDarkMeat}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </Paper>
     </div>
   );
 }

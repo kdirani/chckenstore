@@ -100,16 +100,17 @@ export default function GlobalReportsRecord() {
         <Box
           sx={{
             display: "flex",
-            flexWrap: "wrap",
+            flexWrap: "nowrap",
             justifyContent: "center",
             gap: 2,
             mb: 3,
           }}
         >
           <FarmsFilter />
-          <FormControl size="small" sx={{ minWidth: 140 }}>
+          <FormControl size="small" sx={{ minWidth: 140 ,marginTop: 2}}>
             <InputLabel id="date-mode-label">نوع التقرير</InputLabel>
             <Select
+            sx={{ height: 50 }}
               labelId="date-mode-label"
               value={dateMode}
               label="نوع التقرير"
@@ -156,10 +157,12 @@ export default function GlobalReportsRecord() {
                   borderBottom: "2px solid #fff",
                   textAlign: "center",
                   whiteSpace: "nowrap",
+                  // border: "1px solid #ddd",
                 },
                 "& tbody td": {
                   textAlign: "center",
-                  fontSize: { xs: 11, md: 14 },
+                  // border: "1px solid #ddd",
+                  fontSize: { xs: 12, md: 14 },
                   transition: "background 0.3s",
                 },
                 "& tbody tr:nth-of-type(odd)": { backgroundColor: "#fff5f5" },
@@ -186,15 +189,18 @@ export default function GlobalReportsRecord() {
                     "كمية السواد المنتج",
                     "متوسط إنتاج البيض",
                   ].map((label, idx) => (
-                    <TableCell key={idx}>
-                      {label.includes(" ")
-                        ? label.split(" ").map((word, i, arr) => (
-                            <span key={i}>
-                              {word}
-                              {i !== arr.length - 1 && <br />}
-                            </span>
-                          ))
-                        : label}
+                    <TableCell
+                      key={idx}
+                      sx={{
+                        whiteSpace: "nowrap",      // يمنع الكسر
+                        overflow: "hidden",        // يخفي الزائد
+                        textOverflow: "ellipsis",  // يضع ... إذا كان طويل
+                        fontWeight: "bold",
+                        color: "#fff",
+                        textAlign: "center",
+                      }}
+                    >
+                      {label}
                     </TableCell>
                   ))}
                 </TableRow>

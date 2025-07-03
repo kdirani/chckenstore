@@ -145,8 +145,11 @@ export default function GlobalReports() {
               padding: 4px !important;
             }
           }
+
+          
         `}
       </style>
     </Box>
+    
   );
 }

@@ -1,18 +1,43 @@
 "use client";
-import React, { useEffect } from "react";
-import { Box, Typography, Stack, Container } from "@mui/material";
+import  { useEffect, useState } from "react";
+import { Box, Typography, Container, IconButton } from "@mui/material";
+import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
 import FarmImage from "../components/FarmImage";
 import farmImg1 from "../assets/1.jpeg";
 import farmImg2 from "../assets/2.jpg";
 import farmImg3 from "../assets/3.jpg";
 // ===== الصفحة الرئيسية =====
+const images = [
+  { src: farmImg1, alt: "مزرعة دواجن 1" },
+  { src: farmImg2, alt: "مزرعة دواجن 2" },
+  { src: farmImg3, alt: "مزرعة دواجن 3" },
+];
+
 export default function HomePage() {
+  const [current, setCurrent] = useState(0);
+
   useEffect(() => {
     document.body.style.overflowY = "hidden";
     return () => {
       document.body.style.overflowY = "";
     };
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % images.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handlePrev = () => {
+    setCurrent((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleNext = () => {
+    setCurrent((prev) => (prev + 1) % images.length);
+  };
+
   return (
     <Box
       sx={{
@@ -21,11 +46,10 @@ export default function HomePage() {
         overflow: "hidden",
         bgcolor: "#fff",
         background: "linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)",
-        backgroundImage: `url(${farmImg2})`,
+        backgroundImage: `url(${farmImg3})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        // Add a semi-transparent overlay
         "&:before": {
           content: '""',
           position: "absolute",
@@ -44,12 +68,10 @@ export default function HomePage() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          justifyContent: "center",
           position: "relative",
           zIndex: 2,
           minHeight: "100vh",
-          px: { xs: 0.5, sm: 2, md: 0 },
-          mt: { xs: 1, sm: 4, md: 8 },
-          pb: { xs: 1, sm: 2, md: 2 },
         }}
       >
         <Typography
@@ -81,35 +103,71 @@ export default function HomePage() {
           هذا النظام يوفر لك تقارير يومية وشهرية واحصائيات دقيقة لإنتاج المداجن.
         </Typography>
 
-        <Stack
-          direction={{ xs: "column", sm: "row" }}
-          spacing={3}
-          justifyContent="center"
-          alignItems="center"
+        {/* صورة واحدة في الوسط مع انتقال تلقائي وأسهم */}
+        <Box
           sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "100%",
+            minHeight: 400,
             mb: 4,
-            cursor: "pointer", // Pointer cursor for all images
+            position: "relative",
           }}
         >
-          <FarmImage src={farmImg1} alt="مزرعة دواجن" />
-          <Box></Box>
-          <FarmImage src={farmImg2} alt="مزرعة دواجن" />
-
-          <FarmImage src={farmImg3} alt="مزرعة دواجن" />
-        </Stack>
+          <IconButton
+            onClick={handlePrev}
+            sx={{
+              position: "absolute",
+              left: { xs: 0, md: 30 },
+              zIndex: 3,
+              bgcolor: "#c62828",
+              "&:hover": { bgcolor: "rgba(161, 57, 57, 0.9)" },
+            }}
+            aria-label="السابق"
+          >
+            <ArrowBackIos sx={{color:"#fff"}} />
+          </IconButton>
+          <FarmImage
+            src={images[current].src}
+            alt={images[current].alt}
+            sx={{
+              maxWidth: { xs: "100vw", sm: 600 },
+              maxHeight: { xs: 300, sm: 400 },
+              borderRadius: 4,
+              boxShadow: 3,
+              transition: "all 0.5s",
+              objectFit: "cover",
+              mx: 4,
+            }}
+          />
+          <IconButton
+            onClick={handleNext}
+            sx={{
+              position: "absolute",
+              right: { xs: 0, md: 30 },
+              zIndex: 3,
+              bgcolor: "#c62828",
+              "&:hover": { bgcolor: "rgba(161, 57, 57, 0.9)" },
+            }}
+            aria-label="التالي"
+          >
+            <ArrowForwardIos sx={{color:"#fff"}}  />
+          </IconButton>
+        </Box>
 
         <Typography
           variant="body1"
           color="text.secondary"
           sx={{
             mt: 2,
-            fontWeight: 500,
+            fontWeight: "bold",
             fontSize: { xs: 14, sm: 16 },
             textAlign: "center",
+
           }}
         >
-          يمكنك التنقل بين الأقسام من القائمة العلوية للاطلاع على تقارير أو
-          إضافة بيانات جديدة
+          يمكنك التنقل بين الأقسام من القائمة العلوية للاطلاع على تقارير أو إضافة بيانات جديدة
         </Typography>
       </Container>
     </Box>
