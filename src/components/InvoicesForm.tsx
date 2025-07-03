@@ -30,9 +30,26 @@ import AddIcon from "@mui/icons-material/Add";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import type { InvoiceTypes, IInvoice, IRecursiveInvoice } from "../models";
 import { useFarms } from "../contexts";
-import { invoiceService, fileService } from "../lib/appwrite";
+import { invoiceService } from "../lib/appwrite";
 import "../Pages/styles.css";
 import React from "react";
+
+// --- Type Definitions ---
+export type FileMeta = {
+  fid: string;
+  previewUrl: string;
+  downloadUrl: string;
+  mimeType: string;
+};
+
+export type InvoiceItem = {
+  meterial: string;
+  unit: string;
+  amount: number;
+  price: number;
+  files: FileList | null;
+  fileName?: string;
+};
 
 const Transition = React.forwardRef(function Transition(
   props: any,
@@ -99,25 +116,6 @@ export default function InvoicesForm() {
     );
   };
 
-  // تحميل بيانات الملفات للفاتورة
-  const loadInvoiceFiles = async (fileIds: string[] = []) => {
-    const fileMetas: FileMeta[] = [];
-    for (const fid of fileIds) {
-      try {
-        const res = await fileService.getFile(fid);
-        fileMetas.push({
-          fid,
-          previewUrl: fileService.getPreview(fid),
-          downloadUrl: fileService.download(fid),
-          mimeType: res.mimeType,
-        });
-      } catch (err) {
-        console.error("خطأ في جلب بيانات الملف", fid, err);
-      }
-    }
-    setExistingFiles(fileMetas);
-  };
-
   // إعادة تعيين النموذج
   const resetForm = () => {
     setType("Sale");
@@ -132,41 +130,6 @@ export default function InvoicesForm() {
     setCurrentInvoiceId(null);
     setEditMode(false);
     setExistingFiles([]);
-  };
-
-  // حذف ملف موجود
-  const handleDeleteFile = async (fileId: string) => {
-    try {
-      // حذف الملف من التخزين
-      await fileService.deleteFile(fileId);
-      // تحديث قائمة الملفات
-      setExistingFiles((prev) => prev.filter((f) => f.fid !== fileId));
-    } catch (err) {
-      console.error("خطأ في حذف الملف", err);
-      alert("حدث خطأ أثناء حذف الملف");
-    }
-  };
-
-  // تحميل فاتورة للتعديل
-  const loadInvoiceForEdit = (invoice: IRecursiveInvoice) => {
-    setType(invoice.type);
-    setIndex(invoice.index);
-    setFarm(invoice.farmId);
-    setDate(invoice.date);
-    setTime(invoice.time);
-    setCustomer(invoice.customer);
-    setInvoiceItems([
-      {
-        meterial: invoice.meterial,
-        unit: invoice.unit,
-        amount: invoice.amount,
-        price: invoice.price,
-        files: null,
-      },
-    ]);
-    setCurrentInvoiceId(invoice.$id);
-    setEditMode(true);
-    loadInvoiceFiles(invoice.fileIds);
   };
 
   // حذف فاتورة
@@ -193,7 +156,7 @@ export default function InvoicesForm() {
     } else if (field === "files") {
       updated[idx].files = value as FileList;
       // أضف هذا السطر لحفظ اسم الملف الأول (إن وجد)
-      updated[idx].fileName = value && value.length > 0 ? value[0].name : "";
+      updated[idx].fileName = value && value.length > 0 && value[0] instanceof File ? value[0].name : "";
     } else {
       updated[idx][field] = value as string;
     }
@@ -271,7 +234,7 @@ export default function InvoicesForm() {
           price: item.price,
           fileIds: existingFiles.map((f) => f.fid),
         };
-        const filesArray = item.files ? Array.from(item.files) : [];
+        const filesArray = item.files ? Array.from(item.files) as File[] : [];
 
         if (editMode && currentInvoiceId) {
           return new Promise<void>((resolve, reject) => {
@@ -981,7 +944,7 @@ export default function InvoicesForm() {
                 fullWidth
               />
               {/* يمكنك إضافة حقول عناصر الفاتورة إذا أردت تعديلها أيضاً */}
-              {editInvoiceData.items && editInvoiceData.items.map((item, idx) => (
+              {editInvoiceData.items && editInvoiceData.items.map((_: InvoiceItem, idx: number) => (
                 <Stack key={idx} direction="row" spacing={1}>
                   <FormControl fullWidth>
                     <InputLabel id="edit-meterial-label">المادة</InputLabel>
