@@ -37,6 +37,7 @@ export interface InvoiceItem {
   amount: number;
   price: number;
   files?: FileList | null;
+  fileName?: string;
 }
 
 type FileMeta = {
@@ -191,6 +192,8 @@ export default function InvoicesForm() {
       updated[idx][field] = Number(value as string);
     } else if (field === "files") {
       updated[idx].files = value as FileList;
+      // أضف هذا السطر لحفظ اسم الملف الأول (إن وجد)
+      updated[idx].fileName = value && value.length > 0 ? value[0].name : "";
     } else {
       updated[idx][field] = value as string;
     }
@@ -303,6 +306,13 @@ export default function InvoicesForm() {
     }
   };
 
+  const handleDeleteItemFile = (idx: number) => {
+    const updated = [...invoiceItems];
+    updated[idx].files = null;
+    updated[idx].fileName = "";
+    setInvoiceItems(updated);
+  };
+
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", p: { xs: 1, sm: 3 } }}>
       <Typography
@@ -320,12 +330,13 @@ export default function InvoicesForm() {
           <FormControl fullWidth>
             <InputLabel id="type-label">نوع الفاتورة</InputLabel>
             <Select
+
               labelId="type-label"
               value={type}
               label="نوع الفاتورة"
               onChange={(e) => setType(e.target.value as InvoiceTypes)}
               disabled={isSubmitting}
-              sx={{ borderRadius: 2 }}
+              sx={{ ml: 1 }}
             >
               <MenuItem value="Sale">بيض</MenuItem>
               <MenuItem value="DarkMeet">سواد</MenuItem>
@@ -333,6 +344,7 @@ export default function InvoicesForm() {
             </Select>
           </FormControl>
           <TextField
+            InputLabelProps={{ shrink: true }}
             label="رقم الفاتورة"
             type="number"
             value={index}
@@ -342,7 +354,9 @@ export default function InvoicesForm() {
             required
             disabled={isSubmitting}
             fullWidth
-            inputProps={{ min: 0 }}
+            inputProps={{
+
+            }}
           />
           <FormControl fullWidth>
             <InputLabel id="farm-label">المزرعة</InputLabel>
@@ -353,7 +367,7 @@ export default function InvoicesForm() {
               onChange={(e) => setFarm(e.target.value)}
               required
               disabled={isSubmitting}
-              sx={{ borderRadius: 2 }}
+              sx={{ mr: -1 }}
             >
               <MenuItem value="">اختر المزرعة</MenuItem>
               {farms.map((f) => (
@@ -367,6 +381,8 @@ export default function InvoicesForm() {
 
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2} mb={2}>
           <TextField
+
+            style={{ marginLeft: "10px" }}
             label="التاريخ"
             type="date"
             value={date}
@@ -387,6 +403,7 @@ export default function InvoicesForm() {
             InputLabelProps={{ shrink: true }}
           />
           <TextField
+            InputLabelProps={{ shrink: true }}
             label="العميل"
             type="text"
             value={customer}
@@ -460,7 +477,7 @@ export default function InvoicesForm() {
                           }
                           required
                           disabled={isSubmitting}
-                          sx={{ borderRadius: 2 }}
+                          sx={{  width: "100px", height: "54px" }}
                         >
                           <MenuItem value="">اختر الوزن</MenuItem>
                           {weightRanges.map((weight) => (
@@ -479,6 +496,7 @@ export default function InvoicesForm() {
                         required
                         disabled={isSubmitting}
                         fullWidth
+
                       />
                     )}
                   </TableCell>
@@ -491,56 +509,90 @@ export default function InvoicesForm() {
                       required
                       disabled={isSubmitting}
                       fullWidth
+                      sx={{
+                        "& .MuiInputBase-input": {
+                          py: 0.7,      // padding عمودي أصغر (يمكنك تقليل الرقم)
+                          height: 40,   // ارتفاع الحقل (عدّل الرقم حسب رغبتك)
+                          fontSize: 14, // حجم الخط
+                        },
+                      }}
                     />
                   </TableCell>
                   <TableCell align="center">
                     <TextField
                       type="number"
-                      value={item.amount}
+                      // value={item.amount}
                       onChange={(e) =>
                         handleItemChange(idx, "amount", e.target.value)
                       }
                       required
                       disabled={isSubmitting}
                       fullWidth
-                      inputProps={{ min: 0 }}
+                        sx={{
+                        "& .MuiInputBase-input": {
+                          py: 0.7,      // padding عمودي أصغر (يمكنك تقليل الرقم)
+                          height: 40,   // ارتفاع الحقل (عدّل الرقم حسب رغبتك)
+                          fontSize: 14, // حجم الخط
+                        },
+                      }}
                     />
                   </TableCell>
                   <TableCell align="center">
                     <TextField
                       type="number"
-                      value={item.price}
+                      // value={item.price}
                       onChange={(e) =>
                         handleItemChange(idx, "price", e.target.value)
                       }
                       required
                       disabled={isSubmitting}
                       fullWidth
-                      inputProps={{ min: 0 }}
+                        sx={{
+                        "& .MuiInputBase-input": {
+                          py: 0.7,      // padding عمودي أصغر (يمكنك تقليل الرقم)
+                          height: 40,   // ارتفاع الحقل (عدّل الرقم حسب رغبتك)
+                          fontSize: 14, // حجم الخط
+                        },
+                      }}
                     />
                   </TableCell>
                   <TableCell align="center">
                     <Stack direction="row" spacing={1} justifyContent="center">
-                      {existingFiles.map((file) => (
-                        <Box key={file.fid} sx={{ position: "relative" }}>
-                          <a
-                            href={file.downloadUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <IconButton size="small" color="primary">
-                              <CloudUploadIcon fontSize="small" />
-                            </IconButton>
-                          </a>
+                      {/* ...existingFiles... (إذا كنت تعرض ملفات عامة) */}
+                      {/* زر رفع الملفات أو اسم الملف */}
+                      {item.fileName ? (
+                        <>
+                          <Typography variant="body2" sx={{ mx: 1 }}>
+                            {item.fileName}
+                          </Typography>
                           <IconButton
                             size="small"
                             color="secondary"
-                            onClick={() => handleDeleteFile(file.fid)}
+                            onClick={() => handleDeleteItemFile(idx)}
+                            disabled={isSubmitting}
                           >
                             <DeleteIcon fontSize="small" />
                           </IconButton>
-                        </Box>
-                      ))}
+                        </>
+                      ) : (
+                        <label>
+                          <input
+                            type="file"
+                            hidden
+                            multiple
+                            onChange={(e) => handleItemChange(idx, "files", e.target.files)}
+                            disabled={isSubmitting}
+                          />
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            component="span"
+                            disabled={isSubmitting}
+                          >
+                            <CloudUploadIcon fontSize="small" />
+                          </IconButton>
+                        </label>
+                      )}
                     </Stack>
                   </TableCell>
                   <TableCell align="center">
@@ -563,7 +615,7 @@ export default function InvoicesForm() {
           spacing={2}
           mb={2}
           justifyContent="space-between"
-          // justifyContent="center"
+        // justifyContent="center"
         >
           <Button
             variant="contained"

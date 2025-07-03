@@ -118,14 +118,14 @@ export default function InvoiceRecord() {
               minWidth: 140,
               bgcolor: "#fff",
               "& .MuiOutlinedInput-root": {
-                borderColor: "#c62828",
-                color: "#c62828",
+                borderColor: "#ccc",
+                color: "rgba(0, 0, 0, 0.47)",
                 fontWeight: "bold",
                 marginRight: 2,
               },
             }}
           >
-            <InputLabel id="invoice-type-label" sx={{ color: "#c62828" }}>
+            <InputLabel id="invoice-type-label" >
               نوع المادة
             </InputLabel>
             <Select
@@ -134,11 +134,12 @@ export default function InvoiceRecord() {
               label="نوع المادة"
               onChange={(e) => setType(e.target.value as InvoiceTypes)}
               sx={{
-                color: "#c62828",
+                height: 50,
+                color: "#ccc",
                 fontWeight: "bold",
                 borderRadius: 1,
 
-                "& .MuiSelect-icon": { color: "#c62828" },
+                "& .MuiSelect-icon": { color: "#ccc" },
               }}
             >
               <MenuItem value="Sale">بيض</MenuItem>
@@ -155,19 +156,13 @@ export default function InvoiceRecord() {
           display: "flex",
           justifyContent: "center",
           mt: 2,
-          px: { xs: 1, sm: 8 }, // هوامش من الطرفين
+          px: { xs: 10, sm: 10 }, // هوامش من الطرفين
         }}
       >
         <TableContainer
           component={Paper}
-          elevation={3}
           sx={{
-            borderRadius: 3,
-            maxWidth: "100vw",
-            minWidth: 900,
-            mx: "auto",
-            mt: 2,
-            boxShadow: "0 4px 24px 0 rgba(198,40,40,0.10)",
+            overflowX: "auto", // مهم للجوال
           }}
         >
           <Table sx={{ minWidth: 900 }}>
@@ -272,7 +267,7 @@ function InvoiceTableRow(props: {
   return (
     <TableRow
       sx={{
-        "&:nth-of-type(odd) td": { background: "#fff6f6" },
+        "&:nth-of-type(odd) td": { background: "#fff" },
         "&:nth-of-type(even) td": { background: "#fff" },
       }}
     >
