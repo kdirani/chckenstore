@@ -21,31 +21,25 @@ import {
   DialogContent,
   DialogActions,
   Stack,
+  Slide,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import AddIcon from "@mui/icons-material/Add";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import type { InvoiceTypes, IInvoice, IRecursiveInvoice } from "../models";
 import { useFarms } from "../contexts";
 import { invoiceService, fileService } from "../lib/appwrite";
 import "../Pages/styles.css";
+import React from "react";
 
-export interface InvoiceItem {
-  meterial: string;
-  unit: string;
-  amount: number;
-  price: number;
-  files?: FileList | null;
-  fileName?: string;
-}
-
-type FileMeta = {
-  fid: string;
-  previewUrl: string;
-  downloadUrl: string;
-  mimeType: string;
-};
+const Transition = React.forwardRef(function Transition(
+  props: any,
+  ref
+) {
+  return <Slide direction="down" ref={ref} {...props} />;
+});
 
 export default function InvoicesForm() {
   const { farms } = useFarms();
@@ -72,6 +66,10 @@ export default function InvoicesForm() {
   const [invoiceToDelete, setInvoiceToDelete] =
     useState<IRecursiveInvoice | null>(null);
   const [existingFiles, setExistingFiles] = useState<FileMeta[]>([]);
+
+  // مودال النجاح
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showDeleteSuccessModal, setShowDeleteSuccessModal] = useState(false);
 
   // قائمة الأوزان للبيض
   const weightRanges = [
@@ -176,7 +174,7 @@ export default function InvoicesForm() {
         setShowDeleteModal(false);
         setInvoiceToDelete(null);
         loadInvoices();
-        alert("تم حذف الفاتورة بنجاح");
+        setShowDeleteSuccessModal(true); // عرض مودال النجاح بعد الحذف
       });
     }
   };
@@ -296,7 +294,7 @@ export default function InvoicesForm() {
       });
 
       await Promise.all(promises);
-      alert(editMode ? "تم تحديث الفاتورة بنجاح" : "تم حفظ الفاتورة بنجاح");
+      setShowSuccessModal(true); // <-- هنا عرض المودال
       resetForm();
       loadInvoices();
     } catch {
@@ -330,7 +328,6 @@ export default function InvoicesForm() {
           <FormControl fullWidth>
             <InputLabel id="type-label">نوع الفاتورة</InputLabel>
             <Select
-
               labelId="type-label"
               value={type}
               label="نوع الفاتورة"
@@ -354,9 +351,7 @@ export default function InvoicesForm() {
             required
             disabled={isSubmitting}
             fullWidth
-            inputProps={{
-
-            }}
+            inputProps={{}}
           />
           <FormControl fullWidth>
             <InputLabel id="farm-label">المزرعة</InputLabel>
@@ -381,7 +376,6 @@ export default function InvoicesForm() {
 
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2} mb={2}>
           <TextField
-
             style={{ marginLeft: "10px" }}
             label="التاريخ"
             type="date"
@@ -477,7 +471,7 @@ export default function InvoicesForm() {
                           }
                           required
                           disabled={isSubmitting}
-                          sx={{  width: "100px", height: "54px" }}
+                          sx={{ width: "100px", height: "54px" }}
                         >
                           <MenuItem value="">اختر الوزن</MenuItem>
                           {weightRanges.map((weight) => (
@@ -496,7 +490,6 @@ export default function InvoicesForm() {
                         required
                         disabled={isSubmitting}
                         fullWidth
-
                       />
                     )}
                   </TableCell>
@@ -511,9 +504,9 @@ export default function InvoicesForm() {
                       fullWidth
                       sx={{
                         "& .MuiInputBase-input": {
-                          py: 0.7,      // padding عمودي أصغر (يمكنك تقليل الرقم)
-                          height: 40,   // ارتفاع الحقل (عدّل الرقم حسب رغبتك)
-                          fontSize: 14, // حجم الخط
+                          py: 0.7,
+                          height: 40,
+                          fontSize: 14,
                         },
                       }}
                     />
@@ -528,11 +521,11 @@ export default function InvoicesForm() {
                       required
                       disabled={isSubmitting}
                       fullWidth
-                        sx={{
+                      sx={{
                         "& .MuiInputBase-input": {
-                          py: 0.7,      // padding عمودي أصغر (يمكنك تقليل الرقم)
-                          height: 40,   // ارتفاع الحقل (عدّل الرقم حسب رغبتك)
-                          fontSize: 14, // حجم الخط
+                          py: 0.7,
+                          height: 40,
+                          fontSize: 14,
                         },
                       }}
                     />
@@ -547,19 +540,17 @@ export default function InvoicesForm() {
                       required
                       disabled={isSubmitting}
                       fullWidth
-                        sx={{
+                      sx={{
                         "& .MuiInputBase-input": {
-                          py: 0.7,      // padding عمودي أصغر (يمكنك تقليل الرقم)
-                          height: 40,   // ارتفاع الحقل (عدّل الرقم حسب رغبتك)
-                          fontSize: 14, // حجم الخط
+                          py: 0.7,
+                          height: 40,
+                          fontSize: 14,
                         },
                       }}
                     />
                   </TableCell>
                   <TableCell align="center">
                     <Stack direction="row" spacing={1} justifyContent="center">
-                      {/* ...existingFiles... (إذا كنت تعرض ملفات عامة) */}
-                      {/* زر رفع الملفات أو اسم الملف */}
                       {item.fileName ? (
                         <>
                           <Typography variant="body2" sx={{ mx: 1 }}>
@@ -580,7 +571,9 @@ export default function InvoicesForm() {
                             type="file"
                             hidden
                             multiple
-                            onChange={(e) => handleItemChange(idx, "files", e.target.files)}
+                            onChange={(e) =>
+                              handleItemChange(idx, "files", e.target.files)
+                            }
                             disabled={isSubmitting}
                           />
                           <IconButton
@@ -615,7 +608,6 @@ export default function InvoicesForm() {
           spacing={2}
           mb={2}
           justifyContent="space-between"
-        // justifyContent="center"
         >
           <Button
             variant="contained"
@@ -763,8 +755,61 @@ export default function InvoicesForm() {
         </Table>
       </TableContainer>
 
+      {/* مودال نجاح حفظ الفاتورة */}
+      <Dialog
+        open={showSuccessModal}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={() => setShowSuccessModal(false)}
+        aria-describedby="success-dialog-description"
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            textAlign: "center",
+            p: 3,
+            minWidth: { xs: 260, sm: 350 },
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 0 }}>
+          <CheckCircleOutlineIcon
+            sx={{ color: "#43a047", fontSize: 60, mb: 1 }}
+          />
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="h6" fontWeight={700} color="#43a047" mb={1}>
+            تم حفظ الفاتورة بنجاح!
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            id="success-dialog-description"
+          >
+            يمكنك الآن إضافة فاتورة أخرى أو تعديل الفواتير.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "#c62828",
+              color: "#fff",
+              fontWeight: 700,
+              borderRadius: 2,
+              px: 4,
+              "&:hover": { backgroundColor: "#b71c1c" },
+            }}
+            onClick={() => setShowSuccessModal(false)}
+          >
+            إغلاق
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* حوار تأكيد الحذف */}
       <Dialog
+        TransitionComponent={Transition}
+        sx={{ borderRadius: 8 }}
         open={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         aria-labelledby="alert-dialog-title"
@@ -773,15 +818,66 @@ export default function InvoicesForm() {
         <DialogTitle id="alert-dialog-title">تأكيد حذف الفاتورة</DialogTitle>
         <DialogContent>
           <Typography>
-            هل أنت متأكد أنك تريد حذف هذه الفاتورة؟ هذه العملية不可 عكسها.
+            هل أنت متأكد أنك تريد حذف هذه الفاتورة؟.
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setShowDeleteModal(false)} color="primary">
             إلغاء
           </Button>
-          <Button onClick={handleDelete} color="secondary" autoFocus>
+          <Button onClick={handleDelete} style={{color:'#b71c1c'}} autoFocus>
             حذف
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* مودال نجاح حذف الفاتورة */}
+      <Dialog
+        open={showDeleteSuccessModal}
+        TransitionComponent={Transition}
+        keepMounted
+        onClose={() => setShowDeleteSuccessModal(false)}
+        aria-describedby="delete-success-dialog-description"
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            textAlign: "center",
+            p: 3,
+            minWidth: { xs: 260, sm: 350 },
+          },
+        }}
+      >
+        <DialogTitle sx={{ pb: 0 }}>
+          <CheckCircleOutlineIcon
+            sx={{ color: "#43a047", fontSize: 60, mb: 1 }}
+          />
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="h6" fontWeight={700} color="#43a047" mb={1}>
+            تم حذف الفاتورة بنجاح!
+          </Typography>
+          <Typography
+            variant="body2"
+            color="text.secondary"
+            id="delete-success-dialog-description"
+          >
+            تم حذف الفاتورة ويمكنك الآن متابعة العمل.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "#c62828",
+              color: "#fff",
+              fontWeight: 700,
+              borderRadius: 2,
+              px: 4,
+              "&:hover": { backgroundColor: "#b71c1c" },
+            }}
+            onClick={() => setShowDeleteSuccessModal(false)}
+          >
+            إغلاق
           </Button>
         </DialogActions>
       </Dialog>
